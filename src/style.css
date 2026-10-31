@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@layer base {
+  html, body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-color: #0b0f19;
+    color: #f8fafc;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  ::selection {
+    background-color: #2563eb;
+    color: #ffffff;
+  }
+
+  h1, h2, h3, h4, .font-heading {
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.01em;
+  }
+  
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Disable default non-responsive browser number spinners */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
+/* Hide scrollbar for clean mobile pill rows */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0px;
+  height: 0px;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Scrollbars for desktop & responsive scroll areas */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0f19;
+}
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
