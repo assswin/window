@@ -665,7 +665,7 @@ export const getLSModelName = (r: CalculationResult, customSuffix?: string): str
  * Standardized short form codes for L.S. Interiors Order Sheet (Vector PDF & Canvas PNG)
  * - sliding window (2 track) -> [SL/SL]
  * - sliding window (2.5 track mesh) -> [SL/SL/MESH]
- * - sliding window (3 track) -> [SL/SL/SL/SL]
+ * - sliding window (3 track) -> [SL/SL/SL]
  * - sliding window (4 track) -> [SL/SL/SL/SL]
  * - open window (single window) -> [OP]
  * - open window (double window) -> [OP/OP]
@@ -679,7 +679,8 @@ export const getLSModelShortForm = (
   if (typeof input === 'string') {
     const clean = input.replace(/^W\d+[a-z]?\s*[•\-]\s*/i, '').trim().toUpperCase();
     if (clean.includes('MESH') || clean.includes('2.5T')) return '[SL/SL/MESH]';
-    if (clean.includes('4T') || clean.includes('4 TRACK') || clean.includes('3T') || clean.includes('3.5T') || clean.includes('SL/SL/SL/SL')) return '[SL/SL/SL/SL]';
+    if (clean.includes('4T') || clean.includes('4 TRACK') || clean.includes('SL/SL/SL/SL')) return '[SL/SL/SL/SL]';
+    if (clean.includes('3T') || clean.includes('3.5T') || clean.includes('3 TRACK') || clean.includes('SL/SL/SL')) return '[SL/SL/SL]';
     if (clean.includes('2T') || clean.includes('SLIDING') || clean.includes('SL/SL')) return '[SL/SL]';
     if (clean.includes('3-OPEN') || clean.includes('TRIPLE') || clean.includes('OP/OP/OP')) return '[OP/OP/OP]';
     if (clean.includes('DOUBLE') || clean.includes('OP/OP')) return '[OP/OP]';
