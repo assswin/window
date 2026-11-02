@@ -2102,6 +2102,17 @@ export const generateLSInteriorsSheetCanvas = (
         ctx.font = `bold ${subSize}px "Plus Jakarta Sans", Arial, sans-serif`;
       }
       ctx.fillText(subText, centerX, subHeaderDividerY + 26);
+    } else if (col.id === 'sashHPcs' || col.id === 'sashWPcs') {
+      // Sub-column header for sash H Pcs / W Pcs (drawn only below subHeaderDividerY, NO top header text to prevent unwanted duplicate "Sash Cut mm")
+      ctx.fillStyle = colColor;
+      const label = col.id === 'sashHPcs' ? 'H Pcs' : 'W Pcs';
+      let pcsSize = 16;
+      ctx.font = `bold ${pcsSize}px "Plus Jakarta Sans", Arial, sans-serif`;
+      while (ctx.measureText(label).width > (col.width - 6) && pcsSize > 9) {
+        pcsSize -= 1;
+        ctx.font = `bold ${pcsSize}px "Plus Jakarta Sans", Arial, sans-serif`;
+      }
+      ctx.fillText(label, centerX, subHeaderDividerY + 26);
     } else if (col.id === 'sashPcs') {
       // Sub-column header for sash pieces (No. of Sash Pcs)
       ctx.fillStyle = colColor;
