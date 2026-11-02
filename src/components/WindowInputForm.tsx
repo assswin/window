@@ -69,7 +69,6 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
 
   const [viewMode, setViewMode] = useState<'single' | 'all'>('single');
   const [error, setError] = useState<string | null>(null);
-  const [openOptionIndex, setOpenOptionIndex] = useState<number | null>(null);
 
   // Synchronize when external props change (e.g. from handleAddWindow, handleDeleteWindow, handleResetAll)
   useEffect(() => {
@@ -305,116 +304,6 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
       unit: activeUnit
     }));
     onSaveAndCalculateAll(preparedWindows);
-  };
-
-  // Small box with option button (a to z) for architectural window labeling
-  const renderOptionButtonBox = (winIndex: number, currentWin: WindowInput) => {
-    const isMenuOpen = openOptionIndex === winIndex;
-    const currentLetter = (currentWin.variantLetter || '').toLowerCase();
-    const alphabet = Array.from({ length: 26 }, (_, i) => String.fromCharCode(97 + i));
-
-    return (
-      <div className="relative inline-flex items-center">
-        {/* Small Box Container */}
-        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700/80 shadow-xs">
-          <span className="text-[10px] font-bold text-slate-400 font-sans uppercase tracking-wider">
-            {t('விருப்பம்', 'Option')}:
-          </span>
-
-          {/* Option Button with Selected Letter & Dropdown Arrow */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setOpenOptionIndex(isMenuOpen ? null : winIndex);
-            }}
-            className="px-2 py-0.5 rounded bg-blue-950/90 hover:bg-blue-900 border border-blue-600/80 text-blue-300 font-mono font-bold text-xs flex items-center gap-1 cursor-pointer transition active:scale-95 shadow-sm"
-            title={t('விருப்ப எழுத்து (a to z) தேர்வு செய்க', 'Select Option Button (a to z)')}
-          >
-            <span className={currentLetter ? 'text-emerald-400 font-bold' : 'text-slate-300'}>
-              {currentLetter ? currentLetter : '-'}
-            </span>
-            <span className="text-[9px] text-blue-400">▾</span>
-          </button>
-        </div>
-
-        {/* Dropdown Menu Popup with (a to z) Buttons */}
-        {isMenuOpen && (
-          <>
-            {/* Click-outside backdrop */}
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setOpenOptionIndex(null)}
-            />
-
-            <div className="absolute left-0 top-full mt-1.5 z-50 p-2.5 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl w-[270px] space-y-2 animate-fade-in">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
-                <span className="text-xs font-bold text-white flex items-center gap-1">
-                  <span>🔤</span>
-                  <span>{t('விருப்ப எழுத்து (a to z)', 'Option Button (a to z)')}</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    updateWindow(winIndex, { variantLetter: '' });
-                    setOpenOptionIndex(null);
-                  }}
-                  className="text-[10px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition cursor-pointer"
-                >
-                  {t('நீக்கு (-)', 'None (-)')}
-                </button>
-              </div>
-
-              {/* 7-column Grid of Buttons for letters 'a' through 'z' */}
-              <div className="grid grid-cols-7 gap-1">
-                {alphabet.map((char) => {
-                  const isSelected = currentLetter === char;
-                  return (
-                    <button
-                      key={char}
-                      type="button"
-                      onClick={() => {
-                        updateWindow(winIndex, { variantLetter: char });
-                        setOpenOptionIndex(null);
-                      }}
-                      className={
-                        'h-7 rounded text-xs font-mono font-bold transition flex items-center justify-center cursor-pointer ' +
-                        (isSelected
-                          ? 'bg-blue-600 text-white shadow-md shadow-blue-500/40 ring-2 ring-blue-400'
-                          : 'bg-slate-950 text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-800')
-                      }
-                      title={`Select option ${char} (W${winIndex + 1}${char})`}
-                    >
-                      {char}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Direct Select dropdown for fast picking */}
-              <div className="pt-1.5 border-t border-slate-800 flex items-center justify-between text-xs">
-                <span className="text-slate-400 text-[11px]">{t('டிராப்டவுன்:', 'Dropdown:')}</span>
-                <select
-                  value={currentLetter}
-                  onChange={(e) => {
-                    updateWindow(winIndex, { variantLetter: e.target.value });
-                    setOpenOptionIndex(null);
-                  }}
-                  className="bg-slate-950 border border-slate-700 rounded px-2 py-0.5 text-xs font-mono text-blue-300 cursor-pointer"
-                >
-                  <option value="">- {t('இல்லை (None)', 'None')} -</option>
-                  {alphabet.map((char) => (
-                    <option key={char} value={char}>
-                      {char} ({char.toUpperCase()})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    );
   };
 
   const activeWin = windows[activeWindowIndex] || windows[0] || createNewWindow(0);
@@ -836,41 +725,42 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
       {viewMode === 'single' ? (
         /* SINGLE WINDOW FOCUSED INPUT CARD */
         <div className="bg-slate-950 rounded-lg p-3 sm:p-4 border border-slate-800 space-y-3.5">
-          {/* Active Window Header: Badge, Title, Live mm & Delete */}
-          <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-800">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-blue-950/80 border border-blue-800/60 text-blue-300 font-mono text-xs font-bold flex-shrink-0">
-                {variantLabels[activeWindowIndex]?.windowLabel || ('W' + (activeWindowIndex + 1))}
-              </span>
-              <span className="text-xs sm:text-sm font-bold text-slate-200">
-                {t(`ஜன்னல் ${variantLabels[activeWindowIndex]?.windowLabel || (activeWindowIndex + 1)}`, `Window ${variantLabels[activeWindowIndex]?.windowLabel || (activeWindowIndex + 1)}`)}
-              </span>
-              <span className="text-xs font-mono text-blue-400 font-semibold">
-                ({getActiveWindowSubtypeBadge()})
-              </span>
+          {/* Active Window Header: Responsive layout, no unwanted option box when empty, clean variant badge */}
+          <div className="space-y-2 pb-3 border-b border-slate-800">
+            {/* Row 1: Badges, Title, Subtype Pill, Variant Tag, and Delete Action */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-blue-950/80 border border-blue-800/60 text-blue-300 font-mono text-xs font-bold flex-shrink-0">
+                  {variantLabels[activeWindowIndex]?.windowLabel || ('W' + (activeWindowIndex + 1))}
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-slate-200 truncate">
+                  {t(`ஜன்னல் ${variantLabels[activeWindowIndex]?.windowLabel || (activeWindowIndex + 1)}`, `Window ${variantLabels[activeWindowIndex]?.windowLabel || (activeWindowIndex + 1)}`)}
+                </span>
+                <span className="text-[11px] font-mono text-blue-400 font-semibold px-2 py-0.5 rounded bg-slate-900 border border-slate-800/80 flex-shrink-0">
+                  {getActiveWindowSubtypeBadge()}
+                </span>
 
-              {/* Small tiny box: Select button with options a to z */}
-              <div className="inline-flex items-center gap-1.5 flex-shrink-0" title={t('துணை வகை எழுத்து தேர்வு (a முதல் z)', 'Select variant letter (a to z)')}>
-                <select
-                  value={activeWin.variantLetter || ''}
-                  onChange={(e) => updateWindow(activeWindowIndex, { variantLetter: e.target.value })}
-                  aria-label="Window variant letter"
-                  className="h-6 px-1.5 py-0 bg-slate-900 hover:bg-slate-800 text-blue-300 hover:text-white border border-blue-500/50 hover:border-blue-400 rounded text-xs font-mono font-bold cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-400 transition shadow-inner"
-                >
-                  <option value="" className="bg-slate-950 text-slate-400">-</option>
-                  {'abcdefghijklmnopqrstuvwxyz'.split('').map((letter) => (
-                    <option key={letter} value={letter} className="bg-slate-950 text-blue-300 font-bold font-mono">
-                      {letter}
-                    </option>
-                  ))}
-                </select>
+                {/* Option Variant Badge - ONLY shown when variant letter has actual value! */}
+                {Boolean(activeWin.variantLetter) && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-950/90 border border-purple-700/70 text-purple-300 font-mono text-xs font-bold shadow-xs">
+                    <span>Variant {activeWin.variantLetter}</span>
+                    <button
+                      type="button"
+                      onClick={() => updateWindow(activeWindowIndex, { variantLetter: '' })}
+                      className="text-purple-400 hover:text-white cursor-pointer ml-0.5 text-xs font-bold leading-none"
+                      title={t('துணை எழுத்தை நீக்குக', 'Remove variant letter')}
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
 
                 {/* Instant variant creation shortcut */}
                 {activeHasVariant && (
                   <button
                     type="button"
                     onClick={() => onAddWindow(windows, { asVariant: true, baseIndex: activeWindowIndex })}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white font-mono text-xs font-bold shadow-sm transition active:scale-95 cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white font-mono text-xs font-bold shadow-sm transition active:scale-95 cursor-pointer flex-shrink-0"
                     title={t(`அடுத்த துணை வகை சேர்க்க W${activeBaseNum}${nextVariantLetter}`, `Add next variant W${activeBaseNum}${nextVariantLetter}`)}
                   >
                     <Plus className="w-3 h-3" />
@@ -878,31 +768,31 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                   </button>
                 )}
               </div>
-            </div>
 
-            <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
-              <div className="text-right">
-                <span className="text-xs sm:text-sm font-mono font-bold text-emerald-400 block leading-tight">
-                  {activeLiveHMM + ' × ' + activeLiveWMM + ' mm'}
-                </span>
-                <span className="text-[10px] text-slate-400 font-mono block">
-                  {activeUnit === 'cm'
-                    ? `${activeValH} cm H × ${activeValW} cm W`
-                    : activeUnit === 'mm'
-                      ? `${activeValH} mm H × ${activeValW} mm W`
-                      : `${activeWin.heightInch}" H × ${activeWin.widthInch}" W`}
-                </span>
-              </div>
-
+              {/* Delete Button */}
               <button
                 type="button"
                 onClick={() => onDeleteWindow(activeWindowIndex)}
-                className="p-1.5 px-2 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-xs transition cursor-pointer active:scale-95 touch-manipulation flex items-center space-x-1 flex-shrink-0"
+                className="p-1.5 px-2.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-xs transition cursor-pointer active:scale-95 touch-manipulation flex items-center space-x-1 flex-shrink-0"
                 title={windows.length > 1 ? ('Delete ' + (variantLabels[activeWindowIndex]?.windowLabel || ('W' + (activeWindowIndex + 1)))) : t('ஜன்னலை நீக்கு / மீட்டமைக்கலாம்', 'Delete Window (Can be restored anytime)')}
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">{t('நீக்கு', 'Delete')}</span>
+                <span className="hidden xs:inline font-bold">{t('நீக்கு', 'Delete')}</span>
               </button>
+            </div>
+
+            {/* Row 2: Dimensions Info (Input format on left, Live Output mm in emerald on right) */}
+            <div className="flex items-center justify-between text-xs font-mono pt-0.5 border-t border-slate-900">
+              <span className="text-slate-400">
+                {activeUnit === 'cm'
+                  ? `${activeValH} cm H × ${activeValW} cm W`
+                  : activeUnit === 'mm'
+                    ? `${activeValH} mm H × ${activeValW} mm W`
+                    : `${activeWin.heightInch}" H × ${activeWin.widthInch}" W`}
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-emerald-400 font-mono">
+                {activeLiveHMM + ' × ' + activeLiveWMM + ' mm'}
+              </span>
             </div>
           </div>
 
@@ -1427,31 +1317,21 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                 key={idx}
                 className="bg-slate-950 rounded-lg p-3 border border-slate-800 space-y-2.5"
               >
-                {/* Responsive Card Header: Window # and dimensions */}
+                {/* Responsive Card Header: Window # and dimensions (clean, no unwanted select box) */}
                 <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-800/60">
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
                     <span className="text-xs font-mono font-bold text-blue-400 px-2 py-0.5 rounded bg-blue-950/80 border border-blue-800/60 flex-shrink-0">
                       {variantLabels[idx]?.windowLabel || win.windowLabel || ('W' + (idx + 1))}
                     </span>
-                    <span className="text-xs font-bold text-slate-200">
+                    <span className="text-xs font-bold text-slate-200 truncate">
                       {t(`ஜன்னல் ${variantLabels[idx]?.windowLabel || (idx + 1)}`, `Window ${variantLabels[idx]?.windowLabel || (idx + 1)}`)}
                     </span>
-                    {/* Small tiny box: Select button with options a to z */}
-                    <div className="inline-flex items-center gap-1 flex-shrink-0" title={t('துணை வகை எழுத்து தேர்வு (a முதல் z)', 'Select variant letter (a to z)')}>
-                      <select
-                        value={win.variantLetter || ''}
-                        onChange={(e) => updateWindow(idx, { variantLetter: e.target.value })}
-                        aria-label="Window variant letter"
-                        className="h-5 px-1 py-0 bg-slate-900 hover:bg-slate-800 text-blue-300 hover:text-white border border-blue-500/50 rounded text-[11px] font-mono font-bold cursor-pointer focus:outline-none"
-                      >
-                        <option value="" className="bg-slate-950 text-slate-400">-</option>
-                        {'abcdefghijklmnopqrstuvwxyz'.split('').map((letter) => (
-                          <option key={letter} value={letter} className="bg-slate-950 text-blue-300 font-bold font-mono">
-                            {letter}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    {/* Variant Badge - ONLY displayed when option letter has a value */}
+                    {Boolean(win.variantLetter) && (
+                      <span className="px-1.5 py-0.5 rounded bg-purple-950/80 border border-purple-700/60 text-purple-300 font-mono text-[10px] font-bold flex-shrink-0">
+                        Variant {win.variantLetter}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center space-x-2 flex-shrink-0">

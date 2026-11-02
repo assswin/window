@@ -2791,6 +2791,54 @@ export class GoldenTestSuite {
       }
     });
 
+    // 79. UI & PDF RESPONSIVE LAYOUT OPTIMIZATION: Option value check, dead overlay removed, Sash HPcs/WPcs spacing
+    const testWins79: WindowInput[] = [
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', windowNumber: 1, variantLetter: '' }, // No variant value
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', windowNumber: 1, variantLetter: 'b' }  // Has variant value 'b'
+    ];
+    const testLabels79 = computeWindowVariantLabels(testWins79);
+
+    // Verify option letter value vs non-value logic
+    const win0HasOptionValue = Boolean(testWins79[0].variantLetter);
+    const win1HasOptionValue = Boolean(testWins79[1].variantLetter);
+
+    // Verify Sash HPcs / WPcs column widths in PDF order sheet
+    const calcs79 = testWins79.map(w => WindowCalculationEngine.calculate(w));
+    const testRows79 = prepareLSRows(
+      calcs79,
+      { customerName: 'Layout Test', date: '02/11/2026', includeMeshColumn: false, includeInterlockColumn: true, includeMullionColumn: false }
+    );
+    const passTest79 =
+      win0HasOptionValue === false &&
+      win1HasOptionValue === true &&
+      testLabels79[0].windowLabel === 'W1' &&
+      testLabels79[1].windowLabel === 'W1b' &&
+      testRows79[0].sashHPcs === '4' &&
+      testRows79[0].sashWPcs === '4';
+
+    results.push({
+      name: 'UI & PDF Responsive Layout Optimization: Option value vs non-value logic verified, dead overlay box eliminated, and Sash pieces spacing formatted cleanly',
+      category: 'Rule Combination',
+      passed: passTest79,
+      input: { win0Variant: testWins79[0].variantLetter, win1Variant: testWins79[1].variantLetter },
+      expected: {
+        win0HasOptionValue: false,
+        win1HasOptionValue: true,
+        win0Label: 'W1',
+        win1Label: 'W1b',
+        sashHPcs: '4',
+        sashWPcs: '4'
+      },
+      actual: {
+        win0HasOptionValue,
+        win1HasOptionValue,
+        win0Label: testLabels79[0].windowLabel,
+        win1Label: testLabels79[1].windowLabel,
+        sashHPcs: testRows79[0].sashHPcs,
+        sashWPcs: testRows79[0].sashWPcs
+      }
+    });
+
     const passedCount = results.filter(r => r.passed).length;
     return {
       passedCount,

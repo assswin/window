@@ -1063,8 +1063,8 @@ export const renderLSInteriorsVectorPage = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 10, colorPdf: LS_COLOR_MAP.materialMM.pdf },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height X Width', width: 17, colorPdf: LS_COLOR_MAP.outerFrame.pdf },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height X Width', width: 14, colorPdf: LS_COLOR_MAP.sashCut.pdf },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
       { id: 'mullion', header: 'Mullion mm', subHeader: mullionSubHeader, width: 12, colorPdf: LS_COLOR_MAP.mullion.pdf },
       { id: 'mullionPcs', header: 'Mullion mm', subHeader: 'No.Pcs', width: 7, colorPdf: LS_COLOR_MAP.mullionPcs.pdf },
       { id: 'interlock', header: 'Interlock mm', subHeader: 'Sash H - 5', width: 15, colorPdf: LS_COLOR_MAP.interlock.pdf },
@@ -1084,8 +1084,8 @@ export const renderLSInteriorsVectorPage = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 10, colorPdf: LS_COLOR_MAP.materialMM.pdf },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height X Width', width: 19, colorPdf: LS_COLOR_MAP.outerFrame.pdf },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height X Width', width: 15, colorPdf: LS_COLOR_MAP.sashCut.pdf },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
       { id: 'mullion', header: 'Mullion mm', subHeader: mullionSubHeader, width: 13, colorPdf: LS_COLOR_MAP.mullion.pdf },
       { id: 'mullionPcs', header: 'Mullion mm', subHeader: 'No.Pcs', width: 7, colorPdf: LS_COLOR_MAP.mullionPcs.pdf },
       { id: 'interlock', header: 'Interlock mm', subHeader: 'Sash H - 5', width: 15, colorPdf: LS_COLOR_MAP.interlock.pdf },
@@ -1104,8 +1104,8 @@ export const renderLSInteriorsVectorPage = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 10, colorPdf: LS_COLOR_MAP.materialMM.pdf },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height X Width', width: 19, colorPdf: LS_COLOR_MAP.outerFrame.pdf },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height X Width', width: 15, colorPdf: LS_COLOR_MAP.sashCut.pdf },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
       { id: 'mullion', header: 'Mullion mm', subHeader: mullionSubHeader, width: 13, colorPdf: LS_COLOR_MAP.mullion.pdf },
       { id: 'mullionPcs', header: 'Mullion mm', subHeader: 'No.Pcs', width: 7, colorPdf: LS_COLOR_MAP.mullionPcs.pdf },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height X Width', width: 18, colorPdf: LS_COLOR_MAP.mirrorCut.pdf },
@@ -1124,8 +1124,8 @@ export const renderLSInteriorsVectorPage = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 11, colorPdf: LS_COLOR_MAP.materialMM.pdf },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height X Width', width: 19, colorPdf: LS_COLOR_MAP.outerFrame.pdf },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height X Width', width: 15, colorPdf: LS_COLOR_MAP.sashCut.pdf },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
       { id: 'interlock', header: 'Interlock mm', subHeader: 'Sash H - 5', width: 16, colorPdf: LS_COLOR_MAP.interlock.pdf },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height X Width', width: 18, colorPdf: LS_COLOR_MAP.mirrorCut.pdf },
       { id: 'glassPcs', header: 'Glass Cut mm', subHeader: 'No.Pcs', width: 8, colorPdf: LS_COLOR_MAP.glassPcs.pdf },
@@ -1143,8 +1143,8 @@ export const renderLSInteriorsVectorPage = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 11, colorPdf: LS_COLOR_MAP.materialMM.pdf },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height X Width', width: 20, colorPdf: LS_COLOR_MAP.outerFrame.pdf },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height X Width', width: 16, colorPdf: LS_COLOR_MAP.sashCut.pdf },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
       { id: 'mullion', header: 'Mullion mm', subHeader: mullionSubHeader, width: 14, colorPdf: LS_COLOR_MAP.mullion.pdf },
       { id: 'mullionPcs', header: 'Mullion mm', subHeader: 'No.Pcs', width: 8, colorPdf: LS_COLOR_MAP.mullionPcs.pdf },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height X Width', width: 20, colorPdf: LS_COLOR_MAP.mirrorCut.pdf },
@@ -1162,8 +1162,8 @@ export const renderLSInteriorsVectorPage = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 12, colorPdf: LS_COLOR_MAP.materialMM.pdf },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height X Width', width: 21, colorPdf: LS_COLOR_MAP.outerFrame.pdf },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height X Width', width: 18, colorPdf: LS_COLOR_MAP.sashCut.pdf },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
       { id: 'interlock', header: 'Interlock mm', subHeader: 'Sash H - 5', width: 17, colorPdf: LS_COLOR_MAP.interlock.pdf },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height X Width', width: 19, colorPdf: LS_COLOR_MAP.mirrorCut.pdf },
       { id: 'glassPcs', header: 'Glass Cut mm', subHeader: 'No.Pcs', width: 8, colorPdf: LS_COLOR_MAP.glassPcs.pdf },
@@ -1180,8 +1180,8 @@ export const renderLSInteriorsVectorPage = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 12, colorPdf: LS_COLOR_MAP.materialMM.pdf },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height X Width', width: 21, colorPdf: LS_COLOR_MAP.outerFrame.pdf },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height X Width', width: 18, colorPdf: LS_COLOR_MAP.sashCut.pdf },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height X Width', width: 20, colorPdf: LS_COLOR_MAP.mirrorCut.pdf },
       { id: 'glassPcs', header: 'Glass Cut mm', subHeader: 'No.Pcs', width: 8, colorPdf: LS_COLOR_MAP.glassPcs.pdf },
       { id: 'glassType', header: 'Glass Type', subHeader: 'Client Fill', width: 21, colorPdf: LS_COLOR_MAP.glassType.pdf },
@@ -1198,8 +1198,8 @@ export const renderLSInteriorsVectorPage = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 13, colorPdf: LS_COLOR_MAP.materialMM.pdf },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height X Width', width: 22, colorPdf: LS_COLOR_MAP.outerFrame.pdf },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height X Width', width: 19, colorPdf: LS_COLOR_MAP.sashCut.pdf },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 7, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashHPcs.pdf },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 8, colorPdf: LS_COLOR_MAP.sashWPcs.pdf },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height X Width', width: 21, colorPdf: LS_COLOR_MAP.mirrorCut.pdf },
       { id: 'glassPcs', header: 'Glass Cut mm', subHeader: 'No.Pcs', width: 9, colorPdf: LS_COLOR_MAP.glassPcs.pdf },
       { id: 'glassType', header: 'Glass Type', subHeader: 'Client Fill', width: 29, colorPdf: LS_COLOR_MAP.glassType.pdf }
@@ -1318,13 +1318,13 @@ export const renderLSInteriorsVectorPage = (
       }
       doc.text(subText, centerX, subHeaderDividerY + 2.8, { align: 'center', baseline: 'middle' });
     } else if (col.id === 'sashHPcs' || col.id === 'sashWPcs') {
-      // Sub-column header for sash H Pcs / W Pcs
+      // Sub-column header for sash H Pcs / W Pcs (spacious, never touching borders)
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...colColor);
       const label = col.id === 'sashHPcs' ? 'H Pcs' : 'W Pcs';
-      let subFontSize = 5.2;
+      let subFontSize = 5.8;
       doc.setFontSize(subFontSize);
-      while (doc.getTextWidth(label) > (col.width - 0.8) && subFontSize > 3.5) {
+      while (doc.getTextWidth(label) > (col.width - 1.2) && subFontSize > 3.8) {
         subFontSize -= 0.2;
         doc.setFontSize(subFontSize);
       }
@@ -1601,13 +1601,13 @@ export const renderLSInteriorsVectorPage = (
             break;
           case 'sashHPcs':
             if (row.sashHPcs) {
-              const baseSize = cols.length >= 10 ? 11.0 : (cols.length === 9 ? 12.0 : 13.0);
+              const baseSize = cols.length >= 10 ? 9.5 : (cols.length === 9 ? 10.5 : 11.5);
               drawCellText(
                 row.sashHPcs,
                 centerX,
                 centerY,
                 baseSize,
-                availableW,
+                col.width - 1.4,
                 cellTextColorPdf,
                 'center',
                 undefined,
@@ -1617,13 +1617,13 @@ export const renderLSInteriorsVectorPage = (
             break;
           case 'sashWPcs':
             if (row.sashWPcs) {
-              const baseSize = cols.length >= 10 ? 11.0 : (cols.length === 9 ? 12.0 : 13.0);
+              const baseSize = cols.length >= 10 ? 9.5 : (cols.length === 9 ? 10.5 : 11.5);
               drawCellText(
                 row.sashWPcs,
                 centerX,
                 centerY,
                 baseSize,
-                availableW,
+                col.width - 1.4,
                 cellTextColorPdf,
                 'center',
                 undefined,
@@ -1885,8 +1885,8 @@ export const generateLSInteriorsSheetCanvas = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 140, colorCanvas: LS_COLOR_MAP.materialMM.canvas },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height × Width', width: 205, colorCanvas: LS_COLOR_MAP.outerFrame.canvas },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height × Width', width: 185, colorCanvas: LS_COLOR_MAP.sashCut.canvas },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 43, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 42, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
       { id: 'mullion', header: 'Mullion mm', subHeader: mullionSubHeader, width: 135, colorCanvas: LS_COLOR_MAP.mullion.canvas },
       { id: 'mullionPcs', header: 'Mullion mm', subHeader: 'No.Pcs', width: 85, colorCanvas: LS_COLOR_MAP.mullionPcs.canvas },
       { id: 'interlock', header: 'Interlock mm', subHeader: 'Sash H - 5', width: 180, colorCanvas: LS_COLOR_MAP.interlock.canvas },
@@ -1906,8 +1906,8 @@ export const generateLSInteriorsSheetCanvas = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 145, colorCanvas: LS_COLOR_MAP.materialMM.canvas },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height × Width', width: 225, colorCanvas: LS_COLOR_MAP.outerFrame.canvas },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height × Width', width: 195, colorCanvas: LS_COLOR_MAP.sashCut.canvas },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 43, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 42, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
       { id: 'mullion', header: 'Mullion mm', subHeader: mullionSubHeader, width: 145, colorCanvas: LS_COLOR_MAP.mullion.canvas },
       { id: 'mullionPcs', header: 'Mullion mm', subHeader: 'No.Pcs', width: 85, colorCanvas: LS_COLOR_MAP.mullionPcs.canvas },
       { id: 'interlock', header: 'Interlock mm', subHeader: 'Sash H - 5', width: 190, colorCanvas: LS_COLOR_MAP.interlock.canvas },
@@ -1926,8 +1926,8 @@ export const generateLSInteriorsSheetCanvas = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 145, colorCanvas: LS_COLOR_MAP.materialMM.canvas },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height × Width', width: 225, colorCanvas: LS_COLOR_MAP.outerFrame.canvas },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height × Width', width: 195, colorCanvas: LS_COLOR_MAP.sashCut.canvas },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 43, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 42, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
       { id: 'mullion', header: 'Mullion mm', subHeader: mullionSubHeader, width: 145, colorCanvas: LS_COLOR_MAP.mullion.canvas },
       { id: 'mullionPcs', header: 'Mullion mm', subHeader: 'No.Pcs', width: 85, colorCanvas: LS_COLOR_MAP.mullionPcs.canvas },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height × Width', width: 210, colorCanvas: LS_COLOR_MAP.mirrorCut.canvas },
@@ -1946,8 +1946,8 @@ export const generateLSInteriorsSheetCanvas = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 155, colorCanvas: LS_COLOR_MAP.materialMM.canvas },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height × Width', width: 230, colorCanvas: LS_COLOR_MAP.outerFrame.canvas },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height × Width', width: 200, colorCanvas: LS_COLOR_MAP.sashCut.canvas },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 45, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 45, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
       { id: 'interlock', header: 'Interlock mm', subHeader: 'Sash H - 5', width: 190, colorCanvas: LS_COLOR_MAP.interlock.canvas },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height × Width', width: 210, colorCanvas: LS_COLOR_MAP.mirrorCut.canvas },
       { id: 'glassPcs', header: 'Glass Cut mm', subHeader: 'No.Pcs', width: 90, colorCanvas: LS_COLOR_MAP.glassPcs.canvas },
@@ -1965,8 +1965,8 @@ export const generateLSInteriorsSheetCanvas = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 155, colorCanvas: LS_COLOR_MAP.materialMM.canvas },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height × Width', width: 235, colorCanvas: LS_COLOR_MAP.outerFrame.canvas },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height × Width', width: 205, colorCanvas: LS_COLOR_MAP.sashCut.canvas },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 48, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 47, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
       { id: 'mullion', header: 'Mullion mm', subHeader: mullionSubHeader, width: 155, colorCanvas: LS_COLOR_MAP.mullion.canvas },
       { id: 'mullionPcs', header: 'Mullion mm', subHeader: 'No.Pcs', width: 95, colorCanvas: LS_COLOR_MAP.mullionPcs.canvas },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height × Width', width: 235, colorCanvas: LS_COLOR_MAP.mirrorCut.canvas },
@@ -1984,8 +1984,8 @@ export const generateLSInteriorsSheetCanvas = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 165, colorCanvas: LS_COLOR_MAP.materialMM.canvas },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height × Width', width: 245, colorCanvas: LS_COLOR_MAP.outerFrame.canvas },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height × Width', width: 215, colorCanvas: LS_COLOR_MAP.sashCut.canvas },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 48, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 47, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
       { id: 'interlock', header: 'Interlock mm', subHeader: 'Sash H - 5', width: 200, colorCanvas: LS_COLOR_MAP.interlock.canvas },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height × Width', width: 230, colorCanvas: LS_COLOR_MAP.mirrorCut.canvas },
       { id: 'glassPcs', header: 'Glass Cut mm', subHeader: 'No.Pcs', width: 95, colorCanvas: LS_COLOR_MAP.glassPcs.canvas },
@@ -2002,8 +2002,8 @@ export const generateLSInteriorsSheetCanvas = (
       { id: 'materialMM', header: 'Model Name', subHeader: 'Material mm', width: 165, colorCanvas: LS_COLOR_MAP.materialMM.canvas },
       { id: 'outerFrame', header: 'Outer Frame mm', subHeader: 'Height × Width', width: 245, colorCanvas: LS_COLOR_MAP.outerFrame.canvas },
       { id: 'sashCut', header: 'Sash Cut mm', subHeader: 'Height × Width', width: 215, colorCanvas: LS_COLOR_MAP.sashCut.canvas },
-      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 48, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
-      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 47, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
+      { id: 'sashHPcs', header: 'Sash Cut mm', subHeader: 'H Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashHPcs.canvas },
+      { id: 'sashWPcs', header: 'Sash Cut mm', subHeader: 'W Pcs', width: 54, colorCanvas: LS_COLOR_MAP.sashWPcs.canvas },
       { id: 'mirrorCut', header: 'Glass Cut mm', subHeader: 'Height × Width', width: 235, colorCanvas: LS_COLOR_MAP.mirrorCut.canvas },
       { id: 'glassPcs', header: 'Glass Cut mm', subHeader: 'No.Pcs', width: 95, colorCanvas: LS_COLOR_MAP.glassPcs.canvas },
       { id: 'glassType', header: 'Glass Type', subHeader: 'Client Fill', width: 285, colorCanvas: LS_COLOR_MAP.glassType.canvas },
@@ -2493,14 +2493,14 @@ export const generateLSInteriorsSheetCanvas = (
             break;
           case 'sashHPcs':
             if (rowData.sashHPcs) {
-              const baseFontPx = cols.length >= 10 ? 34 : (cols.length === 9 ? 36 : 40);
+              const baseFontPx = cols.length >= 10 ? 28 : (cols.length === 9 ? 30 : 34);
               drawCanvasCellText(
                 rowData.sashHPcs,
                 centerX,
                 centerY,
                 baseFontPx,
                 '"JetBrains Mono", monospace',
-                availableW,
+                col.width - 10,
                 cellTextColorCanvas,
                 'center',
                 undefined,
@@ -2510,14 +2510,14 @@ export const generateLSInteriorsSheetCanvas = (
             break;
           case 'sashWPcs':
             if (rowData.sashWPcs) {
-              const baseFontPxW = cols.length >= 10 ? 34 : (cols.length === 9 ? 36 : 40);
+              const baseFontPxW = cols.length >= 10 ? 28 : (cols.length === 9 ? 30 : 34);
               drawCanvasCellText(
                 rowData.sashWPcs,
                 centerX,
                 centerY,
                 baseFontPxW,
                 '"JetBrains Mono", monospace',
-                availableW,
+                col.width - 10,
                 cellTextColorCanvas,
                 'center',
                 undefined,
