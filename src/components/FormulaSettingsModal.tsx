@@ -25,6 +25,7 @@ const STORAGE_KEY_LAST_USED_TAB = 'windowbuilder_last_used_formula_tab';
 const WINDOW_CONFIG_LIST: WindowConfigOption[] = [
   { key: '2-track_sliding', name: '2 Track Sliding (58mm)', tamilName: '2 டிராக் ஸ்லைடிங் (58mm)', category: 'sliding', icon: '🪟' },
   { key: '2-track_sliding_65mm', name: '2 Track Sliding (65mm)', tamilName: '2 டிராக் ஸ்லைடிங் (65mm)', category: 'sliding', icon: '🪟' },
+  { key: '2-track_sliding_85mm', name: '2 Track Door (85mm)', tamilName: '2 டிராக் டோர் (85mm Door)', category: 'sliding', icon: '🚪' },
   { key: '2.5-track_sliding', name: '2.5 Track Sliding (Mesh)', tamilName: '2.5 டிராக் கொசுவலை', category: 'sliding', icon: '🦟' },
   { key: '3-track_sliding', name: '3 Track Sliding (58mm)', tamilName: '3 டிராக் ஸ்லைடிங் (58mm)', category: 'sliding', icon: '🪟' },
   { key: '3-track_sliding_65mm', name: '3 Track Sliding (65mm)', tamilName: '3 டிராக் ஸ்லைடிங் (65mm)', category: 'sliding', icon: '🪟' },
@@ -146,6 +147,9 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
     if (!currentRule) return '';
     if (activeTabKey === '2-track_sliding') {
       return `H-${currentRule.heightDeductionMM} | W/2-${currentRule.widthDeductionMM} | Glass -${currentRule.mirrorHeightDeductionMM} | 58mm`;
+    }
+    if (activeTabKey === '2-track_sliding_85mm') {
+      return `H-${currentRule.heightDeductionMM} | (W-${currentRule.widthDeductionMM})/2 | Glass -${currentRule.mirrorHeightDeductionMM} | 85mm Door`;
     }
     if (activeTabKey === '2-track_sliding_65mm') {
       return `H-${currentRule.heightDeductionMM} | (W-${currentRule.widthDeductionMM})/2 | Glass -${currentRule.mirrorHeightDeductionMM} | 65mm`;
@@ -373,15 +377,17 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                           ? t('அகலத்தில் (W/4) உடன் கூட்டப்படும் மிமீ அளவு', 'Addition in mm added to width quarter (W / 4)')
                           : (activeTabKey === '3-track_sliding_65mm'
                             ? t('அகலத்தில் (W) கூட்டப்பட்டு 3 ஆல் வகுக்கப்படும் மிமீ ((W + 48) / 3)', 'Addition in mm added to width before dividing by 3 ((W + 48) / 3)')
-                            : (activeTabKey === '2-track_sliding_65mm'
-                              ? t('அகலத்தில் (W) கழிக்கப்பட்டு 2 ஆல் வகுக்கப்படும் மிமீ ((W - 22) / 2)', 'Deduction in mm subtracted from width before dividing by 2 ((W - 22) / 2)')
-                              : t('அகலத்தில் (W) இருந்து கழிக்கப்படும் மிமீ அளவு', 'Deduction in mm subtracted from width (W)')))}
+                            : (activeTabKey === '2-track_sliding_85mm'
+                              ? t('அகலத்தில் (W) கழிக்கப்பட்டு 2 ஆல் வகுக்கப்படும் மிமீ ((W - 2) / 2)', 'Deduction in mm subtracted from width before dividing by 2 ((W - 2) / 2)')
+                              : (activeTabKey === '2-track_sliding_65mm'
+                                ? t('அகலத்தில் (W) கழிக்கப்பட்டு 2 ஆல் வகுக்கப்படும் மிமீ ((W - 22) / 2)', 'Deduction in mm subtracted from width before dividing by 2 ((W - 22) / 2)')
+                                : t('அகலத்தில் (W) இருந்து கழிக்கப்படும் மிமீ அளவு', 'Deduction in mm subtracted from width (W)'))))}
                       </span>
                     </div>
                     <span className="text-xs font-mono font-bold text-blue-400 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-900">
                       {activeTabKey === 'no-track_open'
                         ? 'Shutter W = W - ' + currentRule.widthDeductionMM
-                        : (activeTabKey === '2-track_sliding_65mm'
+                        : (activeTabKey === '2-track_sliding_85mm' || activeTabKey === '2-track_sliding_65mm'
                           ? 'Shutter W = (W - ' + currentRule.widthDeductionMM + ') / 2'
                           : (activeTabKey === '3-track_sliding_65mm'
                             ? 'Shutter W = (W + ' + (currentRule.widthAdditionMM ?? 48) + ') / 3'
@@ -397,7 +403,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                     <span className="text-sm font-mono text-slate-300 font-bold">
                       {activeTabKey === 'no-track_open'
                         ? 'W −'
-                        : (activeTabKey === '2-track_sliding_65mm'
+                        : (activeTabKey === '2-track_sliding_85mm' || activeTabKey === '2-track_sliding_65mm'
                           ? '(W −'
                           : (activeTabKey === '3-track_sliding_65mm'
                             ? '(W +'
@@ -469,7 +475,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                       </button>
                     </div>
                     <span className="text-xs font-bold text-slate-400 font-mono">
-                      {activeTabKey === '2-track_sliding_65mm'
+                      {activeTabKey === '2-track_sliding_85mm' || activeTabKey === '2-track_sliding_65mm'
                         ? ') / 2 mm'
                         : (activeTabKey === '3-track_sliding_65mm' ? ') / 3 mm' : 'mm')}
                     </span>
@@ -480,6 +486,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
               {/* Sliding Material Specification Banner (2T, 2.5T, 3T, 4T: 58mm vs 65mm Material) */}
               {(activeTabKey === '2-track_sliding' ||
                 activeTabKey === '2-track_sliding_65mm' ||
+                activeTabKey === '2-track_sliding_85mm' ||
                 activeTabKey === '2.5-track_sliding' ||
                 activeTabKey === '3-track_sliding' ||
                 activeTabKey === '3-track_sliding_65mm' ||

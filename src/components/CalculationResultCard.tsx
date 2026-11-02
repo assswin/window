@@ -56,6 +56,10 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
       return `Ventilator / ${fanInfo} | Direct Inch -> MM (No Added MM)`;
     }
     if (input.windowType === 'sliding') {
+      const is85mm = input.profileSeries === '85mm' || activeRule.profileDepthMM === 85;
+      if (is85mm && input.frameType === '2-track') {
+        return `H-${activeRule.heightDeductionMM} | (W-${activeRule.widthDeductionMM})/2 | -${activeRule.mirrorHeightDeductionMM} glass | 85mm Door`;
+      }
       const is65mm = input.profileSeries === '65mm' || activeRule.profileDepthMM === 65;
       if (is65mm && input.frameType === '2-track') {
         return `H-${activeRule.heightDeductionMM} | (W-${activeRule.widthDeductionMM})/2 | -${activeRule.mirrorHeightDeductionMM} glass | 65mm`;

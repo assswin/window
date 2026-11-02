@@ -510,10 +510,22 @@ export class WindowCalculationEngine {
         shutterType = 'uPVC Single Window Sash';
       }
     } else {
-      // Sliding window
-      const is65mm = input.profileSeries === '65mm' || rule.profileDepthMM === 65 || rule.id.includes('65mm');
+      // Sliding window / door
+      const is85mm = input.profileSeries === '85mm' || rule.profileDepthMM === 85 || rule.id.includes('85mm');
+      const is65mm = !is85mm && (input.profileSeries === '65mm' || rule.profileDepthMM === 65 || rule.id.includes('65mm'));
 
-      if (is65mm && input.frameType === '2-track') {
+      if (is85mm && input.frameType === '2-track') {
+        const hDed = rule.heightDeductionMM ?? 94;
+        const wDed = rule.widthDeductionMM ?? 2;
+        panelHeightMM = Math.max(10, convertedHeightMM - hDed);
+        panelWidthMM = Math.max(10, Math.round((convertedWidthMM - wDed) / 2));
+        panelCount = 2;
+        mirrorDeductionMM = rule.mirrorHeightDeductionMM ?? 152;
+        formulaDesc = `2 Track Sliding Door (85mm): H-${hDed} | (W-${wDed})/2 | -${mirrorDeductionMM} Glass | 85mm Door`;
+        heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
+        widthFormulaStr = `(W - ${wDed}) / 2 = (${convertedWidthMM} - ${wDed}) / 2 = ${panelWidthMM} mm`;
+        shutterType = 'uPVC 85mm Sliding Door Sash';
+      } else if (is65mm && input.frameType === '2-track') {
         const hDed = rule.heightDeductionMM ?? 94;
         const wDed = rule.widthDeductionMM ?? 22;
         panelHeightMM = Math.max(10, convertedHeightMM - hDed);

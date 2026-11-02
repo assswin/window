@@ -2069,7 +2069,7 @@ export class GoldenTestSuite {
     const passAllShortForms =
       getLSModelShortForm(shortFormInputs[0]) === '[SL/SL]' &&
       getLSModelShortForm(shortFormInputs[1]) === '[SL/SL/MESH]' &&
-      getLSModelShortForm(shortFormInputs[2]) === '[SL/SL/SL/SL]' &&
+      getLSModelShortForm(shortFormInputs[2]) === '[SL/SL/SL]' &&
       getLSModelShortForm(shortFormInputs[3]) === '[SL/SL/SL/SL]' &&
       getLSModelShortForm(shortFormInputs[4]) === '[OP]' &&
       getLSModelShortForm(shortFormInputs[5]) === '[OP/OP]' &&
@@ -2080,14 +2080,14 @@ export class GoldenTestSuite {
       getLSModelShortForm(shortFormInputs[10]) === '[VENT/FAN L]';
 
     results.push({
-      name: 'Window Model Short Form Codes: [SL/SL], [SL/SL/MESH], [SL/SL/SL/SL], [OP], [OP/OP], [OP/OP/OP], [FIXED], [VENT]',
+      name: 'Window Model Short Form Codes: [SL/SL], [SL/SL/MESH], [SL/SL/SL], [SL/SL/SL/SL], [OP], [OP/OP], [OP/OP/OP], [FIXED], [VENT]',
       category: 'Rule Combination',
       passed: passAllShortForms,
       input: { count: shortFormInputs.length },
       expected: {
         t2: '[SL/SL]',
         t25: '[SL/SL/MESH]',
-        t3: '[SL/SL/SL/SL]',
+        t3: '[SL/SL/SL]',
         t4: '[SL/SL/SL/SL]',
         singleOpen: '[OP]',
         doubleOpen: '[OP/OP]',
@@ -2261,7 +2261,7 @@ export class GoldenTestSuite {
       res3T65.mirror.heightMM === 1324 &&
       res3T65.mirror.widthMM === 514 &&
       res3T65.mirror.count === 3 &&
-      row3T65.modelName === '[SL/SL/SL/SL]' &&
+      row3T65.modelName === '[SL/SL/SL]' &&
       row3T65.materialMM === '65 mm' &&
       row3T65.sashPcs === '12' &&
       row3T65.interlockMM === '1431 mm';
@@ -2276,7 +2276,7 @@ export class GoldenTestSuite {
         sash: '1436 x 626 mm (3 Pcs)',
         interlock: '1431 mm',
         glass: '1324 x 514 mm (3 Pcs)',
-        model: '[SL/SL/SL/SL]',
+        model: '[SL/SL/SL]',
         materialMM: '65 mm',
         sashPcs: '12'
       },
@@ -2363,8 +2363,8 @@ export class GoldenTestSuite {
     const passTest70 =
       mixedRows[0].materialMM === '58 mm' && mixedRows[0].modelName === '[SL/SL]' &&
       mixedRows[1].materialMM === '65 mm' && mixedRows[1].modelName === '[SL/SL]' &&
-      mixedRows[2].materialMM === '58 mm' && mixedRows[2].modelName === '[SL/SL/SL/SL]' &&
-      mixedRows[3].materialMM === '65 mm' && mixedRows[3].modelName === '[SL/SL/SL/SL]' &&
+      mixedRows[2].materialMM === '58 mm' && mixedRows[2].modelName === '[SL/SL/SL]' &&
+      mixedRows[3].materialMM === '65 mm' && mixedRows[3].modelName === '[SL/SL/SL]' &&
       mixedRows[4].materialMM === '-' && mixedRows[4].modelName === '[OP]';
 
     results.push({
@@ -2375,8 +2375,8 @@ export class GoldenTestSuite {
       expected: {
         r0: { material: '58 mm', model: '[SL/SL]' },
         r1: { material: '65 mm', model: '[SL/SL]' },
-        r2: { material: '58 mm', model: '[SL/SL/SL/SL]' },
-        r3: { material: '65 mm', model: '[SL/SL/SL/SL]' },
+        r2: { material: '58 mm', model: '[SL/SL/SL]' },
+        r3: { material: '65 mm', model: '[SL/SL/SL]' },
         r4: { material: '-', model: '[OP]' }
       },
       actual: {
@@ -2385,6 +2385,149 @@ export class GoldenTestSuite {
         r2: { material: mixedRows[2]?.materialMM, model: mixedRows[2]?.modelName },
         r3: { material: mixedRows[3]?.materialMM, model: mixedRows[3]?.modelName },
         r4: { material: mixedRows[4]?.materialMM, model: mixedRows[4]?.modelName }
+      }
+    });
+
+
+    // 71. 85MM 2-TRACK SLIDING DOOR (H-94, (W-2)/2, Glass -152, Material 85mm, [SL/SL/DOOR])
+    const doorInput85: WindowInput = {
+      windowLabel: '2T 85mm Door',
+      unit: 'inch',
+      widthInch: 72,
+      heightInch: 84,
+      windowType: 'sliding',
+      frameType: '2-track',
+      profileSeries: '85mm',
+      quantity: 1
+    };
+    const resDoor85 = WindowCalculationEngine.calculate(doorInput85);
+    const rowDoor85 = prepareLSRows([resDoor85])[0];
+
+    // 72" W -> 1829 mm, 84" H -> 2134 mm
+    // Sash H: 2134 - 94 = 2040 mm
+    // Sash W: (1829 - 2) / 2 = 1827 / 2 = 913.5 -> 914 mm (2 Shutters)
+    // Interlock: 2040 - 5 = 2035 mm
+    // Glass: 2040 - 152 = 1888 mm (H), 914 - 152 = 762 mm (W), 2 Pcs
+    const doorBg = getLSModelBgColor(rowDoor85);
+    const passTest71 =
+      resDoor85.frame.profileDepthMM === 85 &&
+      resDoor85.panel.heightMM === 2040 &&
+      resDoor85.panel.widthMM === 914 &&
+      resDoor85.panel.count === 2 &&
+      resDoor85.interlockMM === 2035 &&
+      resDoor85.mirror.heightMM === 1888 &&
+      resDoor85.mirror.widthMM === 762 &&
+      resDoor85.mirror.count === 2 &&
+      rowDoor85.modelName === '[SL/SL/DOOR]' &&
+      rowDoor85.materialMM === '85 mm' &&
+      rowDoor85.sashPcs === '8' &&
+      rowDoor85.sashHPcs === '4' &&
+      rowDoor85.sashWPcs === '4' &&
+      rowDoor85.interlockMM === '2035 mm' &&
+      doorBg.canvas === '#f3e8ff';
+
+    results.push({
+      name: '85mm 2-Track Sliding Door: Dedicated Formula (H-94, (W-2)/2, Glass -152, Material 85mm, [SL/SL/DOOR] Unique Color)',
+      category: 'Rule Combination',
+      passed: passTest71,
+      input: { dimensions: '72" x 84"', series: '85mm', frameType: '2-track' },
+      expected: {
+        material: 85,
+        sash: '2040 x 914 mm (2 Pcs)',
+        interlock: '2035 mm',
+        glass: '1888 x 762 mm (2 Pcs)',
+        model: '[SL/SL/DOOR]',
+        materialMM: '85 mm',
+        sashPcs: '8',
+        sashHPcs: '4',
+        sashWPcs: '4',
+        bg: '#f3e8ff'
+      },
+      actual: {
+        material: resDoor85.frame.profileDepthMM,
+        sash: `${resDoor85.panel.heightMM} x ${resDoor85.panel.widthMM} mm (${resDoor85.panel.count} Pcs)`,
+        interlock: `${resDoor85.interlockMM} mm`,
+        glass: `${resDoor85.mirror.heightMM} x ${resDoor85.mirror.widthMM} mm (${resDoor85.mirror.count} Pcs)`,
+        model: rowDoor85.modelName,
+        materialMM: rowDoor85.materialMM,
+        sashPcs: rowDoor85.sashPcs,
+        sashHPcs: rowDoor85.sashHPcs,
+        sashWPcs: rowDoor85.sashWPcs,
+        bg: doorBg.canvas
+      }
+    });
+
+    // 72. 85MM DOOR FORMULA CUSTOMIZATION: Customizable via RulesEngineManager
+    const orig85Rule = RulesEngineManager.getRule('2-track', 'sliding', undefined, '85mm');
+
+    // Customize 85mm door: H-90, W-4/2, Glass-150
+    RulesEngineManager.updateRule('2-track_sliding_85mm', {
+      heightDeductionMM: 90,
+      widthDeductionMM: 4,
+      mirrorHeightDeductionMM: 150,
+      mirrorWidthDeductionMM: 150
+    }, 'User');
+
+    const resDoorCustom = WindowCalculationEngine.calculate(doorInput85);
+
+    // 85mm custom: 2134 - 90 = 2044 mm H; (1829 - 4) / 2 = 1825 / 2 = 912.5 -> 913 mm W; Glass H: 2044 - 150 = 1894 mm
+    const passTest72 =
+      resDoorCustom.panel.heightMM === 2044 &&
+      resDoorCustom.panel.widthMM === 913 &&
+      resDoorCustom.mirror.heightMM === 1894;
+
+    // Restore original rules
+    RulesEngineManager.updateRule('2-track_sliding_85mm', {
+      heightDeductionMM: orig85Rule.heightDeductionMM,
+      widthDeductionMM: orig85Rule.widthDeductionMM,
+      mirrorHeightDeductionMM: orig85Rule.mirrorHeightDeductionMM,
+      mirrorWidthDeductionMM: orig85Rule.mirrorWidthDeductionMM
+    }, 'User');
+
+    results.push({
+      name: '85mm Door Formula Customization: Editable (H-94, (W-2)/2, Glass-152) recalculates dynamically',
+      category: 'Rule Combination',
+      passed: passTest72,
+      input: { customDoor: 'H-90, W-4/2, Glass-150' },
+      expected: {
+        customDoorSash: '2044 x 913 mm',
+        customDoorGlassH: 1894
+      },
+      actual: {
+        customDoorSash: `${resDoorCustom.panel.heightMM} x ${resDoorCustom.panel.widthMM} mm`,
+        customDoorGlassH: resDoorCustom.mirror.heightMM
+      }
+    });
+
+    // 73. MULTI-MATERIAL BATCH PDF ORDER SHEET: 58mm, 65mm, 85mm Door, Open Casement & Fixed Window
+    const resFixed73 = WindowCalculationEngine.calculate({ unit: 'inch', widthInch: 36, heightInch: 48, windowType: 'fixed', frameType: 'no-track' });
+    const fullMixedBatch = prepareLSRows([res2T58, res2T65, resDoor85, resOpenSingle70, resFixed73]);
+
+    const passTest73 =
+      fullMixedBatch[0].materialMM === '58 mm' && fullMixedBatch[0].modelName === '[SL/SL]' &&
+      fullMixedBatch[1].materialMM === '65 mm' && fullMixedBatch[1].modelName === '[SL/SL]' &&
+      fullMixedBatch[2].materialMM === '85 mm' && fullMixedBatch[2].modelName === '[SL/SL/DOOR]' &&
+      fullMixedBatch[3].materialMM === '-' && fullMixedBatch[3].modelName === '[OP]' &&
+      fullMixedBatch[4].materialMM === '-' && fullMixedBatch[4].modelName === '[FIXED]';
+
+    results.push({
+      name: 'Multi-Material Batch PDF Order Sheet: Displays "58 mm", "65 mm", "85 mm" for doors, and "-" for non-sliding windows',
+      category: 'Rule Combination',
+      passed: passTest73,
+      input: { batchCount: fullMixedBatch.length },
+      expected: {
+        r0: { material: '58 mm', model: '[SL/SL]' },
+        r1: { material: '65 mm', model: '[SL/SL]' },
+        r2: { material: '85 mm', model: '[SL/SL/DOOR]' },
+        r3: { material: '-', model: '[OP]' },
+        r4: { material: '-', model: '[FIXED]' }
+      },
+      actual: {
+        r0: { material: fullMixedBatch[0]?.materialMM, model: fullMixedBatch[0]?.modelName },
+        r1: { material: fullMixedBatch[1]?.materialMM, model: fullMixedBatch[1]?.modelName },
+        r2: { material: fullMixedBatch[2]?.materialMM, model: fullMixedBatch[2]?.modelName },
+        r3: { material: fullMixedBatch[3]?.materialMM, model: fullMixedBatch[3]?.modelName },
+        r4: { material: fullMixedBatch[4]?.materialMM, model: fullMixedBatch[4]?.modelName }
       }
     });
 

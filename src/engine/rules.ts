@@ -2,6 +2,9 @@ import { FrameType, WindowType, CasementSubtype, UPVCSeries, ProfileRule, System
 
 // Helper to create rule keys
 export const getRuleKey = (frameType: FrameType, windowType: WindowType, profileSeries?: UPVCSeries): string => {
+  if (profileSeries === '85mm' && windowType === 'sliding') {
+    return '2-track_sliding_85mm';
+  }
   if (profileSeries === '65mm' && windowType === 'sliding') {
     if (frameType === '2-track') return '2-track_sliding_65mm';
     if (frameType === '3-track' || frameType === '3.5-track') return '3-track_sliding_65mm';
@@ -16,6 +19,24 @@ export const WORKSHOP_REFERENCE_PRESET: SystemProfilePreset = {
   description: 'Audited shop formulas: 2T (H-94, W/2-12, -94 glass, 58mm material), 2.5T (H-82, W/2-8, -94 glass, Mesh H-2, W/2-10, 58mm material), 3T (H-91, W/3-11, -94 glass, 58mm material), 4T (H-92, W/4+11, Glass -95, 58mm material), Single Window (H-64, W-64, -124 glass), Double Window (H-64, W/2-37, Mullion H-6, -126 glass), 3-Open Window (H-64, W/3-40, Glass -125, Mullion H-6), Fixed (Direct OU-96 glass).',
   version: 'v2.1-audited',
   rules: {
+    '2-track_sliding_85mm': {
+      id: '2-track_sliding_85mm',
+      frameType: '2-track',
+      windowType: 'sliding',
+      name: '2 Track Sliding Door (85mm Material: H-94, (W-2)/2, Glass -152)',
+      description: 'Sliding 2-Track Door (85mm Series): Shutter Height H-94, Shutter Width (W-2)/2, Glass -152mm, Material 85mm',
+      heightDeductionMM: 94,
+      divisionFactor: 2,
+      widthDeductionMM: 2,
+      overlapMM: 0,
+      sideClearanceMM: 0,
+      mirrorHeightDeductionMM: 152,
+      mirrorWidthDeductionMM: 152,
+      mirrorDeductionReference: 'panel',
+      profileDepthMM: 85,
+      sashProfileWidthMM: 75,
+      glassGrooveDepthMM: 12
+    },
     '2-track_sliding_65mm': {
       id: '2-track_sliding_65mm',
       frameType: '2-track',
@@ -326,6 +347,24 @@ export const JINDAL_STANDARD_PRESET: SystemProfilePreset = {
   description: 'Logical standard for aluminium window fabrication (40mm track deduction, 25mm overlap, 78mm glass rebate).',
   version: 'v1.0-standard',
   rules: {
+    '2-track_sliding_85mm': {
+      id: '2-track_sliding_85mm',
+      frameType: '2-track',
+      windowType: 'sliding',
+      name: '2 Track Sliding Door (85mm Material: H-94, (W-2)/2, Glass -152)',
+      description: 'Sliding 2-Track Door (85mm Series): Shutter Height H-94, Shutter Width (W-2)/2, Glass -152mm, Material 85mm',
+      heightDeductionMM: 94,
+      divisionFactor: 2,
+      widthDeductionMM: 2,
+      overlapMM: 0,
+      sideClearanceMM: 0,
+      mirrorHeightDeductionMM: 152,
+      mirrorWidthDeductionMM: 152,
+      mirrorDeductionReference: 'panel',
+      profileDepthMM: 85,
+      sashProfileWidthMM: 75,
+      glassGrooveDepthMM: 12
+    },
     '2-track_sliding': {
       id: '2-track_sliding',
       frameType: '2-track',
@@ -513,7 +552,9 @@ export class RulesEngineManager {
     const isSliding = windowType === 'sliding';
     let key: string;
     if (isSliding) {
-      if (profileSeries === '65mm') {
+      if (profileSeries === '85mm') {
+        key = '2-track_sliding_85mm';
+      } else if (profileSeries === '65mm') {
         if (frameType === '2-track') key = '2-track_sliding_65mm';
         else if (frameType === '3-track' || frameType === '3.5-track') key = '3-track_sliding_65mm';
         else key = getRuleKey(frameType, windowType);

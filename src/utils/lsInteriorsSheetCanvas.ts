@@ -288,6 +288,9 @@ export interface LSModelBgColor {
  * - VENTILATOR FAN RIGHT: Soft Pink tint ([251, 207, 232] / #fbcfe8)
  */
 export const LS_MODEL_BG_COLOR_MAP: Record<string, LSModelBgColor> = {
+  '2T SLIDING DOOR': { pdf: [243, 232, 255], canvas: '#f3e8ff', name: 'Sliding Door Lavender Purple' },
+  'SL/SL/DOOR': { pdf: [243, 232, 255], canvas: '#f3e8ff', name: 'Sliding Door Lavender Purple' },
+  'DOOR': { pdf: [243, 232, 255], canvas: '#f3e8ff', name: 'Sliding Door Lavender Purple' },
   'TRACK': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
   '2T SLIDING': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
   '2.5T SLIDING (MESH)': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
@@ -342,6 +345,11 @@ export const getLSModelBgColor = (
   // Strip prefix like "W1a • " or "W2 • " if present
   const cleanModel = modelName.replace(/^W\d+[a-z]?\s*[•\-]\s*/i, '').trim();
   const upper = cleanModel.toUpperCase();
+
+  // 0. Door variations ([SL/SL/DOOR], DOOR)
+  if (upper.includes('DOOR') || upper.includes('SL/SL/DOOR')) {
+    return LS_MODEL_BG_COLOR_MAP['2T SLIDING DOOR'];
+  }
 
   // 1. Ventilator variations (Fan Left vs Fan Right vs Normal)
   if (upper.includes('VENT') || upper.includes('FAN')) {
@@ -636,7 +644,9 @@ export const getLSModelName = (r: CalculationResult, customSuffix?: string): str
       base = 'ventilator/normal';
     }
   } else if (windowType === 'sliding') {
-    if (frameType === '2-track') {
+    if (r.input.profileSeries === '85mm' || r.frame?.profileDepthMM === 85) {
+      base = '2T SLIDING DOOR';
+    } else if (frameType === '2-track') {
       base = '2T SLIDING';
     } else if (frameType === '2.5-track') {
       base = '2.5T SLIDING (MESH)';
@@ -684,6 +694,7 @@ export const getLSModelShortForm = (
 ): string => {
   if (typeof input === 'string') {
     const clean = input.replace(/^W\d+[a-z]?\s*[•\-]\s*/i, '').trim().toUpperCase();
+    if (clean.includes('DOOR') || clean.includes('SL/SL/DOOR') || clean.includes('85MM')) return '[SL/SL/DOOR]';
     if (clean.includes('MESH') || clean.includes('2.5T')) return '[SL/SL/MESH]';
     if (clean.includes('4T') || clean.includes('4 TRACK') || clean.includes('SL/SL/SL/SL')) return '[SL/SL/SL/SL]';
     if (clean.includes('3T') || clean.includes('3.5T') || clean.includes('3 TRACK') || clean.includes('SL/SL/SL')) return '[SL/SL/SL]';
@@ -705,6 +716,7 @@ export const getLSModelShortForm = (
   const { frameType, windowType, casementSubtype, ventilatorSubtype, ventilatorFanSide } = winInput;
 
   if (windowType === 'sliding') {
+    if (winInput.profileSeries === '85mm') return '[SL/SL/DOOR]';
     if (frameType === '2-track') return '[SL/SL]';
     if (frameType === '2.5-track') return '[SL/SL/MESH]';
     if (frameType === '3-track' || frameType === '3.5-track') return '[SL/SL/SL]';
@@ -871,8 +883,9 @@ export const prepareLSRows = (
 
     // Material mm: 65 mm for 65mm sliding windows, 58 mm for other sliding windows, '-' for others
     const isSliding = r.input.windowType === 'sliding';
-    const is65mmSliding = isSliding && (r.input.profileSeries === '65mm' || r.frame.profileDepthMM === 65);
-    const materialMM = is65mmSliding ? '65 mm' : (isSliding ? '58 mm' : '-');
+    const is85mmSliding = isSliding && (r.input.profileSeries === '85mm' || r.frame.profileDepthMM === 85);
+    const is65mmSliding = !is85mmSliding && isSliding && (r.input.profileSeries === '65mm' || r.frame.profileDepthMM === 65);
+    const materialMM = is85mmSliding ? '85 mm' : (is65mmSliding ? '65 mm' : (isSliding ? '58 mm' : '-'));
 
     const isFixed = r.input.windowType === 'fixed';
     const modelShortForm = getLSModelShortForm(r);
@@ -1470,16 +1483,20 @@ export const renderLSInteriorsVectorPage = (
           case 'model':
             if (row.modelName) {
               const baseSize = cols.length >= 10 ? 9.2 : (cols.length === 9 ? 10.0 : 11.0);
+              const isDoor = row.modelName.includes('DOOR');
+              const modelColor = isDoor
+                ? ([109, 40, 217] as [number, number, number])
+                : cellTextColorPdf;
               drawCellText(
                 cleanText(row.modelName),
                 centerX,
                 centerY,
                 baseSize,
                 col.width - 2.0,
-                cellTextColorPdf,
+                modelColor,
                 'center',
                 undefined,
-                isFixed
+                isFixed || isDoor
               );
             }
             break;
@@ -2345,6 +2362,8 @@ export const generateLSInteriorsSheetCanvas = (
           case 'model':
             if (rowData.modelName) {
               const baseFontPx = cols.length >= 10 ? 30 : (cols.length === 9 ? 32 : 36);
+              const isDoor = rowData.modelName.includes('DOOR');
+              const modelColorCanvas = isDoor ? '#7c3aed' : cellTextColorCanvas;
               drawCanvasCellText(
                 rowData.modelName,
                 centerX,
@@ -2352,10 +2371,10 @@ export const generateLSInteriorsSheetCanvas = (
                 baseFontPx,
                 '"Plus Jakarta Sans", Arial, sans-serif',
                 col.width - 20,
-                cellTextColorCanvas,
+                modelColorCanvas,
                 'center',
                 undefined,
-                isFixed
+                isFixed || isDoor
               );
             }
             break;

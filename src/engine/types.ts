@@ -3,7 +3,7 @@
 export type FrameType = '2-track' | '2.5-track' | '3.5-track' | '3-track' | '4-track' | 'no-track';
 export type WindowType = 'sliding' | 'open' | 'fixed' | 'ventilator';
 export type UnitType = 'inch' | 'cm' | 'mm';
-export type UPVCSeries = '58mm' | '60mm' | '65mm' | '80mm' | '88mm';
+export type UPVCSeries = '58mm' | '60mm' | '65mm' | '80mm' | '85mm' | '88mm';
 export type GlassType = '5mm_single' | '6mm_toughened' | 'double_glazed';
 
 export type CasementSubtype = 'single' | 'double' | 'triple';

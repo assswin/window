@@ -751,9 +751,11 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
               </span>
               <span className="text-xs font-mono text-blue-400 font-semibold">
                 ({activeWin.windowType === 'sliding'
-                  ? (activeWin.profileSeries === '65mm'
-                      ? `${activeWin.frameType.toUpperCase().replace('-TRACK', 'T')} (65MM)`
-                      : activeWin.frameType.toUpperCase().replace('-TRACK', 'T'))
+                  ? (activeWin.profileSeries === '85mm'
+                      ? '2T DOOR (85MM)'
+                      : (activeWin.profileSeries === '65mm'
+                          ? `${activeWin.frameType.toUpperCase().replace('-TRACK', 'T')} (65MM)`
+                          : activeWin.frameType.toUpperCase().replace('-TRACK', 'T')))
                   : (activeWin.windowType === 'ventilator'
                       ? (activeWin.ventilatorSubtype === 'fan' ? `VENTILATOR FAN ${activeWin.ventilatorFanSide === 'right' ? 'R' : 'L'}` : 'VENTILATOR')
                       : 'NO TRACK')})
@@ -1033,30 +1035,30 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
 
               {activeWin.windowType === 'sliding' ? (
                 <div className="space-y-2">
-                  {/* Material Depth Selector: 58mm Standard vs 65mm Special */}
+                  {/* Material Depth Selector: 58mm Standard vs 65mm Special vs 85mm Door */}
                   <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-slate-300">
                         {t('மெட்டீரியல் வகை (Material Series):', 'Material Series (Thickness):')}
                       </span>
                       <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-900/60">
-                        {activeWin.profileSeries === '65mm' ? '65 mm Material' : '58 mm Material'}
+                        {activeWin.profileSeries === '85mm' ? '85 mm Material (Door)' : (activeWin.profileSeries === '65mm' ? '65 mm Material' : '58 mm Material')}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <div className="grid grid-cols-3 gap-1.5">
                       <button
                         type="button"
                         onClick={() => updateWindow(activeWindowIndex, { profileSeries: '58mm' })}
                         className={
-                          'py-1.5 px-2 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
-                          (activeWin.profileSeries !== '65mm'
+                          'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
+                          (activeWin.profileSeries !== '65mm' && activeWin.profileSeries !== '85mm'
                             ? 'bg-amber-600 border-amber-500 text-white shadow-sm'
                             : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white')
                         }
                       >
-                        <div className="leading-tight">58 mm Material</div>
-                        <div className="text-[9.5px] opacity-80 font-normal">
-                          {t('ஸ்டாண்டர்ட் (2T, 2.5T, 3T, 4T)', 'Standard (2T, 2.5T, 3T, 4T)')}
+                        <div className="leading-tight text-[11px]">58 mm</div>
+                        <div className="text-[9px] opacity-80 font-normal">
+                          {t('விண்டோ 2T-4T', 'Window 2T-4T')}
                         </div>
                       </button>
 
@@ -1070,22 +1072,51 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                           updateWindow(activeWindowIndex, updates);
                         }}
                         className={
-                          'py-1.5 px-2 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
+                          'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
                           (activeWin.profileSeries === '65mm'
                             ? 'bg-amber-600 border-amber-500 text-white shadow-sm'
                             : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white')
                         }
                       >
-                        <div className="leading-tight">65 mm Material</div>
-                        <div className="text-[9.5px] opacity-80 font-normal">
-                          {t('ஹெவி (2 Track & 3 Track)', 'Heavy (2 Track & 3 Track)')}
+                        <div className="leading-tight text-[11px]">65 mm</div>
+                        <div className="text-[9px] opacity-80 font-normal">
+                          {t('ஹெவி 2T & 3T', 'Heavy 2T & 3T')}
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateWindow(activeWindowIndex, { profileSeries: '85mm', frameType: '2-track' });
+                        }}
+                        className={
+                          'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
+                          (activeWin.profileSeries === '85mm'
+                            ? 'bg-amber-600 border-amber-500 text-white shadow-sm ring-1 ring-amber-400'
+                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white')
+                        }
+                      >
+                        <div className="leading-tight text-[11px]">85 mm</div>
+                        <div className="text-[9px] opacity-80 font-normal">
+                          {t('டோர் (Door 2T)', 'Door (2T)')}
                         </div>
                       </button>
                     </div>
                   </div>
 
                   {/* Track Frame Buttons */}
-                  {activeWin.profileSeries === '65mm' ? (
+                  {activeWin.profileSeries === '85mm' ? (
+                    <div className="grid grid-cols-1 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => updateWindow(activeWindowIndex, { frameType: '2-track' })}
+                        className="py-2 px-1.5 rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation text-center bg-blue-600 border-blue-500 text-white shadow-sm"
+                      >
+                        <div className="leading-tight">2 Track Door</div>
+                        <div className="text-[10px] opacity-80 font-normal mt-0.5">{t('2 சஷ் டோர் (2 Panels Door)', '2 Panels Door')}</div>
+                      </button>
+                    </div>
+                  ) : activeWin.profileSeries === '65mm' ? (
                     <div className="grid grid-cols-2 gap-1.5">
                       {[
                         { id: '2-track' as FrameType, label: '2 Track', desc: t('2 சஷ் (2 Panels)', '2 Panels') },
@@ -1447,7 +1478,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                   <span>
                     {win.windowType === 'ventilator'
                       ? `VENTILATOR • ${win.ventilatorSubtype === 'fan' ? `FAN (${win.ventilatorFanSide === 'right' ? 'R' : 'LEFT'})` : 'NORMAL'}`
-                      : `${win.frameType.toUpperCase()} • ${win.windowType.toUpperCase()}${win.windowType === 'sliding' && win.profileSeries === '65mm' ? ' • 65MM' : ''}`}
+                      : `${win.frameType.toUpperCase()} • ${win.windowType.toUpperCase()}${win.windowType === 'sliding' && win.profileSeries === '85mm' ? ' • 85MM DOOR' : (win.windowType === 'sliding' && win.profileSeries === '65mm' ? ' • 65MM' : '')}`}
                   </span>
                   <button
                     type="button"
