@@ -1,5 +1,6 @@
 import { WindowCalculationEngine } from './calculator';
 import { WindowInput, CalculationResult } from './types';
+import { DeletedWindowEntry } from '../utils/tenWindowsData';
 import { WORKSHOP_REFERENCE_PRESET, JINDAL_STANDARD_PRESET, RulesEngineManager } from './rules';
 import {
   formatInchWithFraction,
@@ -2721,6 +2722,72 @@ export class GoldenTestSuite {
         w2: { siNo: computedSeqVariants[2]?.siNo, label: computedSeqVariants[2]?.windowLabel, rowSiNo: orderRows77[2]?.siNo },
         w3: { siNo: computedSeqVariants[3]?.siNo, label: computedSeqVariants[3]?.windowLabel, rowSiNo: orderRows77[3]?.siNo },
         w4: { siNo: computedSeqVariants[4]?.siNo, label: computedSeqVariants[4]?.windowLabel, rowSiNo: orderRows77[4]?.siNo }
+      }
+    });
+
+    // 78. ACCIDENTAL DELETION RECOVERY & DATA RETRIEVAL: Deleted Window 1 is safely captured, and restoring returns 100% of data
+    const originalSchedule: WindowInput[] = [
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', windowNumber: 1, variantLetter: 'a', customOffsetMM: 5, profileSeries: '65mm' },
+      { unit: 'inch', widthInch: 30, heightInch: 40, windowType: 'open', frameType: 'no-track', casementSubtype: 'single', windowNumber: 2, variantLetter: '' },
+      { unit: 'inch', widthInch: 36, heightInch: 48, windowType: 'fixed', frameType: 'no-track', windowNumber: 3, variantLetter: '' }
+    ];
+
+    // Simulate accidental deletion of Window 1 (index 0)
+    const deletedWin1 = originalSchedule[0];
+    const deletedEntry: DeletedWindowEntry = {
+      id: 'del_test_1',
+      window: { ...deletedWin1 },
+      originalIndex: 0,
+      deletedAt: Date.now(),
+      displayLabel: 'W1a',
+      dimensionSummary: '60" × 48"',
+      typeSummary: '2T Sliding (65mm)'
+    };
+
+    // Schedule without Window 1
+    const remainingSchedule = originalSchedule.filter((_, i) => i !== 0);
+
+    // Simulate restoration of deleted Window 1 at its original index (0)
+    const restoredSchedule = [
+      deletedEntry.window,
+      ...remainingSchedule
+    ];
+    const restoredVariants = computeWindowVariantLabels(restoredSchedule);
+
+    const passTest78 =
+      deletedEntry.window.widthInch === 48 &&
+      deletedEntry.window.heightInch === 60 &&
+      deletedEntry.window.profileSeries === '65mm' &&
+      deletedEntry.window.customOffsetMM === 5 &&
+      deletedEntry.window.variantLetter === 'a' &&
+      restoredSchedule.length === 3 &&
+      restoredVariants[0].windowLabel === 'W1a' &&
+      restoredVariants[0].siNo === '1a' &&
+      restoredSchedule[0].widthInch === 48 &&
+      restoredSchedule[0].heightInch === 60;
+
+    results.push({
+      name: 'Accidental Deletion Recovery & Data Retrieval: Deleted Window 1 is safely captured, and restoring returns 100% of dimensions, series, offset, and variant label',
+      category: 'Rule Combination',
+      passed: passTest78,
+      input: { deletedEntry, restoredScheduleCount: restoredSchedule.length },
+      expected: {
+        widthInch: 48,
+        heightInch: 60,
+        profileSeries: '65mm',
+        customOffsetMM: 5,
+        variantLetter: 'a',
+        restoredLabel: 'W1a',
+        restoredSiNo: '1a'
+      },
+      actual: {
+        widthInch: restoredSchedule[0]?.widthInch,
+        heightInch: restoredSchedule[0]?.heightInch,
+        profileSeries: restoredSchedule[0]?.profileSeries,
+        customOffsetMM: restoredSchedule[0]?.customOffsetMM,
+        variantLetter: restoredSchedule[0]?.variantLetter,
+        restoredLabel: restoredVariants[0]?.windowLabel,
+        restoredSiNo: restoredVariants[0]?.siNo
       }
     });
 

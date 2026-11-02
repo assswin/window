@@ -3,6 +3,18 @@ import { WindowInput, FrameType, WindowType, UPVCSeries, GlassType, UnitType } f
 export const STORAGE_KEY_10_INPUTS = 'windowbuilder_windows_inputs';
 export const STORAGE_KEY_SAVED_CALCS = 'windowbuilder_saved_calculations';
 export const STORAGE_KEY_GLOBAL_SETTINGS = 'windowbuilder_global_settings';
+export const STORAGE_KEY_DELETED_WINDOWS = 'windowbuilder_deleted_windows';
+export const STORAGE_KEY_RESET_BACKUP = 'windowbuilder_reset_backup';
+
+export interface DeletedWindowEntry {
+  id: string;
+  window: WindowInput;
+  originalIndex: number;
+  deletedAt: number;
+  displayLabel: string;
+  dimensionSummary: string;
+  typeSummary: string;
+}
 
 export interface GlobalSettings {
   conversionFactor: number;
@@ -245,5 +257,39 @@ export const loadStored10Windows = (): WindowInput[] => {
 export const saveStored10Windows = (windows: WindowInput[]) => {
   try {
     localStorage.setItem(STORAGE_KEY_10_INPUTS, JSON.stringify(windows));
+  } catch (_) {}
+};
+
+export const loadDeletedWindows = (): DeletedWindowEntry[] => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_DELETED_WINDOWS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (_) {}
+  return [];
+};
+
+export const saveDeletedWindows = (entries: DeletedWindowEntry[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY_DELETED_WINDOWS, JSON.stringify(entries.slice(0, 30)));
+  } catch (_) {}
+};
+
+export const loadResetBackup = (): WindowInput[] | null => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_RESET_BACKUP);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (_) {}
+  return null;
+};
+
+export const saveResetBackup = (windows: WindowInput[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY_RESET_BACKUP, JSON.stringify(windows));
   } catch (_) {}
 };

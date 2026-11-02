@@ -31,6 +31,8 @@ interface WindowInputFormProps {
   onDeleteWindow: (index: number) => void;
   onOpenFormulaSettings?: () => void;
   rulesVersion?: number;
+  deletedCount?: number;
+  onOpenRestoreModal?: () => void;
 }
 
 export const WindowInputForm: React.FC<WindowInputFormProps> = ({
@@ -43,7 +45,9 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
   onAddWindow,
   onDeleteWindow,
   onOpenFormulaSettings,
-  rulesVersion
+  rulesVersion,
+  deletedCount = 0,
+  onOpenRestoreModal
 }) => {
   const { t } = useLanguage();
   const [windows, setWindows] = useState<WindowInput[]>(initialWindows);
@@ -484,6 +488,19 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
         </div>
 
         <div className="flex items-center space-x-1.5">
+          {/* Restore Deleted Windows Button */}
+          {Boolean(deletedCount > 0 && onOpenRestoreModal) && (
+            <button
+              type="button"
+              onClick={onOpenRestoreModal}
+              className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-amber-950/80 hover:bg-amber-900 text-amber-200 border border-amber-500/70 text-xs font-bold transition cursor-pointer active:scale-95 touch-manipulation shadow-sm animate-pulse"
+              title={t(`நீக்கப்பட்ட ${deletedCount} ஜன்னல்களை மீட்டெடுக்க`, `Restore ${deletedCount} deleted window(s)`)}
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+              <span>{t(`மீட்டெடு (${deletedCount})`, `Restore (${deletedCount})`)}</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => onAddWindow(windows, activeHasVariant ? { asVariant: true, baseIndex: activeWindowIndex } : { asVariant: false })}
@@ -859,17 +876,15 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                 </span>
               </div>
 
-              {windows.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => onDeleteWindow(activeWindowIndex)}
-                  className="p-1.5 px-2 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-xs transition cursor-pointer active:scale-95 touch-manipulation flex items-center space-x-1 flex-shrink-0"
-                  title={'Delete ' + (variantLabels[activeWindowIndex]?.windowLabel || ('W' + (activeWindowIndex + 1)))}
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span className="hidden xs:inline">{t('நீக்கு', 'Delete')}</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => onDeleteWindow(activeWindowIndex)}
+                className="p-1.5 px-2 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-xs transition cursor-pointer active:scale-95 touch-manipulation flex items-center space-x-1 flex-shrink-0"
+                title={windows.length > 1 ? ('Delete ' + (variantLabels[activeWindowIndex]?.windowLabel || ('W' + (activeWindowIndex + 1)))) : t('ஜன்னலை நீக்கு / மீட்டமைக்கலாம்', 'Delete Window (Can be restored anytime)')}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">{t('நீக்கு', 'Delete')}</span>
+              </button>
             </div>
           </div>
 
@@ -1425,17 +1440,15 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                     <span className="text-xs font-mono font-bold text-emerald-400">
                       {hMM + ' × ' + wMM + ' mm'}
                     </span>
-                    {windows.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => onDeleteWindow(idx)}
-                        className="p-1 px-2 rounded bg-rose-950/50 hover:bg-rose-900 text-rose-300 border border-rose-800/50 text-xs transition cursor-pointer flex items-center space-x-1"
-                        title={'Delete ' + (variantLabels[idx]?.windowLabel || ('W' + (idx + 1)))}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span className="text-[10px]">{t('நீக்கு', 'Delete')}</span>
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => onDeleteWindow(idx)}
+                      className="p-1 px-2 rounded bg-rose-950/50 hover:bg-rose-900 text-rose-300 border border-rose-800/50 text-xs transition cursor-pointer flex items-center space-x-1"
+                      title={windows.length > 1 ? ('Delete ' + (variantLabels[idx]?.windowLabel || ('W' + (idx + 1)))) : t('ஜன்னலை நீக்கு / மீட்டமைக்கலாம்', 'Delete Window (Can be restored anytime)')}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span className="text-[10px]">{t('நீக்கு', 'Delete')}</span>
+                    </button>
                   </div>
                 </div>
 

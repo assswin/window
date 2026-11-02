@@ -16,8 +16,14 @@ import {
   saveStored10Windows,
   DEFAULT_10_WINDOWS,
   STORAGE_KEY_SAVED_CALCS,
-  createNewWindow
+  createNewWindow,
+  DeletedWindowEntry,
+  loadDeletedWindows,
+  saveDeletedWindows,
+  loadResetBackup,
+  saveResetBackup
 } from './utils/tenWindowsData';
+import { RestoreDeletedModal } from './components/RestoreDeletedModal';
 import { computeWindowVariantLabels, resolveWindowNumbers } from './utils/lsInteriorsSheetCanvas';
 import {
   SlidersHorizontal,
@@ -27,7 +33,10 @@ import {
   ChevronRight,
   ShieldCheck,
   FileText,
-  FileSpreadsheet
+  FileSpreadsheet,
+  RotateCcw,
+  X,
+  Check
 } from 'lucide-react';
 
 // Pure helper to safely calculate results for all windows with variant labels (e.g. W1a, W2b)
@@ -136,6 +145,18 @@ export const App: React.FC = () => {
   const [isLegalOpen, setIsLegalOpen] = useState<boolean>(false);
   const [legalTab, setLegalTab] = useState<LegalTab>('terms');
 
+  // Accidental deletion recovery state
+  const [deletedWindows, setDeletedWindows] = useState<DeletedWindowEntry[]>([]);
+  const [isRestoreModalOpen, setIsRestoreModalOpen] = useState<boolean>(false);
+  const [undoToast, setUndoToast] = useState<{
+    visible: boolean;
+    entry?: DeletedWindowEntry;
+    title: string;
+    description: string;
+    isReset?: boolean;
+  } | null>(null);
+  const [priorResetBackup, setPriorResetBackup] = useState<WindowInput[] | null>(null);
+
   // Saved calculations
   const [savedCalculations, setSavedCalculations] = useState<CalculationResult[]>([]);
 
@@ -146,6 +167,12 @@ export const App: React.FC = () => {
       if (storedHistory) {
         setSavedCalculations(JSON.parse(storedHistory));
       }
+    } catch (_) {}
+
+    // Load deleted windows and reset backup
+    try {
+      setDeletedWindows(loadDeletedWindows());
+      setPriorResetBackup(loadResetBackup());
     } catch (_) {}
 
     // Synchronize variant labels on mount
@@ -160,6 +187,15 @@ export const App: React.FC = () => {
       setResults(initialResults);
     } catch (_) {}
   }, []);
+
+  // Auto-dismiss undo notification toast after 12 seconds
+  useEffect(() => {
+    if (!undoToast?.visible) return;
+    const timer = setTimeout(() => {
+      setUndoToast((prev) => (prev ? { ...prev, visible: false } : null));
+    }, 12000);
+    return () => clearTimeout(timer);
+  }, [undoToast?.visible, undoToast?.entry?.id, undoToast?.isReset]);
 
   // Smooth Horizontal Scroll helper
   const scrollToScreen = (index: number) => {
@@ -236,8 +272,31 @@ export const App: React.FC = () => {
     scrollToScreen(1);
   };
 
-  // Reset to standard dimensions
+  // Reset to standard dimensions with undo backup protection
   const handleResetAll = () => {
+    // Save snapshot of current windows before resetting
+    setPriorResetBackup(windows);
+    saveResetBackup(windows);
+
+    // Also push custom windows into deletedWindows so each can be restored individually
+    const customWindows = windows.filter(
+      (w) => w.widthInch !== 48 || w.heightInch !== 60 || Boolean(w.variantLetter) || w.windowType !== 'sliding'
+    );
+    if (customWindows.length > 0) {
+      const newEntries: DeletedWindowEntry[] = customWindows.map((w, idx) => ({
+        id: `reset_${Date.now()}_${idx}`,
+        window: { ...w },
+        originalIndex: idx,
+        deletedAt: Date.now(),
+        displayLabel: w.windowLabel || `W${idx + 1}`,
+        dimensionSummary: `${w.heightInch}" × ${w.widthInch}"`,
+        typeSummary: `${w.windowType.toUpperCase()}`
+      }));
+      const merged = [...newEntries, ...deletedWindows].slice(0, 30);
+      setDeletedWindows(merged);
+      saveDeletedWindows(merged);
+    }
+
     const defaultResults = calculateResultsSafely(DEFAULT_10_WINDOWS);
     const syncedWins = DEFAULT_10_WINDOWS.map((w, idx) => ({
       ...w,
@@ -247,6 +306,33 @@ export const App: React.FC = () => {
     saveStored10Windows(syncedWins);
     setResults(defaultResults);
     setActiveWindowIndex(0);
+
+    setUndoToast({
+      visible: true,
+      isReset: true,
+      title: 'அளவுகள் மீட்டமைக்கப்பட்டன (Reset to Default)',
+      description: 'முந்தைய அளவுகளை மீட்டெடுக்க Undo செய்க'
+    });
+  };
+
+  // Undo Reset All to restore prior custom windows
+  const handleUndoReset = () => {
+    if (!priorResetBackup || priorResetBackup.length === 0) return;
+    const updatedResults = calculateResultsSafely(priorResetBackup);
+    const syncedWins = priorResetBackup.map((w, idx) => ({
+      ...w,
+      windowLabel: updatedResults[idx]?.input.windowLabel || `W${idx + 1}`
+    }));
+    setWindows(syncedWins);
+    saveStored10Windows(syncedWins);
+    setResults(updatedResults);
+    setPriorResetBackup(null);
+    setUndoToast({
+      visible: true,
+      title: '✅ முந்தைய அளவுகள் மீட்டெடுக்கப்பட்டன (Reset Undone)',
+      description: `${syncedWins.length} ஜன்னல்களின் அளவுகள் மீட்டெடுக்கப்பட்டன`
+    });
+    setTimeout(() => setUndoToast(null), 4000);
   };
 
   // Re-calculate all current windows when formula deduction numbers are customized
@@ -358,10 +444,103 @@ export const App: React.FC = () => {
     }
   };
 
-  // Delete window (if more than 1)
+  // Delete window and store in recovery history for instantaneous retrieval
   const handleDeleteWindow = (index: number) => {
-    if (windows.length <= 1) return;
-    const updated = windows.filter((_, i) => i !== index);
+    if (index < 0 || index >= windows.length) return;
+    const targetWin = windows[index];
+    const targetLabel = results[index]?.input.windowLabel || targetWin.windowLabel || `W${index + 1}`;
+    const unit = targetWin.unit || 'inch';
+    const dimSummary = unit === 'cm'
+      ? `${targetWin.heightCm || ''} cm × ${targetWin.widthCm || ''} cm`
+      : unit === 'mm'
+        ? `${targetWin.heightMM || ''} mm × ${targetWin.widthMM || ''} mm`
+        : `${targetWin.heightInch}" × ${targetWin.widthInch}"`;
+    const typeSummary = targetWin.windowType === 'sliding'
+      ? `${targetWin.frameType.toUpperCase().replace('-TRACK', 'T')} Sliding (${targetWin.profileSeries || '58mm'})`
+      : targetWin.windowType === 'ventilator'
+        ? `Ventilator (${targetWin.ventilatorSubtype || 'normal'})`
+        : `${targetWin.windowType.toUpperCase()}`;
+
+    const deletedEntry: DeletedWindowEntry = {
+      id: `del_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      window: { ...targetWin },
+      originalIndex: index,
+      deletedAt: Date.now(),
+      displayLabel: targetLabel,
+      dimensionSummary: dimSummary,
+      typeSummary
+    };
+
+    const updatedDeleted = [deletedEntry, ...deletedWindows].slice(0, 30);
+    setDeletedWindows(updatedDeleted);
+    saveDeletedWindows(updatedDeleted);
+
+    if (windows.length <= 1) {
+      // If deleting the only remaining window, reset to clean blank state while saving backup
+      const blankWin = createNewWindow(0);
+      const updated = [blankWin];
+      const updatedResults = calculateResultsSafely(updated);
+      setWindows(updated);
+      saveStored10Windows(updated);
+      setResults(updatedResults);
+      setActiveWindowIndex(0);
+    } else {
+      const updated = windows.filter((_, i) => i !== index);
+      const updatedResults = calculateResultsSafely(updated);
+      const syncedWins = updated.map((w, idx) => ({
+        ...w,
+        windowLabel: updatedResults[idx]?.input.windowLabel || `W${idx + 1}`
+      }));
+      setWindows(syncedWins);
+      saveStored10Windows(syncedWins);
+      setResults(updatedResults);
+      setActiveWindowIndex((prev) => Math.min(prev, syncedWins.length - 1));
+    }
+
+    setUndoToast({
+      visible: true,
+      entry: deletedEntry,
+      title: `${targetLabel} நீக்கப்பட்டது (Deleted)`,
+      description: `${dimSummary} • ${typeSummary}`
+    });
+  };
+
+  // Restore a deleted window back into the schedule
+  const handleRestoreDeletedWindow = (id?: string) => {
+    let entryToRestore: DeletedWindowEntry | undefined;
+    if (id) {
+      entryToRestore = deletedWindows.find((d) => d.id === id);
+    } else {
+      entryToRestore = deletedWindows[0];
+    }
+    if (!entryToRestore) return;
+
+    const remainingDeleted = deletedWindows.filter((d) => d.id !== entryToRestore!.id);
+    setDeletedWindows(remainingDeleted);
+    saveDeletedWindows(remainingDeleted);
+
+    const winToInsert = { ...entryToRestore.window };
+    let updated: WindowInput[];
+    let newActiveIdx = 0;
+
+    const isSingleDefault = windows.length === 1 &&
+      windows[0].widthInch === 48 &&
+      windows[0].heightInch === 60 &&
+      !windows[0].variantLetter;
+
+    if (isSingleDefault) {
+      updated = [winToInsert];
+      newActiveIdx = 0;
+    } else {
+      const insertIdx = Math.min(entryToRestore.originalIndex, windows.length);
+      updated = [
+        ...windows.slice(0, insertIdx),
+        winToInsert,
+        ...windows.slice(insertIdx)
+      ];
+      newActiveIdx = insertIdx;
+    }
+
     const updatedResults = calculateResultsSafely(updated);
     const syncedWins = updated.map((w, idx) => ({
       ...w,
@@ -370,7 +549,56 @@ export const App: React.FC = () => {
     setWindows(syncedWins);
     saveStored10Windows(syncedWins);
     setResults(updatedResults);
-    setActiveWindowIndex((prev) => Math.min(prev, syncedWins.length - 1));
+    setActiveWindowIndex(newActiveIdx);
+
+    setUndoToast({
+      visible: true,
+      title: `✅ ${entryToRestore.displayLabel} மீட்டெடுக்கப்பட்டது (Restored)`,
+      description: `${entryToRestore.dimensionSummary} • ${entryToRestore.typeSummary}`
+    });
+    setTimeout(() => {
+      setUndoToast((prev) => (prev?.entry?.id === entryToRestore!.id ? null : prev));
+    }, 4000);
+  };
+
+  // Restore all deleted windows in recovery history
+  const handleRestoreAllDeleted = () => {
+    if (deletedWindows.length === 0) return;
+    const restoredList = deletedWindows.map((d) => ({ ...d.window }));
+    setDeletedWindows([]);
+    saveDeletedWindows([]);
+
+    const updated = [...windows, ...restoredList];
+    const updatedResults = calculateResultsSafely(updated);
+    const syncedWins = updated.map((w, idx) => ({
+      ...w,
+      windowLabel: updatedResults[idx]?.input.windowLabel || `W${idx + 1}`
+    }));
+    setWindows(syncedWins);
+    saveStored10Windows(syncedWins);
+    setResults(updatedResults);
+    setActiveWindowIndex(windows.length);
+    setIsRestoreModalOpen(false);
+
+    setUndoToast({
+      visible: true,
+      title: `✅ ${restoredList.length} ஜன்னல்கள் மீட்டெடுக்கப்பட்டன (All Restored)`,
+      description: 'அனைத்து நீக்கப்பட்ட ஜன்னல்களும் அட்டவணையில் சேர்க்கப்பட்டன'
+    });
+    setTimeout(() => setUndoToast(null), 4000);
+  };
+
+  // Permanently remove a single entry from trash
+  const handlePermanentlyDelete = (id: string) => {
+    const updated = deletedWindows.filter((d) => d.id !== id);
+    setDeletedWindows(updated);
+    saveDeletedWindows(updated);
+  };
+
+  // Clear all deleted history
+  const handleClearDeletedWindows = () => {
+    setDeletedWindows([]);
+    saveDeletedWindows([]);
   };
 
   const handleExportPDF = () => {
@@ -512,6 +740,8 @@ export const App: React.FC = () => {
               onDeleteWindow={handleDeleteWindow}
               onOpenFormulaSettings={() => setIsFormulaSettingsOpen(true)}
               rulesVersion={rulesVersion}
+              deletedCount={deletedWindows.length}
+              onOpenRestoreModal={() => setIsRestoreModalOpen(true)}
             />
           </div>
         </section>
@@ -581,6 +811,8 @@ export const App: React.FC = () => {
               onDeleteWindow={handleDeleteWindow}
               onOpenFormulaSettings={() => setIsFormulaSettingsOpen(true)}
               rulesVersion={rulesVersion}
+              deletedCount={deletedWindows.length}
+              onOpenRestoreModal={() => setIsRestoreModalOpen(true)}
             />
           </div>
         </section>
@@ -754,6 +986,64 @@ export const App: React.FC = () => {
         onClose={() => setIsLegalOpen(false)}
         initialTab={legalTab}
       />
+
+      {/* Restore Deleted Windows Modal */}
+      <RestoreDeletedModal
+        isOpen={isRestoreModalOpen}
+        onClose={() => setIsRestoreModalOpen(false)}
+        deletedWindows={deletedWindows}
+        onRestoreWindow={handleRestoreDeletedWindow}
+        onRestoreAll={handleRestoreAllDeleted}
+        onPermanentlyDelete={handlePermanentlyDelete}
+        onClearAll={handleClearDeletedWindows}
+      />
+
+      {/* Floating Undo Notification Toast */}
+      {undoToast && undoToast.visible && (
+        <aside
+          aria-label="Undo Notification"
+          className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[94%] sm:w-auto min-w-[320px] max-w-lg bg-slate-900/95 border-2 border-amber-500/80 backdrop-blur-md rounded-xl p-3 sm:p-3.5 shadow-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 font-bold border border-amber-500/40">
+              <RotateCcw className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-white truncate">
+                {undoToast.title}
+              </div>
+              <div className="text-[11px] text-amber-200/90 truncate font-mono">
+                {undoToast.description}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                if (undoToast.isReset) {
+                  handleUndoReset();
+                } else {
+                  handleRestoreDeletedWindow(undoToast.entry?.id);
+                }
+              }}
+              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs flex items-center gap-1 shadow-md cursor-pointer transition touch-manipulation"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>{undoToast.isReset ? 'Undo Reset' : 'Undo / மீட்டெடு'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setUndoToast(null)}
+              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+              title="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </aside>
+      )}
     </div>
   );
 };
