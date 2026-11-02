@@ -124,7 +124,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
     doc.setTextColor(148, 163, 184); // slate-400
     const material = result.input.profileSeries || (result.input.windowType === 'sliding' ? '58mm' : '60mm');
     const trackLabel = result.input.windowType === 'sliding'
-      ? (result.input.profileSeries === '85mm' ? '2 TRACK DOOR' : result.input.frameType.toUpperCase().replace('-', ' '))
+      ? (result.input.profileSeries === '85mm' ? ((result.input.frameType === '3-track' || result.input.frameType === '3.5-track') ? '3 TRACK DOOR' : '2 TRACK DOOR') : result.input.frameType.toUpperCase().replace('-', ' '))
       : result.input.windowType.toUpperCase();
     doc.text(`Material: ${material}  |  Type: ${trackLabel}`, 14, 28);
 
@@ -327,7 +327,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 </span>
               </div>
               <span className="text-[10px] text-slate-400 block mt-0.5">
-                {'uPVC ' + (currentResult.input.profileSeries || '60mm') + ' • ' + (currentResult.input.windowType === 'sliding' ? (currentResult.input.profileSeries === '85mm' ? '2 TRACK DOOR' : currentResult.input.frameType.toUpperCase().replace('-TRACK', ' TRACK')) : (currentResult.input.windowType === 'ventilator' ? 'VENTILATOR (NO TRACK)' : (currentResult.input.windowType === 'fixed' ? 'FIXED (NO TRACK)' : 'OPEN (NO TRACK)')))}
+                {'uPVC ' + (currentResult.input.profileSeries || '60mm') + ' • ' + (currentResult.input.windowType === 'sliding' ? (currentResult.input.profileSeries === '85mm' ? ((currentResult.input.frameType === '3-track' || currentResult.input.frameType === '3.5-track') ? '3 TRACK DOOR' : '2 TRACK DOOR') : currentResult.input.frameType.toUpperCase().replace('-TRACK', ' TRACK')) : (currentResult.input.windowType === 'ventilator' ? 'VENTILATOR (NO TRACK)' : (currentResult.input.windowType === 'fixed' ? 'FIXED (NO TRACK)' : 'OPEN (NO TRACK)')))}
               </span>
             </div>
 

@@ -289,7 +289,9 @@ export interface LSModelBgColor {
  */
 export const LS_MODEL_BG_COLOR_MAP: Record<string, LSModelBgColor> = {
   '2T SLIDING DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
+  '3T SLIDING DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
   'SL/SL/DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
+  'SL/SL/SL/DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
   'DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
   'TRACK': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
   '2T SLIDING': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
@@ -645,7 +647,11 @@ export const getLSModelName = (r: CalculationResult, customSuffix?: string): str
     }
   } else if (windowType === 'sliding') {
     if (r.input.profileSeries === '85mm' || r.frame?.profileDepthMM === 85) {
-      base = '2T SLIDING DOOR';
+      if (frameType === '3-track' || frameType === '3.5-track') {
+        base = '3T SLIDING DOOR';
+      } else {
+        base = '2T SLIDING DOOR';
+      }
     } else if (frameType === '2-track') {
       base = '2T SLIDING';
     } else if (frameType === '2.5-track') {
@@ -694,6 +700,7 @@ export const getLSModelShortForm = (
 ): string => {
   if (typeof input === 'string') {
     const clean = input.replace(/^W\d+[a-z]?\s*[•\-]\s*/i, '').trim().toUpperCase();
+    if (clean.includes('SL/SL/SL/DOOR') || (clean.includes('DOOR') && (clean.includes('3T') || clean.includes('3 TRACK') || clean.includes('3-TRACK')))) return '[SL/SL/SL/DOOR]';
     if (clean.includes('DOOR') || clean.includes('SL/SL/DOOR') || clean.includes('85MM')) return '[SL/SL/DOOR]';
     if (clean.includes('MESH') || clean.includes('2.5T')) return '[SL/SL/MESH]';
     if (clean.includes('4T') || clean.includes('4 TRACK') || clean.includes('SL/SL/SL/SL')) return '[SL/SL/SL/SL]';
@@ -716,7 +723,10 @@ export const getLSModelShortForm = (
   const { frameType, windowType, casementSubtype, ventilatorSubtype, ventilatorFanSide } = winInput;
 
   if (windowType === 'sliding') {
-    if (winInput.profileSeries === '85mm') return '[SL/SL/DOOR]';
+    if (winInput.profileSeries === '85mm') {
+      if (frameType === '3-track' || frameType === '3.5-track') return '[SL/SL/SL/DOOR]';
+      return '[SL/SL/DOOR]';
+    }
     if (frameType === '2-track') return '[SL/SL]';
     if (frameType === '2.5-track') return '[SL/SL/MESH]';
     if (frameType === '3-track' || frameType === '3.5-track') return '[SL/SL/SL]';

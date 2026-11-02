@@ -752,7 +752,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
               <span className="text-xs font-mono text-blue-400 font-semibold">
                 ({activeWin.windowType === 'sliding'
                   ? (activeWin.profileSeries === '85mm'
-                      ? '2T DOOR (85MM)'
+                      ? ((activeWin.frameType === '3-track' || activeWin.frameType === '3.5-track') ? '3T DOOR (85MM)' : '2T DOOR (85MM)')
                       : (activeWin.profileSeries === '65mm'
                           ? `${activeWin.frameType.toUpperCase().replace('-TRACK', 'T')} (65MM)`
                           : activeWin.frameType.toUpperCase().replace('-TRACK', 'T')))
@@ -1087,7 +1087,11 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          updateWindow(activeWindowIndex, { profileSeries: '85mm', frameType: '2-track' });
+                          const updates: Partial<WindowInput> = { profileSeries: '85mm' };
+                          if (activeWin.frameType === '2.5-track' || activeWin.frameType === '4-track') {
+                            updates.frameType = '2-track';
+                          }
+                          updateWindow(activeWindowIndex, updates);
                         }}
                         className={
                           'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
@@ -1098,7 +1102,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                       >
                         <div className="leading-tight text-[11px]">85 mm</div>
                         <div className="text-[9px] opacity-80 font-normal">
-                          {t('டோர் (Door 2T)', 'Door (2T)')}
+                          {t('டோர் (Door 2T & 3T)', 'Door (2T & 3T)')}
                         </div>
                       </button>
                     </div>
@@ -1106,15 +1110,26 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
 
                   {/* Track Frame Buttons */}
                   {activeWin.profileSeries === '85mm' ? (
-                    <div className="grid grid-cols-1 gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => updateWindow(activeWindowIndex, { frameType: '2-track' })}
-                        className="py-2 px-1.5 rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation text-center bg-blue-600 border-blue-500 text-white shadow-sm"
-                      >
-                        <div className="leading-tight">2 Track Door</div>
-                        <div className="text-[10px] opacity-80 font-normal mt-0.5">{t('2 சஷ் டோர் (2 Panels Door)', '2 Panels Door')}</div>
-                      </button>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        { id: '2-track' as FrameType, label: '2 Track Door', desc: t('2 சஷ் டோர் (2 Panels)', '2 Panels Door') },
+                        { id: '3.5-track' as FrameType, label: '3 Track Door', desc: t('3 சஷ் டோர் (3 Panels)', '3 Panels Door') }
+                      ].map((tItem) => (
+                        <button
+                          key={tItem.id}
+                          type="button"
+                          onClick={() => updateWindow(activeWindowIndex, { frameType: tItem.id })}
+                          className={
+                            'py-2 px-1.5 rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation text-center ' +
+                            ((activeWin.frameType === tItem.id || (tItem.id === '3.5-track' && activeWin.frameType === '3-track'))
+                              ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
+                              : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white')
+                          }
+                        >
+                          <div className="leading-tight">{tItem.label}</div>
+                          <div className="text-[10px] opacity-75 font-normal mt-0.5">{tItem.desc}</div>
+                        </button>
+                      ))}
                     </div>
                   ) : activeWin.profileSeries === '65mm' ? (
                     <div className="grid grid-cols-2 gap-1.5">
@@ -1478,7 +1493,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                   <span>
                     {win.windowType === 'ventilator'
                       ? `VENTILATOR • ${win.ventilatorSubtype === 'fan' ? `FAN (${win.ventilatorFanSide === 'right' ? 'R' : 'LEFT'})` : 'NORMAL'}`
-                      : `${win.frameType.toUpperCase()} • ${win.windowType.toUpperCase()}${win.windowType === 'sliding' && win.profileSeries === '85mm' ? ' • 85MM DOOR' : (win.windowType === 'sliding' && win.profileSeries === '65mm' ? ' • 65MM' : '')}`}
+                      : `${win.frameType.toUpperCase()} • ${win.windowType.toUpperCase()}${win.windowType === 'sliding' && win.profileSeries === '85mm' ? ((win.frameType === '3-track' || win.frameType === '3.5-track') ? ' • 85MM 3T DOOR' : ' • 85MM 2T DOOR') : (win.windowType === 'sliding' && win.profileSeries === '65mm' ? ' • 65MM' : '')}`}
                   </span>
                   <button
                     type="button"

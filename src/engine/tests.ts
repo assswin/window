@@ -2531,6 +2531,141 @@ export class GoldenTestSuite {
       }
     });
 
+    // 74. 85MM 3-TRACK SLIDING DOOR (H-88, (W+90)/3, Glass -152, Material 85mm, [SL/SL/SL/DOOR])
+    const doorInput85_3T: WindowInput = {
+      unit: 'inch',
+      widthInch: 72,
+      heightInch: 84,
+      windowType: 'sliding',
+      frameType: '3.5-track',
+      profileSeries: '85mm',
+      customOffsetMM: 0
+    };
+
+    const resDoor85_3T = WindowCalculationEngine.calculate(doorInput85_3T);
+    const rowDoor85_3T = prepareLSRows([resDoor85_3T])[0];
+    const door3TBg = getLSModelBgColor(rowDoor85_3T);
+
+    // 72" -> 1829 mm, 84" -> 2134 mm
+    // Panel H: 2134 - 88 = 2046 mm
+    // Panel W: (1829 + 90) / 3 = 1919 / 3 = 639.67 -> 640 mm (3 Shutters)
+    // Interlock: 2046 - 5 = 2041 mm
+    // Glass: H: 2046 - 152 = 1894 mm, W: 640 - 152 = 488 mm (3 Glasses)
+    const passTest74 =
+      resDoor85_3T.frame.profileDepthMM === 85 &&
+      resDoor85_3T.panel.heightMM === 2046 &&
+      resDoor85_3T.panel.widthMM === 640 &&
+      resDoor85_3T.panel.count === 3 &&
+      resDoor85_3T.interlockMM === 2041 &&
+      resDoor85_3T.mirror.heightMM === 1894 &&
+      resDoor85_3T.mirror.widthMM === 488 &&
+      resDoor85_3T.mirror.count === 3 &&
+      rowDoor85_3T.modelName === '[SL/SL/SL/DOOR]' &&
+      rowDoor85_3T.materialMM === '85 mm' &&
+      rowDoor85_3T.sashPcs === '12' &&
+      rowDoor85_3T.sashHPcs === '6' &&
+      rowDoor85_3T.sashWPcs === '6' &&
+      rowDoor85_3T.interlockMM === '2041 mm' &&
+      door3TBg.canvas === '#fef08a';
+
+    results.push({
+      name: '85mm 3-Track Sliding Door: Dedicated Formula (H-88, (W+90)/3, Glass -152, Material 85mm, [SL/SL/SL/DOOR] Unique Bright Color)',
+      category: 'Rule Combination',
+      passed: passTest74,
+      input: { dimensions: '72" x 84"', series: '85mm', frameType: '3-track' },
+      expected: {
+        material: 85,
+        sash: '2046 x 640 mm (3 Pcs)',
+        interlock: '2041 mm',
+        glass: '1894 x 488 mm (3 Pcs)',
+        model: '[SL/SL/SL/DOOR]',
+        materialMM: '85 mm',
+        sashPcs: '12',
+        sashHPcs: '6',
+        sashWPcs: '6',
+        bg: '#fef08a'
+      },
+      actual: {
+        material: resDoor85_3T.frame.profileDepthMM,
+        sash: `${resDoor85_3T.panel.heightMM} x ${resDoor85_3T.panel.widthMM} mm (${resDoor85_3T.panel.count} Pcs)`,
+        interlock: `${resDoor85_3T.interlockMM} mm`,
+        glass: `${resDoor85_3T.mirror.heightMM} x ${resDoor85_3T.mirror.widthMM} mm (${resDoor85_3T.mirror.count} Pcs)`,
+        model: rowDoor85_3T.modelName,
+        materialMM: rowDoor85_3T.materialMM,
+        sashPcs: rowDoor85_3T.sashPcs,
+        sashHPcs: rowDoor85_3T.sashHPcs,
+        sashWPcs: rowDoor85_3T.sashWPcs,
+        bg: door3TBg.canvas
+      }
+    });
+
+    // 75. 85MM 3-TRACK DOOR FORMULA CUSTOMIZATION: Customizable via RulesEngineManager
+    const orig85_3TRule = RulesEngineManager.getRule('3.5-track', 'sliding', undefined, '85mm');
+
+    // Customize 85mm 3T door: H-85, (W+96)/3, Glass-150
+    RulesEngineManager.updateRule('3-track_sliding_85mm', {
+      heightDeductionMM: 85,
+      widthAdditionMM: 96,
+      mirrorHeightDeductionMM: 150,
+      mirrorWidthDeductionMM: 150
+    }, 'User');
+
+    const resDoor3TCustom = WindowCalculationEngine.calculate(doorInput85_3T);
+
+    // 85mm 3T custom: 2134 - 85 = 2049 mm H; (1829 + 96) / 3 = 1925 / 3 = 641.67 -> 642 mm W; Glass H: 2049 - 150 = 1899 mm
+    const passTest75 =
+      resDoor3TCustom.panel.heightMM === 2049 &&
+      resDoor3TCustom.panel.widthMM === 642 &&
+      resDoor3TCustom.mirror.heightMM === 1899;
+
+    // Restore original rules
+    RulesEngineManager.updateRule('3-track_sliding_85mm', {
+      heightDeductionMM: orig85_3TRule.heightDeductionMM,
+      widthAdditionMM: orig85_3TRule.widthAdditionMM,
+      mirrorHeightDeductionMM: orig85_3TRule.mirrorHeightDeductionMM,
+      mirrorWidthDeductionMM: orig85_3TRule.mirrorWidthDeductionMM
+    }, 'User');
+
+    results.push({
+      name: '85mm 3-Track Door Formula Customization: Editable (H-88, (W+90)/3, Glass-152) recalculates dynamically',
+      category: 'Rule Combination',
+      passed: passTest75,
+      input: { customDoor3T: 'H-85, (W+96)/3, Glass-150' },
+      expected: {
+        customDoorSash: '2049 x 642 mm',
+        customDoorGlassH: 1899
+      },
+      actual: {
+        customDoorSash: `${resDoor3TCustom.panel.heightMM} x ${resDoor3TCustom.panel.widthMM} mm`,
+        customDoorGlassH: resDoor3TCustom.mirror.heightMM
+      }
+    });
+
+    // 76. MULTI-DOOR PDF ORDER SHEET: Both 2T Door ([SL/SL/DOOR]) and 3T Door ([SL/SL/SL/DOOR]) formatted with 85mm material and Sunny Gold color
+    const multiDoorBatch = prepareLSRows([resDoor85, resDoor85_3T]);
+    const passTest76 =
+      multiDoorBatch[0].materialMM === '85 mm' &&
+      multiDoorBatch[0].modelName === '[SL/SL/DOOR]' &&
+      getLSModelBgColor(multiDoorBatch[0]).canvas === '#fef08a' &&
+      multiDoorBatch[1].materialMM === '85 mm' &&
+      multiDoorBatch[1].modelName === '[SL/SL/SL/DOOR]' &&
+      getLSModelBgColor(multiDoorBatch[1]).canvas === '#fef08a';
+
+    results.push({
+      name: 'Multi-Door PDF Order Sheet: Both [SL/SL/DOOR] and [SL/SL/SL/DOOR] formatted with 85 mm and Sunny Gold unique color',
+      category: 'Rule Combination',
+      passed: passTest76,
+      input: { doorsCount: multiDoorBatch.length },
+      expected: {
+        door2T: { material: '85 mm', model: '[SL/SL/DOOR]', color: '#fef08a' },
+        door3T: { material: '85 mm', model: '[SL/SL/SL/DOOR]', color: '#fef08a' }
+      },
+      actual: {
+        door2T: { material: multiDoorBatch[0]?.materialMM, model: multiDoorBatch[0]?.modelName, color: getLSModelBgColor(multiDoorBatch[0]).canvas },
+        door3T: { material: multiDoorBatch[1]?.materialMM, model: multiDoorBatch[1]?.modelName, color: getLSModelBgColor(multiDoorBatch[1]).canvas }
+      }
+    });
+
     const passedCount = results.filter(r => r.passed).length;
     return {
       passedCount,

@@ -525,6 +525,17 @@ export class WindowCalculationEngine {
         heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
         widthFormulaStr = `(W - ${wDed}) / 2 = (${convertedWidthMM} - ${wDed}) / 2 = ${panelWidthMM} mm`;
         shutterType = 'uPVC 85mm Sliding Door Sash';
+      } else if (is85mm && (input.frameType === '3.5-track' || input.frameType === '3-track')) {
+        const hDed = rule.heightDeductionMM ?? 88;
+        const wAdd = rule.widthAdditionMM ?? 90;
+        panelHeightMM = Math.max(10, convertedHeightMM - hDed);
+        panelWidthMM = Math.max(10, Math.round((convertedWidthMM + wAdd) / 3));
+        panelCount = 3;
+        mirrorDeductionMM = rule.mirrorHeightDeductionMM ?? 152;
+        formulaDesc = `3 Track Sliding Door (85mm): H-${hDed} | (W+${wAdd})/3 | -${mirrorDeductionMM} Glass | 85mm Door`;
+        heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
+        widthFormulaStr = `(W + ${wAdd}) / 3 = (${convertedWidthMM} + ${wAdd}) / 3 = ${panelWidthMM} mm`;
+        shutterType = 'uPVC 85mm Sliding Door Sash';
       } else if (is65mm && input.frameType === '2-track') {
         const hDed = rule.heightDeductionMM ?? 94;
         const wDed = rule.widthDeductionMM ?? 22;

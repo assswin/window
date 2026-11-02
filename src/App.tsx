@@ -650,7 +650,10 @@ export const App: React.FC = () => {
           const activeWin = windows[activeWindowIndex];
           if (!activeWin) return '2-track_sliding';
           if (activeWin.windowType === 'sliding') {
-            if (activeWin.profileSeries === '85mm') return '2-track_sliding_85mm';
+            if (activeWin.profileSeries === '85mm') {
+              if (activeWin.frameType === '3.5-track' || activeWin.frameType === '3-track') return '3-track_sliding_85mm';
+              return '2-track_sliding_85mm';
+            }
             if (activeWin.profileSeries === '65mm') {
               if (activeWin.frameType === '3.5-track' || activeWin.frameType === '3-track') return '3-track_sliding_65mm';
               return '2-track_sliding_65mm';

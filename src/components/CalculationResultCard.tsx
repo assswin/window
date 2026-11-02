@@ -60,6 +60,10 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
       if (is85mm && input.frameType === '2-track') {
         return `H-${activeRule.heightDeductionMM} | (W-${activeRule.widthDeductionMM})/2 | -${activeRule.mirrorHeightDeductionMM} glass | 85mm Door`;
       }
+      if (is85mm && (input.frameType === '3.5-track' || input.frameType === '3-track')) {
+        const wAdd = activeRule.widthAdditionMM ?? 90;
+        return `H-${activeRule.heightDeductionMM} | (W+${wAdd})/3 | -${activeRule.mirrorHeightDeductionMM} glass | 85mm Door`;
+      }
       const is65mm = input.profileSeries === '65mm' || activeRule.profileDepthMM === 65;
       if (is65mm && input.frameType === '2-track') {
         return `H-${activeRule.heightDeductionMM} | (W-${activeRule.widthDeductionMM})/2 | -${activeRule.mirrorHeightDeductionMM} glass | 65mm`;
