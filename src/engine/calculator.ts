@@ -582,14 +582,16 @@ export class WindowCalculationEngine {
         shutterType = 'uPVC Sliding Glass Sash';
       } else if (input.frameType === '3.5-track' || input.frameType === '3-track') {
         const hDed = rule.heightDeductionMM ?? 91;
-        const wDed = rule.widthDeductionMM ?? 11;
+        const wAdd = rule.widthAdditionMM !== undefined
+          ? rule.widthAdditionMM
+          : (rule.widthDeductionMM && rule.widthDeductionMM !== 0 ? -rule.widthDeductionMM : 11);
         panelHeightMM = Math.max(10, convertedHeightMM - hDed);
-        panelWidthMM = Math.max(10, Math.round((convertedWidthMM / 3) - wDed));
+        panelWidthMM = Math.max(10, Math.round((convertedWidthMM / 3) + wAdd));
         panelCount = 3;
         mirrorDeductionMM = rule.mirrorHeightDeductionMM ?? 94;
-        formulaDesc = `3 Track Sliding: H-${hDed} | W/3-${wDed} | -${mirrorDeductionMM} Glass | 58mm`;
+        formulaDesc = `3 Track Sliding: H-${hDed} | W/3+${wAdd} | -${mirrorDeductionMM} Glass | 58mm`;
         heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
-        widthFormulaStr = `(W / 3) - ${wDed} = (${convertedWidthMM} / 3) - ${wDed} = ${panelWidthMM} mm`;
+        widthFormulaStr = `(W / 3) + ${wAdd} = (${convertedWidthMM} / 3) + ${wAdd} = ${panelWidthMM} mm`;
         shutterType = 'uPVC Sliding Glass Sash';
       } else {
         // Default: 2-track sliding (Audited standard: H-94, W/2-12)

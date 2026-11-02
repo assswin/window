@@ -152,8 +152,8 @@ export class GoldenTestSuite {
     // 4. COMBINATION 3: 3.5 Track + Sliding Window (72" x 60")
     // Width: 72 * 25.4 = 1829 mm, Height: 1524 mm
     // Audited Height: H - 91 = 1524 - 91 = 1433 mm
-    // Audited Width: W/3 - 11 = (1829 / 3) - 11 = 609.67 - 11 = 599 mm
-    // Audited Glass: Shutter - 94 mm -> H: 1433 - 94 = 1339 mm, W: 599 - 94 = 505 mm
+    // Audited Width: W/3 + 11 = (1829 / 3) + 11 = 609.67 + 11 = 620.67 -> 621 mm
+    // Audited Glass: Shutter - 94 mm -> H: 1433 - 94 = 1339 mm, W: 621 - 94 = 527 mm
     const res3_5Sliding = WindowCalculationEngine.calculate({
       widthInch: 72,
       heightInch: 60,
@@ -164,15 +164,15 @@ export class GoldenTestSuite {
     });
 
     results.push({
-      name: 'Audited Case 3: 3.5T Sliding [H-91, W/3-11, -94 glass]',
+      name: 'Audited Case 3: 3.5T Sliding [H-91, W/3+11, -94 glass]',
       category: 'Handwritten Golden Case',
       passed: res3_5Sliding.panel.count === 3 &&
               res3_5Sliding.panel.heightMM === 1433 &&
-              res3_5Sliding.panel.widthMM === 599 &&
+              res3_5Sliding.panel.widthMM === 621 &&
               res3_5Sliding.mirror.heightMM === 1339 &&
-              res3_5Sliding.mirror.widthMM === 505,
+              res3_5Sliding.mirror.widthMM === 527,
       input: { width: 72, height: 60, frame: '3.5 Track', type: 'Sliding' },
-      expected: { panelCount: 3, panelH: 1433, panelW: 599, mirrorH: 1339, mirrorW: 505 },
+      expected: { panelCount: 3, panelH: 1433, panelW: 621, mirrorH: 1339, mirrorW: 527 },
       actual: {
         panelCount: res3_5Sliding.panel.count,
         panelH: res3_5Sliding.panel.heightMM,

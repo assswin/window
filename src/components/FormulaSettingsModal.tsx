@@ -163,7 +163,8 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
       return `H-${currentRule.heightDeductionMM} | W/2-${currentRule.widthDeductionMM} | Mesh H-${currentRule.meshHeightDeductionMM ?? 2} | Mesh W/2-${currentRule.meshWidthDeductionMM ?? 10} | Glass -${currentRule.mirrorHeightDeductionMM} | 58mm`;
     }
     if (activeTabKey === '3-track_sliding') {
-      return `H-${currentRule.heightDeductionMM} | W/3-${currentRule.widthDeductionMM} | Glass -${currentRule.mirrorHeightDeductionMM} | 58mm`;
+      const wAdd = currentRule.widthAdditionMM ?? 11;
+      return `H-${currentRule.heightDeductionMM} | W/3+${wAdd} | Glass -${currentRule.mirrorHeightDeductionMM} | 58mm`;
     }
     if (activeTabKey === '3-track_sliding_65mm') {
       const wAdd = currentRule.widthAdditionMM ?? 48;
@@ -223,7 +224,10 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
     if (activeTabKey === '3-track_sliding_65mm') {
       return 'Shutter W = (W + ' + (currentRule.widthAdditionMM ?? 48) + ') / 3';
     }
-    if (activeTabKey === '3-track_sliding' || activeTabKey === 'no-track_open_triple') {
+    if (activeTabKey === '3-track_sliding') {
+      return 'Shutter W = (W / 3) + ' + (currentRule.widthAdditionMM ?? 11);
+    }
+    if (activeTabKey === 'no-track_open_triple') {
       return 'Shutter W = (W / 3) - ' + currentRule.widthDeductionMM;
     }
     if (activeTabKey === '4-track_sliding') {
@@ -415,7 +419,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                   <div className="flex items-start sm:items-center justify-between gap-1.5 flex-wrap">
                     <div>
                       <label className="text-xs font-bold text-slate-200 block">
-                        {activeTabKey === '4-track_sliding' || activeTabKey === '3-track_sliding_65mm' || activeTabKey === '3-track_sliding_85mm'
+                        {activeTabKey === '4-track_sliding' || activeTabKey === '3-track_sliding' || activeTabKey === '3-track_sliding_65mm' || activeTabKey === '3-track_sliding_85mm'
                           ? t('2. சஷ் அகலம் கூட்டல் (Shutter Width Addition):', '2. Shutter Width Addition:')
                           : t('2. சஷ் அகலம் கழிப்பு (Shutter Width Deduction):', '2. Shutter Width Deduction:')}
                       </label>
@@ -436,15 +440,17 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                           ? '(W −'
                           : (activeTabKey === '3-track_sliding_85mm' || activeTabKey === '3-track_sliding_65mm'
                             ? '(W +'
-                            : (activeTabKey === '3-track_sliding' || activeTabKey === 'no-track_open_triple'
-                              ? '(W / 3) −'
-                              : (activeTabKey === '4-track_sliding' ? '(W / 4) +' : '(W / 2) −'))))}
+                            : (activeTabKey === '3-track_sliding'
+                              ? '(W / 3) +'
+                              : (activeTabKey === 'no-track_open_triple'
+                                ? '(W / 3) −'
+                                : (activeTabKey === '4-track_sliding' ? '(W / 4) +' : '(W / 2) −')))))}
                     </span>
                     <div className="flex items-center space-x-1.5 flex-1">
                       <button
                         type="button"
                         onClick={() => {
-                          if (activeTabKey === '4-track_sliding' || activeTabKey === '3-track_sliding_65mm' || activeTabKey === '3-track_sliding_85mm') {
+                          if (activeTabKey === '4-track_sliding' || activeTabKey === '3-track_sliding' || activeTabKey === '3-track_sliding_65mm' || activeTabKey === '3-track_sliding_85mm') {
                             const defVal = activeTabKey === '3-track_sliding_85mm' ? 90 : (activeTabKey === '3-track_sliding_65mm' ? 48 : 11);
                             updateCurrentRuleField(
                               'widthAdditionMM',
@@ -466,7 +472,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                         min="0"
                         max="250"
                         value={
-                          activeTabKey === '4-track_sliding'
+                          activeTabKey === '4-track_sliding' || activeTabKey === '3-track_sliding'
                             ? (currentRule.widthAdditionMM ?? 11)
                             : (activeTabKey === '3-track_sliding_85mm'
                               ? (currentRule.widthAdditionMM ?? 90)
@@ -476,7 +482,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                         }
                         onChange={(e) => {
                           const val = Math.max(0, parseInt(e.target.value) || 0);
-                          if (activeTabKey === '4-track_sliding' || activeTabKey === '3-track_sliding_65mm' || activeTabKey === '3-track_sliding_85mm') {
+                          if (activeTabKey === '4-track_sliding' || activeTabKey === '3-track_sliding' || activeTabKey === '3-track_sliding_65mm' || activeTabKey === '3-track_sliding_85mm') {
                             updateCurrentRuleField('widthAdditionMM', val);
                           } else {
                             updateCurrentRuleField('widthDeductionMM', val);
@@ -487,7 +493,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          if (activeTabKey === '4-track_sliding' || activeTabKey === '3-track_sliding_65mm' || activeTabKey === '3-track_sliding_85mm') {
+                          if (activeTabKey === '4-track_sliding' || activeTabKey === '3-track_sliding' || activeTabKey === '3-track_sliding_65mm' || activeTabKey === '3-track_sliding_85mm') {
                             const defVal = activeTabKey === '3-track_sliding_85mm' ? 90 : (activeTabKey === '3-track_sliding_65mm' ? 48 : 11);
                             updateCurrentRuleField(
                               'widthAdditionMM',

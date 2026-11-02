@@ -82,7 +82,8 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
         return `H-${activeRule.heightDeductionMM} | W/2-${activeRule.widthDeductionMM} | Mesh H-${meshDeduction}, W/2-${meshWDeduction} | -${activeRule.mirrorHeightDeductionMM} glass | 58mm`;
       }
       if (input.frameType === '3.5-track' || input.frameType === '3-track') {
-        return `H-${activeRule.heightDeductionMM} | W/3-${activeRule.widthDeductionMM} | -${activeRule.mirrorHeightDeductionMM} glass | 58mm`;
+        const wAdd = activeRule.widthAdditionMM ?? 11;
+        return `H-${activeRule.heightDeductionMM} | W/3+${wAdd} | -${activeRule.mirrorHeightDeductionMM} glass | 58mm`;
       }
       return `H-${activeRule.heightDeductionMM} | W/2-${activeRule.widthDeductionMM} | -${activeRule.mirrorHeightDeductionMM} glass | 58mm`;
     }
@@ -424,7 +425,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                         ? (input.frameType === '4-track'
                           ? `W/4 + ${activeRule.widthAdditionMM ?? 11}`
                           : (input.frameType === '3.5-track' || input.frameType === '3-track'
-                            ? `W/3 - ${activeRule.widthDeductionMM}`
+                            ? `W/3 + ${activeRule.widthAdditionMM ?? 11}`
                             : `W/2 - ${activeRule.widthDeductionMM}`))
                         : (input.casementSubtype === 'triple'
                           ? `W/3 - ${activeRule.widthDeductionMM}`
