@@ -740,20 +740,33 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                   {getActiveWindowSubtypeBadge()}
                 </span>
 
-                {/* Option Variant Badge - ONLY shown when variant letter has actual value! */}
-                {Boolean(activeWin.variantLetter) && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-950/90 border border-purple-700/70 text-purple-300 font-mono text-xs font-bold shadow-xs">
-                    <span>Variant {activeWin.variantLetter}</span>
+                {/* Option Variant Selector - Compact, clean, enables setting a, b, c, d... freely */}
+                <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700/80 text-xs font-mono flex-shrink-0">
+                  <span className="text-[10px] text-slate-400 font-semibold uppercase">Opt:</span>
+                  <select
+                    value={activeWin.variantLetter || ''}
+                    onChange={(e) => updateWindow(activeWindowIndex, { variantLetter: e.target.value })}
+                    className="bg-transparent text-amber-300 font-bold text-xs focus:outline-none cursor-pointer py-0 px-0.5"
+                    title={t('துணை எழுத்து தேர்வு (a, b, c, d...)', 'Select variant letter (a, b, c, d...)')}
+                  >
+                    <option value="" className="bg-slate-950 text-slate-400">-</option>
+                    {Array.from({ length: 26 }, (_, i) => String.fromCharCode(97 + i)).map((char) => (
+                      <option key={char} value={char} className="bg-slate-950 text-amber-300 font-bold">
+                        {char}
+                      </option>
+                    ))}
+                  </select>
+                  {Boolean(activeWin.variantLetter) && (
                     <button
                       type="button"
                       onClick={() => updateWindow(activeWindowIndex, { variantLetter: '' })}
-                      className="text-purple-400 hover:text-white cursor-pointer ml-0.5 text-xs font-bold leading-none"
+                      className="text-slate-400 hover:text-rose-400 cursor-pointer text-xs font-bold leading-none ml-0.5"
                       title={t('துணை எழுத்தை நீக்குக', 'Remove variant letter')}
                     >
                       ×
                     </button>
-                  </span>
-                )}
+                  )}
+                </div>
 
                 {/* Instant variant creation shortcut */}
                 {activeHasVariant && (

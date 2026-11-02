@@ -88,7 +88,7 @@ export const calculateResultsSafely = (windowList: WindowInput[]): CalculationRe
         ...res.input,
         windowLabel: finalLabel,
         windowNumber: res.input.windowNumber,
-        variantLetter: v?.letter || res.input.variantLetter
+        variantLetter: res.input.variantLetter
       }
     };
   });
@@ -364,8 +364,19 @@ export const App: React.FC = () => {
       : Boolean(baseWin?.variantLetter);
 
     if (shouldAddAsVariant) {
+      // If the base window has no variant letter yet, assign 'a' to baseWin
+      let updatedBaseWindows = [...baseWindows];
+      if (!baseWin.variantLetter) {
+        updatedBaseWindows[baseIdx] = {
+          ...baseWin,
+          windowNumber: baseNum,
+          variantLetter: 'a',
+          windowLabel: `W${baseNum}a`
+        };
+      }
+
       // Find all existing letters for windows sharing baseNum
-      const existingLetters = baseWindows
+      const existingLetters = updatedBaseWindows
         .map((w, i) => {
           const num = w.windowNumber || resolvedNums[i];
           return num === baseNum && w.variantLetter ? w.variantLetter.toLowerCase().trim() : null;
@@ -381,7 +392,7 @@ export const App: React.FC = () => {
       }
 
       const newWin: WindowInput = {
-        ...baseWin,
+        ...updatedBaseWindows[baseIdx],
         windowNumber: baseNum,
         variantLetter: nextLetter,
         windowLabel: `W${baseNum}${nextLetter}`,
@@ -399,9 +410,9 @@ export const App: React.FC = () => {
       }
 
       const updated = [
-        ...baseWindows.slice(0, insertAfterIdx + 1),
+        ...updatedBaseWindows.slice(0, insertAfterIdx + 1),
         newWin,
-        ...baseWindows.slice(insertAfterIdx + 1)
+        ...updatedBaseWindows.slice(insertAfterIdx + 1)
       ];
 
       const updatedResults = calculateResultsSafely(updated);

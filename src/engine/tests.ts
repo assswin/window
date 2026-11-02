@@ -1950,55 +1950,59 @@ export class GoldenTestSuite {
       }
     });
 
-    // 62. WINDOW VARIANT LABELING TESTS: Suffix a, b, c when inputs are same but types are different
+    // 62. WINDOW EXPLICIT VARIANT & SEQUENTIAL NUMBERING: Explicit variant options (1a, 1b, 1c, 1d) group under base window 1, while windows without variant letters advance sequentially (W2, W3)
     const variantTestInputs: WindowInput[] = [
-      { widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', unit: 'inch' },
-      { widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', unit: 'inch' },
-      { widthInch: 48, heightInch: 60, windowType: 'open', casementSubtype: 'double', frameType: 'no-track', unit: 'inch' },
-      { widthInch: 48, heightInch: 60, windowType: 'fixed', frameType: 'no-track', unit: 'inch' },
-      { widthInch: 30, heightInch: 40, windowType: 'sliding', frameType: '2-track', unit: 'inch' },
-      { widthInch: 24, heightInch: 36, windowType: 'ventilator', ventilatorSubtype: 'normal', frameType: 'no-track', unit: 'inch' }
+      { widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', unit: 'inch', variantLetter: 'a' },
+      { widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', unit: 'inch', variantLetter: 'b' },
+      { widthInch: 48, heightInch: 60, windowType: 'open', casementSubtype: 'double', frameType: 'no-track', unit: 'inch', variantLetter: 'c' },
+      { widthInch: 48, heightInch: 60, windowType: 'fixed', frameType: 'no-track', unit: 'inch', variantLetter: 'd' },
+      { widthInch: 30, heightInch: 40, windowType: 'sliding', frameType: '2-track', unit: 'inch', variantLetter: '' },
+      { widthInch: 24, heightInch: 36, windowType: 'ventilator', ventilatorSubtype: 'normal', frameType: 'no-track', unit: 'inch', variantLetter: '' }
     ];
 
     const variantResults = variantTestInputs.map((w, idx) => ({
       ...WindowCalculationEngine.calculate(w),
-      id: `W${idx + 1}`
+      id: `W${idx + 1}`,
+      input: {
+        ...w,
+        windowLabel: `W${idx + 1}`
+      }
     }));
 
     const computedVariants = computeWindowVariantLabels(variantResults);
     const passVariants =
       computedVariants[0].siNo === '1a' &&
       computedVariants[0].windowLabel === 'W1a' &&
-      computedVariants[1].siNo === '2a' &&
-      computedVariants[1].windowLabel === 'W2a' &&
-      computedVariants[2].siNo === '3b' &&
-      computedVariants[2].windowLabel === 'W3b' &&
-      computedVariants[3].siNo === '4c' &&
-      computedVariants[3].windowLabel === 'W4c' &&
-      computedVariants[4].siNo === '5' &&
-      computedVariants[4].windowLabel === 'W5' &&
-      computedVariants[5].siNo === '6' &&
-      computedVariants[5].windowLabel === 'W6';
+      computedVariants[1].siNo === '1b' &&
+      computedVariants[1].windowLabel === 'W1b' &&
+      computedVariants[2].siNo === '1c' &&
+      computedVariants[2].windowLabel === 'W1c' &&
+      computedVariants[3].siNo === '1d' &&
+      computedVariants[3].windowLabel === 'W1d' &&
+      computedVariants[4].siNo === '2' &&
+      computedVariants[4].windowLabel === 'W2' &&
+      computedVariants[5].siNo === '3' &&
+      computedVariants[5].windowLabel === 'W3';
 
     results.push({
-      name: 'Window Variant Labels: Appends a, b, c (1a, 2a, 3b, 4c) when input dimensions are same and type is different; retains clean numbers (5, 6) when dimensions are different',
+      name: 'Window Variant Labels: Appends a, b, c, d (1a, 1b, 1c, 1d) when variants are explicitly chosen, and advances cleanly to next sequential numbers (W2, W3)',
       category: 'Rule Combination',
       passed: passVariants,
       input: {
-        window1: '48x60 2T Sliding',
-        window2: '48x60 2T Sliding',
-        window3: '48x60 Double Open',
-        window4: '48x60 Fixed',
-        window5: '30x40 2T Sliding',
-        window6: '24x36 Ventilator'
+        window1: '48x60 2T Sliding (variant a)',
+        window2: '48x60 2T Sliding (variant b)',
+        window3: '48x60 Double Open (variant c)',
+        window4: '48x60 Fixed (variant d)',
+        window5: '30x40 2T Sliding (clean)',
+        window6: '24x36 Ventilator (clean)'
       },
       expected: {
         w1: { siNo: '1a', label: 'W1a' },
-        w2: { siNo: '2a', label: 'W2a' },
-        w3: { siNo: '3b', label: 'W3b' },
-        w4: { siNo: '4c', label: 'W4c' },
-        w5: { siNo: '5', label: 'W5' },
-        w6: { siNo: '6', label: 'W6' }
+        w2: { siNo: '1b', label: 'W1b' },
+        w3: { siNo: '1c', label: 'W1c' },
+        w4: { siNo: '1d', label: 'W1d' },
+        w5: { siNo: '2', label: 'W2' },
+        w6: { siNo: '3', label: 'W3' }
       },
       actual: {
         w1: { siNo: computedVariants[0]?.siNo, label: computedVariants[0]?.windowLabel },
@@ -2010,24 +2014,31 @@ export class GoldenTestSuite {
       }
     });
 
-    // 63. ORDER SHEET ROWS: row.siNo gets 1a/2a/3b/4c and row.modelName uses short form without W1a prefix
-    const orderSheetRows = prepareLSRows(variantResults);
+    // 63. ORDER SHEET ROWS: row.siNo gets 1a/1b/1c/1d and 2, 3 with short form bracketed model names
+    const orderSheetResults = variantResults.map((r, idx) => ({
+      ...r,
+      input: {
+        ...r.input,
+        variantLetter: computedVariants[idx].letter
+      }
+    }));
+    const orderSheetRows = prepareLSRows(orderSheetResults);
     const passOrderSheetLabels =
       orderSheetRows[0].siNo === '1a' &&
       orderSheetRows[0].modelName === '[SL/SL]' &&
-      orderSheetRows[1].siNo === '2a' &&
+      orderSheetRows[1].siNo === '1b' &&
       orderSheetRows[1].modelName === '[SL/SL]' &&
-      orderSheetRows[2].siNo === '3b' &&
+      orderSheetRows[2].siNo === '1c' &&
       orderSheetRows[2].modelName === '[OP/OP]' &&
-      orderSheetRows[3].siNo === '4c' &&
+      orderSheetRows[3].siNo === '1d' &&
       orderSheetRows[3].modelName === '[FIXED]' &&
-      orderSheetRows[4].siNo === '5' &&
+      orderSheetRows[4].siNo === '2' &&
       orderSheetRows[4].modelName === '[SL/SL]' &&
-      orderSheetRows[5].siNo === '6' &&
+      orderSheetRows[5].siNo === '3' &&
       orderSheetRows[5].modelName === '[VENT]';
 
     results.push({
-      name: 'Order Sheet Rows Short Form Model Names: row.siNo gets 1a/2a/3b/4c and row.modelName uses bracketed short forms [SL/SL], [OP/OP], [FIXED], [VENT] without W1a prefix',
+      name: 'Order Sheet Rows Short Form Model Names: row.siNo gets 1a/1b/1c/1d and 2, 3 with bracketed short forms [SL/SL], [OP/OP], [FIXED], [VENT] without W1a prefix',
       category: 'Rule Combination',
       passed: passOrderSheetLabels,
       input: {
@@ -2035,11 +2046,11 @@ export class GoldenTestSuite {
       },
       expected: {
         r0: { siNo: '1a', model: '[SL/SL]' },
-        r1: { siNo: '2a', model: '[SL/SL]' },
-        r2: { siNo: '3b', model: '[OP/OP]' },
-        r3: { siNo: '4c', model: '[FIXED]' },
-        r4: { siNo: '5', model: '[SL/SL]' },
-        r5: { siNo: '6', model: '[VENT]' }
+        r1: { siNo: '1b', model: '[SL/SL]' },
+        r2: { siNo: '1c', model: '[OP/OP]' },
+        r3: { siNo: '1d', model: '[FIXED]' },
+        r4: { siNo: '2', model: '[SL/SL]' },
+        r5: { siNo: '3', model: '[VENT]' }
       },
       actual: {
         r0: { siNo: orderSheetRows[0]?.siNo, model: orderSheetRows[0]?.modelName },
@@ -2115,19 +2126,19 @@ export class GoldenTestSuite {
 
     // 64. REAL-TIME VARIANT UPDATE: Dimension offset independence (Sliding +5mm offset vs Ventilator 0mm offset)
     const rawInputsTest: WindowInput[] = [
-      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', customOffsetMM: 5 },
-      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'ventilator', frameType: 'no-track', ventilatorSubtype: 'normal', customOffsetMM: 0 }
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', customOffsetMM: 5, variantLetter: 'a' },
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'ventilator', frameType: 'no-track', ventilatorSubtype: 'normal', customOffsetMM: 0, variantLetter: 'b' }
     ];
     const rawVariants = computeWindowVariantLabels(rawInputsTest);
     const passOffsetIndependence =
       rawVariants.length === 2 &&
       rawVariants[0].siNo === '1a' &&
       rawVariants[0].windowLabel === 'W1a' &&
-      rawVariants[1].siNo === '2b' &&
-      rawVariants[1].windowLabel === 'W2b';
+      rawVariants[1].siNo === '1b' &&
+      rawVariants[1].windowLabel === 'W1b';
 
     results.push({
-      name: 'Real-Time Variant Grouping: Offset independence ensures 48x60 sliding (5mm offset) and 48x60 ventilator (0mm offset) group as 1a/W1a and 2b/W2b',
+      name: 'Real-Time Variant Grouping: Offset independence ensures 48x60 sliding (5mm offset) and 48x60 ventilator (0mm offset) group as 1a/W1a and 1b/W1b',
       category: 'Rule Combination',
       passed: passOffsetIndependence,
       input: {
@@ -2135,44 +2146,44 @@ export class GoldenTestSuite {
       },
       expected: {
         w1: { siNo: '1a', windowLabel: 'W1a' },
-        w2: { siNo: '2b', windowLabel: 'W2b' }
+        w2: { siNo: '1b', windowLabel: 'W1b' }
       },
       actual: {
-        w1: rawVariants[0],
-        w2: rawVariants[1]
+        w1: { siNo: rawVariants[0]?.siNo, windowLabel: rawVariants[0]?.windowLabel },
+        w2: { siNo: rawVariants[1]?.siNo, windowLabel: rawVariants[1]?.windowLabel }
       }
     });
 
     // 65. MANUAL WINDOW OPTION BUTTON (a to z): Manual variantLetter override
     const manualOptionInputs: WindowInput[] = [
-      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', variantLetter: 'a' },
-      { unit: 'inch', widthInch: 30, heightInch: 40, windowType: 'open', frameType: 'no-track', casementSubtype: 'single', variantLetter: 'z' },
-      { unit: 'inch', widthInch: 36, heightInch: 48, windowType: 'fixed', frameType: 'no-track', variantLetter: '' }
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', windowNumber: 1, variantLetter: 'a' },
+      { unit: 'inch', widthInch: 30, heightInch: 40, windowType: 'open', frameType: 'no-track', casementSubtype: 'single', windowNumber: 1, variantLetter: 'b' },
+      { unit: 'inch', widthInch: 36, heightInch: 48, windowType: 'fixed', frameType: 'no-track', windowNumber: 2, variantLetter: '' }
     ];
     const manualVariants = computeWindowVariantLabels(manualOptionInputs);
     const passManualOption =
       manualVariants.length === 3 &&
       manualVariants[0].siNo === '1a' &&
       manualVariants[0].windowLabel === 'W1a' &&
-      manualVariants[1].siNo === '2z' &&
-      manualVariants[1].windowLabel === 'W2z' &&
-      manualVariants[2].siNo === '3' &&
-      manualVariants[2].windowLabel === 'W3';
+      manualVariants[1].siNo === '1b' &&
+      manualVariants[1].windowLabel === 'W1b' &&
+      manualVariants[2].siNo === '2' &&
+      manualVariants[2].windowLabel === 'W2';
 
     results.push({
-      name: 'Manual Option Button (a to z): variantLetter override sets 1a/W1a and 2z/W2z, and empty variantLetter retains clean 3/W3',
+      name: 'Manual Option Button (a to z): variantLetter override sets 1a/W1a and 1b/W1b, and empty variantLetter retains clean 2/W2',
       category: 'Rule Combination',
       passed: passManualOption,
       input: manualOptionInputs,
       expected: {
         w1: { siNo: '1a', windowLabel: 'W1a' },
-        w2: { siNo: '2z', windowLabel: 'W2z' },
-        w3: { siNo: '3', windowLabel: 'W3' }
+        w2: { siNo: '1b', windowLabel: 'W1b' },
+        w3: { siNo: '2', windowLabel: 'W2' }
       },
       actual: {
-        w1: manualVariants[0],
-        w2: manualVariants[1],
-        w3: manualVariants[2]
+        w1: { siNo: manualVariants[0]?.siNo, windowLabel: manualVariants[0]?.windowLabel },
+        w2: { siNo: manualVariants[1]?.siNo, windowLabel: manualVariants[1]?.windowLabel },
+        w3: { siNo: manualVariants[2]?.siNo, windowLabel: manualVariants[2]?.windowLabel }
       }
     });
 
@@ -2836,6 +2847,54 @@ export class GoldenTestSuite {
         win1Label: testLabels79[1].windowLabel,
         sashHPcs: testRows79[0].sashHPcs,
         sashWPcs: testRows79[0].sashWPcs
+      }
+    });
+
+    // 80. SAME DIMENSIONS INDEPENDENT NUMBERING: Two separate windows with matching dimensions (48x60) stay W1 and W2 unless explicit variant is set
+    const sameDimSeparateInputs: WindowInput[] = [
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', windowNumber: 1, variantLetter: '' },
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'open', frameType: 'no-track', casementSubtype: 'single', windowNumber: 2, variantLetter: '' }
+    ];
+    const sameDimLabels = computeWindowVariantLabels(sameDimSeparateInputs);
+
+    // Now user explicitly sets variant 'a' on Window 1, and variant 'b' on continuation
+    const explicitVariantInputs: WindowInput[] = [
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', windowNumber: 1, variantLetter: 'a' },
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'open', frameType: 'no-track', casementSubtype: 'single', windowNumber: 1, variantLetter: 'b' },
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'fixed', frameType: 'no-track', windowNumber: 2, variantLetter: '' }
+    ];
+    const explicitVariantLabels = computeWindowVariantLabels(explicitVariantInputs);
+
+    const passTest80 =
+      sameDimLabels[0].windowLabel === 'W1' &&
+      sameDimLabels[0].siNo === '1' &&
+      sameDimLabels[1].windowLabel === 'W2' &&
+      sameDimLabels[1].siNo === '2' &&
+      explicitVariantLabels[0].windowLabel === 'W1a' &&
+      explicitVariantLabels[0].siNo === '1a' &&
+      explicitVariantLabels[1].windowLabel === 'W1b' &&
+      explicitVariantLabels[1].siNo === '1b' &&
+      explicitVariantLabels[2].windowLabel === 'W2' &&
+      explicitVariantLabels[2].siNo === '2';
+
+    results.push({
+      name: 'Same Dimensions Independent Numbering: W1 and W2 with same 48x60 dimensions stay W1 and W2 (no automatic mutation); explicit variants produce W1a, W1b, and next W2',
+      category: 'Rule Combination',
+      passed: passTest80,
+      input: { sameDimSeparateInputs, explicitVariantInputs },
+      expected: {
+        separate0: 'W1',
+        separate1: 'W2',
+        variant0: 'W1a',
+        variant1: 'W1b',
+        nextWin: 'W2'
+      },
+      actual: {
+        separate0: sameDimLabels[0]?.windowLabel,
+        separate1: sameDimLabels[1]?.windowLabel,
+        variant0: explicitVariantLabels[0]?.windowLabel,
+        variant1: explicitVariantLabels[1]?.windowLabel,
+        nextWin: explicitVariantLabels[2]?.windowLabel
       }
     });
 
