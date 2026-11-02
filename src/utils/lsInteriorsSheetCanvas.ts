@@ -288,9 +288,9 @@ export interface LSModelBgColor {
  * - VENTILATOR FAN RIGHT: Soft Pink tint ([251, 207, 232] / #fbcfe8)
  */
 export const LS_MODEL_BG_COLOR_MAP: Record<string, LSModelBgColor> = {
-  '2T SLIDING DOOR': { pdf: [243, 232, 255], canvas: '#f3e8ff', name: 'Sliding Door Lavender Purple' },
-  'SL/SL/DOOR': { pdf: [243, 232, 255], canvas: '#f3e8ff', name: 'Sliding Door Lavender Purple' },
-  'DOOR': { pdf: [243, 232, 255], canvas: '#f3e8ff', name: 'Sliding Door Lavender Purple' },
+  '2T SLIDING DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
+  'SL/SL/DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
+  'DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
   'TRACK': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
   '2T SLIDING': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
   '2.5T SLIDING (MESH)': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
@@ -1485,7 +1485,7 @@ export const renderLSInteriorsVectorPage = (
               const baseSize = cols.length >= 10 ? 9.2 : (cols.length === 9 ? 10.0 : 11.0);
               const isDoor = row.modelName.includes('DOOR');
               const modelColor = isDoor
-                ? ([109, 40, 217] as [number, number, number])
+                ? ([190, 18, 60] as [number, number, number]) // Bold Deep Crimson Red for Door
                 : cellTextColorPdf;
               drawCellText(
                 cleanText(row.modelName),
@@ -2363,7 +2363,7 @@ export const generateLSInteriorsSheetCanvas = (
             if (rowData.modelName) {
               const baseFontPx = cols.length >= 10 ? 30 : (cols.length === 9 ? 32 : 36);
               const isDoor = rowData.modelName.includes('DOOR');
-              const modelColorCanvas = isDoor ? '#7c3aed' : cellTextColorCanvas;
+              const modelColorCanvas = isDoor ? '#be123c' : cellTextColorCanvas; // Bold Deep Crimson Red for Door
               drawCanvasCellText(
                 rowData.modelName,
                 centerX,

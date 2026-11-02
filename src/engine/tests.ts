@@ -2424,7 +2424,7 @@ export class GoldenTestSuite {
       rowDoor85.sashHPcs === '4' &&
       rowDoor85.sashWPcs === '4' &&
       rowDoor85.interlockMM === '2035 mm' &&
-      doorBg.canvas === '#f3e8ff';
+      doorBg.canvas === '#fef08a';
 
     results.push({
       name: '85mm 2-Track Sliding Door: Dedicated Formula (H-94, (W-2)/2, Glass -152, Material 85mm, [SL/SL/DOOR] Unique Color)',
@@ -2441,7 +2441,7 @@ export class GoldenTestSuite {
         sashPcs: '8',
         sashHPcs: '4',
         sashWPcs: '4',
-        bg: '#f3e8ff'
+        bg: '#fef08a'
       },
       actual: {
         material: resDoor85.frame.profileDepthMM,
