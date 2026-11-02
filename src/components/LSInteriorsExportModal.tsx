@@ -290,7 +290,7 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
                     <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
                       {t(
                         `இரட்டை மற்றும் 3-Open திறக்கும் ஜன்னல்களுக்கு (Double / 3-Open Window) பிரேம் உயரத்தில் இருந்து கழிக்கப்படும் முல்லியன் அளவு (Mullion mm = Height - ${mullionDeductionMM} mm) அட்டவணையில் தனி நிரலாக தோன்றும்.`,
-                        `For Double and 3-Open casement windows, mullion cut size (Mullion mm = Height - ${mullionDeductionMM} mm) will be added as a column.`
+                        `For Double and 3-Open windows, mullion cut size (Mullion mm = Height - ${mullionDeductionMM} mm) will be added as a column.`
                       )}
                     </p>
                   </div>

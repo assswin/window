@@ -442,6 +442,32 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
     const maxNum = Math.max(...resolvedNums, 0);
     return maxNum + 1;
   })();
+
+  const getActiveWindowSubtypeBadge = (): string => {
+    if (activeWin.windowType === 'sliding') {
+      if (activeWin.profileSeries === '85mm') {
+        return (activeWin.frameType === '3-track' || activeWin.frameType === '3.5-track')
+          ? '3T DOOR (85MM)'
+          : '2T DOOR (85MM)';
+      }
+      if (activeWin.profileSeries === '65mm') {
+        return `${activeWin.frameType.toUpperCase().replace('-TRACK', 'T')} (65MM)`;
+      }
+      return activeWin.frameType.toUpperCase().replace('-TRACK', 'T');
+    }
+    if (activeWin.windowType === 'ventilator') {
+      return activeWin.ventilatorSubtype === 'fan'
+        ? `VENTILATOR FAN ${activeWin.ventilatorFanSide === 'right' ? 'R' : 'L'}`
+        : 'VENTILATOR';
+    }
+    if (activeWin.windowType === 'open') {
+      if (activeWin.casementSubtype === 'triple') return '3-OPEN WINDOW';
+      if (activeWin.casementSubtype === 'double') return 'DOUBLE WINDOW';
+      return 'SINGLE WINDOW';
+    }
+    return 'FIXED';
+  };
+
   const isVentilator = activeWin.windowType === 'ventilator';
   const addedMM = Math.max(0, globalSettings.customOffsetMM || 0);
   const effectiveAddedMM = isVentilator ? 0 : addedMM;
@@ -820,15 +846,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                 {t(`ஜன்னல் ${variantLabels[activeWindowIndex]?.windowLabel || (activeWindowIndex + 1)}`, `Window ${variantLabels[activeWindowIndex]?.windowLabel || (activeWindowIndex + 1)}`)}
               </span>
               <span className="text-xs font-mono text-blue-400 font-semibold">
-                ({activeWin.windowType === 'sliding'
-                  ? (activeWin.profileSeries === '85mm'
-                      ? ((activeWin.frameType === '3-track' || activeWin.frameType === '3.5-track') ? '3T DOOR (85MM)' : '2T DOOR (85MM)')
-                      : (activeWin.profileSeries === '65mm'
-                          ? `${activeWin.frameType.toUpperCase().replace('-TRACK', 'T')} (65MM)`
-                          : activeWin.frameType.toUpperCase().replace('-TRACK', 'T')))
-                  : (activeWin.windowType === 'ventilator'
-                      ? (activeWin.ventilatorSubtype === 'fan' ? `VENTILATOR FAN ${activeWin.ventilatorFanSide === 'right' ? 'R' : 'L'}` : 'VENTILATOR')
-                      : 'NO TRACK')})
+                ({getActiveWindowSubtypeBadge()})
               </span>
 
               {/* Small tiny box: Select button with options a to z */}
@@ -1065,13 +1083,13 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
               <div className="flex items-center justify-between">
                 <label className="text-xs text-slate-300 font-bold">{t('வகை:', 'Window Type:')}</label>
                 <span className="text-[11px] font-mono text-blue-400 font-normal">
-                  {activeWin.windowType === 'sliding' ? t('ஸ்லைடிங் (Sliding)', 'Sliding') : activeWin.windowType === 'open' ? t('திறக்கும் (Open)', 'Open (Casement)') : activeWin.windowType === 'fixed' ? t('நிலையானது (Fixed)', 'Fixed') : t('வென்டிலேட்டர் (Ventilator)', 'Ventilator')}
+                  {activeWin.windowType === 'sliding' ? t('ஸ்லைடிங் (Sliding)', 'Sliding') : activeWin.windowType === 'open' ? t('திறக்கும் ஜன்னல் (Open Window)', 'Open Window') : activeWin.windowType === 'fixed' ? t('நிலையானது (Fixed)', 'Fixed') : t('வென்டிலேட்டர் (Ventilator)', 'Ventilator')}
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
                 {[
                   { type: 'sliding' as WindowType, label: t('ஸ்லைடிங்', 'Sliding'), sub: t('(Sliding)', '') },
-                  { type: 'open' as WindowType, label: t('திறக்கும்', 'Open (Casement)'), sub: t('(Open)', '') },
+                  { type: 'open' as WindowType, label: t('திறக்கும் ஜன்னல்', 'Open Window'), sub: t('(Open Window)', '') },
                   { type: 'fixed' as WindowType, label: t('நிலையானது', 'Fixed'), sub: t('(Fixed)', '') },
                   { type: 'ventilator' as WindowType, label: t('வென்டிலேட்டர்', 'Ventilator'), sub: t('(Ventilator)', '') }
                 ].map((item) => (
@@ -1108,7 +1126,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                 {activeWin.windowType === 'sliding'
                   ? t('டிராக் பிரேம் தேர்வு (Sliding Track):', 'Track Frame Selection:')
                   : (activeWin.windowType === 'open'
-                    ? t('சஷ் கட்டமைப்பு (Open Window Sashes):', 'Casement Sash Configuration:')
+                    ? t('சஷ் கட்டமைப்பு (Open Window Sashes):', 'Open Window Configuration:')
                     : (activeWin.windowType === 'ventilator'
                       ? t('வென்டிலேட்டர் கட்டமைப்பு (Ventilator Options):', 'Ventilator Configuration:')
                       : t('பிரேம் வகை (Frame Glazing):', 'Frame Glazing:')))}
@@ -1263,9 +1281,9 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
               ) : activeWin.windowType === 'open' ? (
                 <div className="grid grid-cols-3 gap-1.5">
                   {[
-                    { id: 'single' as CasementSubtype, label: t('1 சஷ் (Single)', 'Single Casement'), desc: t('மைய முல்லியன் இல்லை', 'No Center Mullion') },
-                    { id: 'double' as CasementSubtype, label: t('2 சஷ் (Double)', 'Double Casement'), desc: t('1 முல்லியன் (Mullion)', '1 Center Mullion') },
-                    { id: 'triple' as CasementSubtype, label: t('3 சஷ் (3-Open)', '3-Open Casement'), desc: t('2 முல்லியன் (2 Mullions)', '2 Mullion Dividers') }
+                    { id: 'single' as CasementSubtype, label: t('தனி ஜன்னல் (Single)', 'Single Window'), desc: t('மைய முல்லியன் இல்லை', 'No Center Mullion') },
+                    { id: 'double' as CasementSubtype, label: t('இரட்டை ஜன்னல் (Double)', 'Double Window'), desc: t('1 முல்லியன் (Mullion)', '1 Center Mullion') },
+                    { id: 'triple' as CasementSubtype, label: t('3-திறக்கும் ஜன்னல் (3-Open)', '3-Open Window'), desc: t('2 முல்லியன் (2 Mullions)', '2 Mullion Dividers') }
                   ].map((c) => (
                     <button
                       key={c.id}
