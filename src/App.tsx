@@ -18,7 +18,7 @@ import {
   STORAGE_KEY_SAVED_CALCS,
   createNewWindow
 } from './utils/tenWindowsData';
-import { computeWindowVariantLabels } from './utils/lsInteriorsSheetCanvas';
+import { computeWindowVariantLabels, resolveWindowNumbers } from './utils/lsInteriorsSheetCanvas';
 import {
   SlidersHorizontal,
   Scissors,
@@ -33,7 +33,7 @@ import {
 // Pure helper to safely calculate results for all windows with variant labels (e.g. W1a, W2b)
 export const calculateResultsSafely = (windowList: WindowInput[]): CalculationResult[] => {
   const baseResults = windowList.map((w, idx) => {
-    const windowLabel = 'W' + (idx + 1);
+    const windowLabel = w.windowLabel || ('W' + (idx + 1));
     const safeWin = {
       ...w,
       windowLabel,
@@ -47,6 +47,8 @@ export const calculateResultsSafely = (windowList: WindowInput[]): CalculationRe
         id: windowLabel,
         input: {
           ...calculated.input,
+          windowNumber: w.windowNumber,
+          variantLetter: w.variantLetter,
           windowLabel
         }
       };
@@ -58,6 +60,8 @@ export const calculateResultsSafely = (windowList: WindowInput[]): CalculationRe
         id: windowLabel,
         input: {
           ...calculated.input,
+          windowNumber: w.windowNumber,
+          variantLetter: w.variantLetter,
           windowLabel
         }
       };
@@ -73,7 +77,9 @@ export const calculateResultsSafely = (windowList: WindowInput[]): CalculationRe
       id: finalLabel,
       input: {
         ...res.input,
-        windowLabel: finalLabel
+        windowLabel: finalLabel,
+        windowNumber: res.input.windowNumber,
+        variantLetter: v?.letter || res.input.variantLetter
       }
     };
   });
@@ -255,30 +261,101 @@ export const App: React.FC = () => {
     setResults(updatedResults);
   };
 
-  // Add new window (e.g. W11, W12)
-  const handleAddWindow = (currentWindows?: WindowInput[]) => {
+  // Add new window (either as next variant of active window e.g. W1b after W1a, or as new window e.g. W2, W11)
+  const handleAddWindow = (
+    currentWindows?: WindowInput[],
+    options?: { asVariant?: boolean; baseIndex?: number }
+  ) => {
     const baseWindows = currentWindows && currentWindows.length > 0 ? currentWindows : windows;
-    const nextIdx = baseWindows.length;
-    const firstWin = baseWindows[0];
-    const newWin = createNewWindow(nextIdx, {
-      conversionFactor: firstWin?.conversionFactor ?? 25.4,
-      customOffsetMM: Math.max(0, firstWin?.customOffsetMM ?? 5),
-      weldingAllowanceMM: 0,
-      profileSeries: firstWin?.profileSeries ?? '60mm',
-      reinforcementSteel: firstWin?.reinforcementSteel ?? false,
-      glassType: firstWin?.glassType ?? '5mm_single',
-      inputUnit: firstWin?.unit ?? 'inch'
-    });
-    const updated = [...baseWindows, newWin];
-    const updatedResults = calculateResultsSafely(updated);
-    const syncedWins = updated.map((w, idx) => ({
-      ...w,
-      windowLabel: updatedResults[idx]?.input.windowLabel || `W${idx + 1}`
-    }));
-    setWindows(syncedWins);
-    saveStored10Windows(syncedWins);
-    setResults(updatedResults);
-    setActiveWindowIndex(nextIdx);
+    const baseIdx = options?.baseIndex !== undefined ? options.baseIndex : activeWindowIndex;
+    const baseWin = baseWindows[baseIdx] || baseWindows[baseWindows.length - 1] || baseWindows[0];
+
+    const resolvedNums = resolveWindowNumbers(baseWindows);
+    const baseNum = baseWin?.windowNumber || resolvedNums[baseIdx] || (baseIdx + 1);
+
+    const shouldAddAsVariant = options?.asVariant !== undefined
+      ? options.asVariant
+      : Boolean(baseWin?.variantLetter);
+
+    if (shouldAddAsVariant) {
+      // Find all existing letters for windows sharing baseNum
+      const existingLetters = baseWindows
+        .map((w, i) => {
+          const num = w.windowNumber || resolvedNums[i];
+          return num === baseNum && w.variantLetter ? w.variantLetter.toLowerCase().trim() : null;
+        })
+        .filter((l): l is string => Boolean(l));
+
+      let nextLetter = 'b';
+      if (existingLetters.length > 0) {
+        const maxCode = Math.max(...existingLetters.map((l) => l.charCodeAt(0)));
+        nextLetter = String.fromCharCode(maxCode + 1);
+      } else if (baseWin?.variantLetter) {
+        nextLetter = String.fromCharCode(baseWin.variantLetter.toLowerCase().charCodeAt(0) + 1);
+      }
+
+      const newWin: WindowInput = {
+        ...baseWin,
+        windowNumber: baseNum,
+        variantLetter: nextLetter,
+        windowLabel: `W${baseNum}${nextLetter}`,
+        quantity: 1
+      };
+
+      // Find where to insert: right after the last variant of this baseNum
+      let insertAfterIdx = baseIdx;
+      for (let i = baseWindows.length - 1; i >= 0; i--) {
+        const num = baseWindows[i].windowNumber || resolvedNums[i];
+        if (num === baseNum) {
+          insertAfterIdx = i;
+          break;
+        }
+      }
+
+      const updated = [
+        ...baseWindows.slice(0, insertAfterIdx + 1),
+        newWin,
+        ...baseWindows.slice(insertAfterIdx + 1)
+      ];
+
+      const updatedResults = calculateResultsSafely(updated);
+      const syncedWins = updated.map((w, idx) => ({
+        ...w,
+        windowLabel: updatedResults[idx]?.input.windowLabel || `W${idx + 1}`
+      }));
+      setWindows(syncedWins);
+      saveStored10Windows(syncedWins);
+      setResults(updatedResults);
+      setActiveWindowIndex(insertAfterIdx + 1);
+    } else {
+      const maxNum = Math.max(...resolvedNums, 0);
+      const nextWindowNum = maxNum + 1;
+      const firstWin = baseWindows[0];
+
+      const newWin = createNewWindow(nextWindowNum - 1, {
+        conversionFactor: firstWin?.conversionFactor ?? 25.4,
+        customOffsetMM: Math.max(0, firstWin?.customOffsetMM ?? 5),
+        weldingAllowanceMM: 0,
+        profileSeries: firstWin?.profileSeries ?? '60mm',
+        reinforcementSteel: firstWin?.reinforcementSteel ?? false,
+        glassType: firstWin?.glassType ?? '5mm_single',
+        inputUnit: firstWin?.unit ?? 'inch',
+        windowNumber: nextWindowNum,
+        variantLetter: '',
+        windowLabel: `W${nextWindowNum}`
+      });
+
+      const updated = [...baseWindows, newWin];
+      const updatedResults = calculateResultsSafely(updated);
+      const syncedWins = updated.map((w, idx) => ({
+        ...w,
+        windowLabel: updatedResults[idx]?.input.windowLabel || `W${idx + 1}`
+      }));
+      setWindows(syncedWins);
+      saveStored10Windows(syncedWins);
+      setResults(updatedResults);
+      setActiveWindowIndex(updated.length - 1);
+    }
   };
 
   // Delete window (if more than 1)

@@ -91,10 +91,51 @@ export function getWindowDimensionKey(item: WindowVariantInput): string {
  *
  * Accepts CalculationResult[], WindowInput[], or { input: WindowInput }[]
  */
+/**
+ * Resolves base window numbers (1, 2, 3...) for an array of windows.
+ * - Respects explicit `inp.windowNumber` if provided and > 0.
+ * - Groups sequential manual variant letters (e.g. 'b' after 'a', 'c' after 'b') under the same base window number.
+ * - Otherwise increments cleanly to the next sequential window number.
+ */
+export function resolveWindowNumbers(windows: WindowInput[]): number[] {
+  if (!windows || windows.length === 0) return [];
+  const resolved = new Array<number>(windows.length);
+
+  for (let i = 0; i < windows.length; i++) {
+    const curr = windows[i];
+    const currLetter = curr?.variantLetter?.toLowerCase().trim() || '';
+
+    if (curr?.windowNumber !== undefined && curr.windowNumber > 0) {
+      resolved[i] = curr.windowNumber;
+    } else if (i > 0 && currLetter && currLetter !== 'a') {
+      const prev = windows[i - 1];
+      const prevLetter = prev?.variantLetter?.toLowerCase().trim() || '';
+      if (prevLetter && currLetter.charCodeAt(0) === prevLetter.charCodeAt(0) + 1) {
+        resolved[i] = resolved[i - 1];
+      } else {
+        const maxPrev = Math.max(...resolved.slice(0, i));
+        resolved[i] = maxPrev + 1;
+      }
+    } else {
+      if (i === 0) {
+        resolved[0] = 1;
+      } else {
+        const maxPrev = Math.max(...resolved.slice(0, i));
+        resolved[i] = maxPrev + 1;
+      }
+    }
+  }
+
+  return resolved;
+}
+
 export function computeWindowVariantLabels(
   items: Array<WindowVariantInput>
 ): WindowVariantInfo[] {
   if (!items || items.length === 0) return [];
+
+  const inputs = items.map(extractWindowInput);
+  const resolvedNums = resolveWindowNumbers(inputs);
 
   const dimGroups = new Map<string, number[]>();
   items.forEach((item, idx) => {
@@ -111,7 +152,7 @@ export function computeWindowVariantLabels(
     // Collect distinct window types in this dimension group (in order of first appearance)
     const typeOrder: string[] = [];
     indices.forEach((idx) => {
-      const inp = extractWindowInput(items[idx]);
+      const inp = inputs[idx];
       const tk = getWindowTypeKey(inp);
       if (!typeOrder.includes(tk)) {
         typeOrder.push(tk);
@@ -121,8 +162,8 @@ export function computeWindowVariantLabels(
     const hasVariants = typeOrder.length > 1;
 
     indices.forEach((idx) => {
-      const num = idx + 1;
-      const inp = extractWindowInput(items[idx]);
+      const num = resolvedNums[idx];
+      const inp = inputs[idx];
       const manualLetter = inp?.variantLetter ? inp.variantLetter.toLowerCase().trim() : '';
 
       if (manualLetter) {

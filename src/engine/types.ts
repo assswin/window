@@ -32,6 +32,7 @@ export interface WindowInput {
   profileSeries?: UPVCSeries; // default '60mm' (uPVC series)
   reinforcementSteel?: boolean; // default false (GI steel reinforcement omitted per builder specification)
   glassType?: GlassType; // default '5mm_single'
+  windowNumber?: number; // Base window number (e.g. 1 for W1, W1a, W1b; 2 for W2)
   windowLabel?: string; // e.g. 'W1 - Hall'
   variantLetter?: string; // optional manual variant letter 'a' to 'z'
   quantity?: number; // default 1

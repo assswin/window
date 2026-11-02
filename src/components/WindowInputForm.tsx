@@ -5,7 +5,7 @@ import { RulesEngineManager } from '../engine/rules';
 import { RotateCcw, AlertCircle, Minus, Plus, ArrowRight, PlusCircle, Trash2, SlidersHorizontal } from 'lucide-react';
 import { GlobalSettings, createNewWindow } from '../utils/tenWindowsData';
 import { useLanguage } from '../context/LanguageContext';
-import { computeWindowVariantLabels } from '../utils/lsInteriorsSheetCanvas';
+import { computeWindowVariantLabels, resolveWindowNumbers } from '../utils/lsInteriorsSheetCanvas';
 
 export const FRACTION_OPTIONS: { label: string; value: number }[] = [
   { label: '1/2', value: 0.5 },
@@ -27,7 +27,7 @@ interface WindowInputFormProps {
   onResetAll: () => void;
   activeWindowIndex: number;
   onSelectWindowIndex: (index: number) => void;
-  onAddWindow: (currentWindows?: WindowInput[]) => void;
+  onAddWindow: (currentWindows?: WindowInput[], options?: { asVariant?: boolean; baseIndex?: number }) => void;
   onDeleteWindow: (index: number) => void;
   onOpenFormulaSettings?: () => void;
   rulesVersion?: number;
@@ -414,6 +414,30 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
   };
 
   const activeWin = windows[activeWindowIndex] || windows[0] || createNewWindow(0);
+  const resolvedNums = resolveWindowNumbers(windows);
+  const activeBaseNum = activeWin.windowNumber || resolvedNums[activeWindowIndex] || (activeWindowIndex + 1);
+  const activeHasVariant = Boolean(activeWin.variantLetter || variantLabels[activeWindowIndex]?.letter);
+
+  // Compute next variant letter for the active base window (e.g. 'b' if 'a', 'c' if 'b')
+  const nextVariantLetter = (() => {
+    const currentLetters = windows
+      .map((w, idx) => {
+        const num = w.windowNumber || resolvedNums[idx];
+        return num === activeBaseNum ? (w.variantLetter || variantLabels[idx]?.letter || '').toLowerCase() : null;
+      })
+      .filter(Boolean) as string[];
+    if (currentLetters.length > 0) {
+      const maxCode = Math.max(...currentLetters.map((l) => l.charCodeAt(0)));
+      return String.fromCharCode(maxCode + 1);
+    }
+    return 'b';
+  })();
+
+  // Compute next brand new window number
+  const nextNewWindowNum = (() => {
+    const maxNum = Math.max(...resolvedNums, 0);
+    return maxNum + 1;
+  })();
   const isVentilator = activeWin.windowType === 'ventilator';
   const addedMM = Math.max(0, globalSettings.customOffsetMM || 0);
   const effectiveAddedMM = isVentilator ? 0 : addedMM;
@@ -462,12 +486,12 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
         <div className="flex items-center space-x-1.5">
           <button
             type="button"
-            onClick={() => onAddWindow(windows)}
+            onClick={() => onAddWindow(windows, activeHasVariant ? { asVariant: true, baseIndex: activeWindowIndex } : { asVariant: false })}
             className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold transition cursor-pointer active:scale-95 touch-manipulation"
-            title={t('புதிய ஜன்னல் சேர்க்க', 'Add new window')}
+            title={activeHasVariant ? t(`துணை வகை சேர்க்க W${activeBaseNum}${nextVariantLetter}`, `Add variant W${activeBaseNum}${nextVariantLetter}`) : t('புதிய ஜன்னல் சேர்க்க', 'Add new window')}
           >
             <PlusCircle className="w-3.5 h-3.5" />
-            <span>+ Add</span>
+            <span>{activeHasVariant ? `+ Add W${activeBaseNum}${nextVariantLetter}` : '+ Add'}</span>
           </button>
 
           <button
@@ -721,19 +745,48 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
           );
         })}
 
-        {/* Add Window Button Pill */}
-        <button
-          type="button"
-          onClick={() => onAddWindow(windows)}
-          className="py-1.5 px-2.5 rounded-lg text-center border border-dashed border-emerald-500/60 bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 transition flex-shrink-0 cursor-pointer active:scale-95 touch-manipulation"
-          title={t('புதிய ஜன்னல் சேர்க்க', 'Add New Window')}
-        >
-          <div className="text-xs font-bold flex items-center space-x-1">
-            <Plus className="w-3 h-3" />
-            <span>Add</span>
-          </div>
-          <div className="text-[10px] text-emerald-400">{'W' + (windows.length + 1)}</div>
-        </button>
+        {/* Add Window Button Pills */}
+        {activeHasVariant ? (
+          <>
+            <button
+              type="button"
+              onClick={() => onAddWindow(windows, { asVariant: true, baseIndex: activeWindowIndex })}
+              className="py-1.5 px-2.5 rounded-lg text-center border border-emerald-500 bg-emerald-950/70 hover:bg-emerald-900 text-emerald-200 transition flex-shrink-0 cursor-pointer active:scale-95 shadow-sm touch-manipulation"
+              title={t(`துணை வகை ஜன்னல் சேர்க்க W${activeBaseNum}${nextVariantLetter}`, `Add variant window W${activeBaseNum}${nextVariantLetter}`)}
+            >
+              <div className="text-xs font-bold flex items-center space-x-1">
+                <Plus className="w-3 h-3" />
+                <span>+ Variant</span>
+              </div>
+              <div className="text-[10px] text-emerald-300 font-mono font-bold">{`W${activeBaseNum}${nextVariantLetter}`}</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => onAddWindow(windows, { asVariant: false })}
+              className="py-1.5 px-2.5 rounded-lg text-center border border-dashed border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-300 transition flex-shrink-0 cursor-pointer active:scale-95 touch-manipulation"
+              title={t(`புதிய ஜன்னல் சேர்க்க W${nextNewWindowNum}`, `Add new window W${nextNewWindowNum}`)}
+            >
+              <div className="text-xs font-bold flex items-center space-x-1">
+                <Plus className="w-3 h-3" />
+                <span>+ Window</span>
+              </div>
+              <div className="text-[10px] text-slate-400 font-mono font-bold">{`W${nextNewWindowNum}`}</div>
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onAddWindow(windows, { asVariant: false })}
+            className="py-1.5 px-2.5 rounded-lg text-center border border-dashed border-emerald-500/60 bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 transition flex-shrink-0 cursor-pointer active:scale-95 touch-manipulation"
+            title={t('புதிய ஜன்னல் சேர்க்க', 'Add New Window')}
+          >
+            <div className="text-xs font-bold flex items-center space-x-1">
+              <Plus className="w-3 h-3" />
+              <span>Add</span>
+            </div>
+            <div className="text-[10px] text-emerald-400 font-mono font-bold">{`W${nextNewWindowNum}`}</div>
+          </button>
+        )}
       </div>
 
       {/* 4. WINDOW INPUT FORM CONTENT */}
@@ -762,7 +815,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
               </span>
 
               {/* Small tiny box: Select button with options a to z */}
-              <div className="inline-flex items-center gap-1 flex-shrink-0" title={t('துணை வகை எழுத்து தேர்வு (a முதல் z)', 'Select variant letter (a to z)')}>
+              <div className="inline-flex items-center gap-1.5 flex-shrink-0" title={t('துணை வகை எழுத்து தேர்வு (a முதல் z)', 'Select variant letter (a to z)')}>
                 <select
                   value={activeWin.variantLetter || ''}
                   onChange={(e) => updateWindow(activeWindowIndex, { variantLetter: e.target.value })}
@@ -776,6 +829,19 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                     </option>
                   ))}
                 </select>
+
+                {/* Instant variant creation shortcut */}
+                {activeHasVariant && (
+                  <button
+                    type="button"
+                    onClick={() => onAddWindow(windows, { asVariant: true, baseIndex: activeWindowIndex })}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white font-mono text-xs font-bold shadow-sm transition active:scale-95 cursor-pointer"
+                    title={t(`அடுத்த துணை வகை சேர்க்க W${activeBaseNum}${nextVariantLetter}`, `Add next variant W${activeBaseNum}${nextVariantLetter}`)}
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>{`+ W${activeBaseNum}${nextVariantLetter}`}</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1510,15 +1576,36 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
             );
           })}
 
-          {/* Add Window Button at bottom of list */}
-          <button
-            type="button"
-            onClick={() => onAddWindow(windows)}
-            className="w-full py-3 rounded-lg border border-dashed border-emerald-500/60 bg-emerald-950/30 hover:bg-emerald-900/50 text-emerald-300 text-xs font-bold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            <span>{t(`+ புதிய ஜன்னல் சேர்க்க (W${windows.length + 1})`, `+ Add Window (W${windows.length + 1})`)}</span>
-          </button>
+          {/* Add Window Buttons at bottom of list */}
+          {activeHasVariant ? (
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                type="button"
+                onClick={() => onAddWindow(windows, { asVariant: true, baseIndex: activeWindowIndex })}
+                className="flex-1 py-3 rounded-lg border border-emerald-500/70 bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 text-xs font-bold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t(`+ துணை வகை சேர்க்க (W${activeBaseNum}${nextVariantLetter})`, `+ Add Variant Window (W${activeBaseNum}${nextVariantLetter})`)}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onAddWindow(windows, { asVariant: false })}
+                className="flex-1 py-3 rounded-lg border border-dashed border-slate-700 bg-slate-900/50 hover:bg-slate-800 text-slate-300 text-xs font-bold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t(`+ புதிய ஜன்னல் சேர்க்க (W${nextNewWindowNum})`, `+ Add New Window (W${nextNewWindowNum})`)}</span>
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onAddWindow(windows, { asVariant: false })}
+              className="w-full py-3 rounded-lg border border-dashed border-emerald-500/60 bg-emerald-950/30 hover:bg-emerald-900/50 text-emerald-300 text-xs font-bold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{t(`+ புதிய ஜன்னல் சேர்க்க (W${nextNewWindowNum})`, `+ Add Window (W${nextNewWindowNum})`)}</span>
+            </button>
+          )}
         </div>
       )}
 

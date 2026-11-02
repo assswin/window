@@ -2666,6 +2666,64 @@ export class GoldenTestSuite {
       }
     });
 
+    // 77. WINDOW VARIANT CONTINUATION & ADDITION LOGIC: W1a -> W1b, next W2, W3a -> W3b
+    const variantContinuationInputs: WindowInput[] = [
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', windowNumber: 1, variantLetter: 'a' },
+      { unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '3-track', windowNumber: 1, variantLetter: 'b' },
+      { unit: 'inch', widthInch: 30, heightInch: 40, windowType: 'open', frameType: 'no-track', casementSubtype: 'single', windowNumber: 2, variantLetter: '' },
+      { unit: 'inch', widthInch: 36, heightInch: 48, windowType: 'sliding', frameType: '2-track', windowNumber: 3, variantLetter: 'a' },
+      { unit: 'inch', widthInch: 36, heightInch: 48, windowType: 'fixed', frameType: 'no-track', windowNumber: 3, variantLetter: 'b' }
+    ];
+    const computedSeqVariants = computeWindowVariantLabels(variantContinuationInputs);
+    const continuationCalcs = variantContinuationInputs.map((inp, idx) => {
+      const calc = WindowCalculationEngine.calculate(inp);
+      return {
+        ...calc,
+        id: computedSeqVariants[idx].windowLabel,
+        input: {
+          ...calc.input,
+          windowNumber: inp.windowNumber,
+          variantLetter: inp.variantLetter,
+          windowLabel: computedSeqVariants[idx].windowLabel
+        }
+      };
+    });
+    const orderRows77 = prepareLSRows(continuationCalcs);
+
+    const passTest77 =
+      computedSeqVariants.length === 5 &&
+      computedSeqVariants[0].siNo === '1a' && computedSeqVariants[0].windowLabel === 'W1a' &&
+      computedSeqVariants[1].siNo === '1b' && computedSeqVariants[1].windowLabel === 'W1b' &&
+      computedSeqVariants[2].siNo === '2' && computedSeqVariants[2].windowLabel === 'W2' &&
+      computedSeqVariants[3].siNo === '3a' && computedSeqVariants[3].windowLabel === 'W3a' &&
+      computedSeqVariants[4].siNo === '3b' && computedSeqVariants[4].windowLabel === 'W3b' &&
+      orderRows77[0].siNo === '1a' &&
+      orderRows77[1].siNo === '1b' &&
+      orderRows77[2].siNo === '2' &&
+      orderRows77[3].siNo === '3a' &&
+      orderRows77[4].siNo === '3b';
+
+    results.push({
+      name: 'Window Variant Continuation Logic: W1 option a followed by added window produces W1b (1b), next window produces W2 (2), and W3a produces W3b (3b)',
+      category: 'Rule Combination',
+      passed: passTest77,
+      input: variantContinuationInputs,
+      expected: {
+        w0: { siNo: '1a', label: 'W1a' },
+        w1: { siNo: '1b', label: 'W1b' },
+        w2: { siNo: '2', label: 'W2' },
+        w3: { siNo: '3a', label: 'W3a' },
+        w4: { siNo: '3b', label: 'W3b' }
+      },
+      actual: {
+        w0: { siNo: computedSeqVariants[0]?.siNo, label: computedSeqVariants[0]?.windowLabel, rowSiNo: orderRows77[0]?.siNo },
+        w1: { siNo: computedSeqVariants[1]?.siNo, label: computedSeqVariants[1]?.windowLabel, rowSiNo: orderRows77[1]?.siNo },
+        w2: { siNo: computedSeqVariants[2]?.siNo, label: computedSeqVariants[2]?.windowLabel, rowSiNo: orderRows77[2]?.siNo },
+        w3: { siNo: computedSeqVariants[3]?.siNo, label: computedSeqVariants[3]?.windowLabel, rowSiNo: orderRows77[3]?.siNo },
+        w4: { siNo: computedSeqVariants[4]?.siNo, label: computedSeqVariants[4]?.windowLabel, rowSiNo: orderRows77[4]?.siNo }
+      }
+    });
+
     const passedCount = results.filter(r => r.passed).length;
     return {
       passedCount,

@@ -24,8 +24,17 @@ export const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   inputUnit: 'inch'
 };
 
-export const createNewWindow = (index: number, settings?: Partial<GlobalSettings>): WindowInput => {
+export const createNewWindow = (
+  index: number,
+  settings?: Partial<GlobalSettings> & {
+    windowNumber?: number;
+    variantLetter?: string;
+    windowLabel?: string;
+  }
+): WindowInput => {
   const unit = settings?.inputUnit ?? 'inch';
+  const winNum = settings?.windowNumber ?? (index + 1);
+  const variant = settings?.variantLetter ?? '';
   return {
     widthInch: 48,
     heightInch: 60,
@@ -42,7 +51,9 @@ export const createNewWindow = (index: number, settings?: Partial<GlobalSettings
     profileSeries: settings?.profileSeries ?? '60mm',
     reinforcementSteel: settings?.reinforcementSteel ?? false,
     glassType: settings?.glassType ?? '5mm_single',
-    windowLabel: 'W' + (index + 1),
+    windowNumber: winNum,
+    variantLetter: variant,
+    windowLabel: settings?.windowLabel || (variant ? `W${winNum}${variant}` : `W${winNum}`),
     quantity: 1
   };
 };
@@ -220,7 +231,9 @@ export const loadStored10Windows = (): WindowInput[] => {
             customOffsetMM: w.windowType === 'ventilator' ? 0 : Math.max(0, w.customOffsetMM !== undefined ? Number(w.customOffsetMM) || 0 : 5),
             weldingAllowanceMM: 0,
             reinforcementSteel: false,
-            windowLabel: 'W' + (i + 1)
+            windowNumber: w.windowNumber,
+            variantLetter: w.variantLetter,
+            windowLabel: w.windowLabel || ('W' + (i + 1))
           };
         });
       }
