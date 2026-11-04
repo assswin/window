@@ -571,14 +571,14 @@ export class WindowCalculationEngine {
         shutterType = 'uPVC 4-Track Sliding Glass Sash';
       } else if (input.frameType === '2.5-track') {
         const hDed = rule.heightDeductionMM ?? 82;
-        const wDed = rule.widthDeductionMM ?? 8;
+        const wDed = rule.widthDeductionMM ?? 10;
         panelHeightMM = Math.max(10, convertedHeightMM - hDed);
-        panelWidthMM = Math.max(10, Math.round((convertedWidthMM / 2) - wDed));
+        panelWidthMM = Math.max(10, Math.round((convertedWidthMM - wDed) / 2));
         panelCount = 2;
         mirrorDeductionMM = rule.mirrorHeightDeductionMM ?? 94;
-        formulaDesc = `2.5 Track Sliding: H-${hDed} | W/2-${wDed} | -${mirrorDeductionMM} Glass | 58mm`;
+        formulaDesc = `2.5 Track Sliding: H-${hDed} | (W-${wDed})/2 | -${mirrorDeductionMM} Glass | 58mm`;
         heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
-        widthFormulaStr = `(W / 2) - ${wDed} = (${convertedWidthMM} / 2) - ${wDed} = ${panelWidthMM} mm`;
+        widthFormulaStr = `(W - ${wDed}) / 2 = (${convertedWidthMM} - ${wDed}) / 2 = ${panelWidthMM} mm`;
         shutterType = 'uPVC Sliding Glass Sash';
       } else if (input.frameType === '3.5-track' || input.frameType === '3-track') {
         const hDed = rule.heightDeductionMM ?? 91;
@@ -801,10 +801,10 @@ export class WindowCalculationEngine {
     // 7. Additional Panels for 2.5 Track (Mosquito Mesh Panel)
     const additionalPanels: PanelOutput[] = [];
     if (input.frameType === '2.5-track') {
-      const meshHeightDed = rule.meshHeightDeductionMM ?? 2;
+      const meshHeightDed = rule.meshHeightDeductionMM ?? 10;
       const meshWidthDed = rule.meshWidthDeductionMM ?? 10;
       const meshH = Math.max(10, panelHeightMM - meshHeightDed);
-      const meshW = Math.max(10, Math.round((convertedWidthMM / 2) - meshWidthDed));
+      const meshW = Math.max(10, Math.round((convertedWidthMM - meshWidthDed) / 2));
 
       const meshPanel: PanelOutput = {
         count: 1,
@@ -823,8 +823,8 @@ export class WindowCalculationEngine {
 
       steps.push({
         label: '2.5 Track Mosquito Mesh Shutter',
-        formula: `Mesh Panel Width = (W / 2) - ${meshWidthDed} mm, Height = Shutter Height - ${meshHeightDed} mm`,
-        calculation: `W: (${convertedWidthMM} / 2) - ${meshWidthDed} = ${meshW} mm | H: ${panelHeightMM} - ${meshHeightDed} = ${meshH} mm (1 Shutter)`,
+        formula: `Mesh Panel Width = (W - ${meshWidthDed}) / 2 mm, Height = Shutter Height - ${meshHeightDed} mm`,
+        calculation: `W: (${convertedWidthMM} - ${meshWidthDed}) / 2 = ${meshW} mm | H: ${panelHeightMM} - ${meshHeightDed} = ${meshH} mm (1 Shutter)`,
         result: `${meshW} × ${meshH} mm`,
         note: 'High-durability stainless steel 304 insect barrier screen with nylon track rollers.'
       });

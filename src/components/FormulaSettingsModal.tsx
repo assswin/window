@@ -160,7 +160,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
       return `H-${currentRule.heightDeductionMM} | (W-${currentRule.widthDeductionMM})/2 | Glass -${currentRule.mirrorHeightDeductionMM} | 65mm`;
     }
     if (activeTabKey === '2.5-track_sliding') {
-      return `H-${currentRule.heightDeductionMM} | W/2-${currentRule.widthDeductionMM} | Mesh H-${currentRule.meshHeightDeductionMM ?? 2} | Mesh W/2-${currentRule.meshWidthDeductionMM ?? 10} | Glass -${currentRule.mirrorHeightDeductionMM} | 58mm`;
+      return `H-${currentRule.heightDeductionMM} | (W-${currentRule.widthDeductionMM})/2 | Mesh H-${currentRule.meshHeightDeductionMM ?? 10} | Mesh (W-${currentRule.meshWidthDeductionMM ?? 10})/2 | Glass -${currentRule.mirrorHeightDeductionMM} | 58mm`;
     }
     if (activeTabKey === '3-track_sliding') {
       const wAdd = currentRule.widthAdditionMM ?? 11;
@@ -201,6 +201,9 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
     if (activeTabKey === '3-track_sliding_65mm') {
       return t('அகலத்தில் (W) கூட்டப்பட்டு 3 ஆல் வகுக்கப்படும் மிமீ ((W + 48) / 3)', 'Addition in mm added to width before dividing by 3 ((W + 48) / 3)');
     }
+    if (activeTabKey === '2.5-track_sliding') {
+      return t('அகலத்தில் (W) கழிக்கப்பட்டு 2 ஆல் வகுக்கப்படும் மிமீ ((W - 10) / 2)', 'Deduction in mm subtracted from width before dividing by 2 ((W - 10) / 2)');
+    }
     if (activeTabKey === '2-track_sliding_85mm') {
       return t('அகலத்தில் (W) கழிக்கப்பட்டு 2 ஆல் வகுக்கப்படும் மிமீ ((W - 2) / 2)', 'Deduction in mm subtracted from width before dividing by 2 ((W - 2) / 2)');
     }
@@ -215,7 +218,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
     if (activeTabKey === 'no-track_open') {
       return 'Shutter W = W - ' + currentRule.widthDeductionMM;
     }
-    if (activeTabKey === '2-track_sliding_85mm' || activeTabKey === '2-track_sliding_65mm') {
+    if (activeTabKey === '2-track_sliding_85mm' || activeTabKey === '2-track_sliding_65mm' || activeTabKey === '2.5-track_sliding') {
       return 'Shutter W = (W - ' + currentRule.widthDeductionMM + ') / 2';
     }
     if (activeTabKey === '3-track_sliding_85mm') {
@@ -408,7 +411,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                         +
                       </button>
                     </div>
-                    <span className="text-xs font-bold text-slate-400">mm</span>
+                    <span className="text-xs font-bold text-slate-400">) / 2 mm</span>
                   </div>
                 </div>
               )}
@@ -436,7 +439,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                     <span className="text-sm font-mono text-slate-300 font-bold">
                       {activeTabKey === 'no-track_open'
                         ? 'W −'
-                        : (activeTabKey === '2-track_sliding_85mm' || activeTabKey === '2-track_sliding_65mm'
+                        : (activeTabKey === '2-track_sliding_85mm' || activeTabKey === '2-track_sliding_65mm' || activeTabKey === '2.5-track_sliding'
                           ? '(W −'
                           : (activeTabKey === '3-track_sliding_85mm' || activeTabKey === '3-track_sliding_65mm'
                             ? '(W +'
@@ -512,7 +515,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                       </button>
                     </div>
                     <span className="text-xs font-bold text-slate-400 font-mono">
-                      {activeTabKey === '2-track_sliding_85mm' || activeTabKey === '2-track_sliding_65mm'
+                      {activeTabKey === '2-track_sliding_85mm' || activeTabKey === '2-track_sliding_65mm' || activeTabKey === '2.5-track_sliding'
                         ? ') / 2 mm'
                         : (activeTabKey === '3-track_sliding_65mm' || activeTabKey === '3-track_sliding_85mm' ? ') / 3 mm' : 'mm')}
                     </span>
@@ -629,7 +632,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                       </span>
                     </div>
                     <span className="text-xs font-mono font-bold text-blue-400 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-900">
-                      {'Mesh H = Shutter H - ' + (currentRule.meshHeightDeductionMM ?? 2)}
+                      {'Mesh H = Shutter H - ' + (currentRule.meshHeightDeductionMM ?? 10)}
                     </span>
                   </div>
 
@@ -641,7 +644,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                         onClick={() =>
                           updateCurrentRuleField(
                             'meshHeightDeductionMM',
-                            Math.max(0, (currentRule.meshHeightDeductionMM ?? 2) - 1)
+                            Math.max(0, (currentRule.meshHeightDeductionMM ?? 10) - 1)
                           )
                         }
                         className="w-10 h-10 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center text-sm cursor-pointer active:scale-95 transition"
@@ -652,7 +655,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                         type="number"
                         min="0"
                         max="50"
-                        value={currentRule.meshHeightDeductionMM ?? 2}
+                        value={currentRule.meshHeightDeductionMM ?? 10}
                         onChange={(e) =>
                           updateCurrentRuleField(
                             'meshHeightDeductionMM',
@@ -666,7 +669,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                         onClick={() =>
                           updateCurrentRuleField(
                             'meshHeightDeductionMM',
-                            (currentRule.meshHeightDeductionMM ?? 2) + 1
+                            (currentRule.meshHeightDeductionMM ?? 10) + 1
                           )
                         }
                         className="w-10 h-10 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center text-sm cursor-pointer active:scale-95 transition"
@@ -688,16 +691,16 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                         {t('5. கொசுவலை சஷ் அகலம் கழிப்பு (Mosquito Mesh Shutter Width):', '5. Mosquito Mesh Shutter Width Deduction:')}
                       </label>
                       <span className="text-[11px] text-slate-400">
-                        {t('மொத்த அகல பாதியிலிருந்து கொசுவலை சஷ்க்கு கழிக்கப்படும் மிமீ ((W / 2) - deduction)', 'Deduction in mm subtracted from half outer width ((W / 2) - deduction)')}
+                        {t('அகலத்தில் (W) கழிக்கப்பட்டு 2 ஆல் வகுக்கப்படும் மிமீ ((W - 10) / 2)', 'Deduction in mm subtracted from width before dividing by 2 ((W - 10) / 2)')}
                       </span>
                     </div>
                     <span className="text-xs font-mono font-bold text-blue-400 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-900">
-                      {'Mesh W = (W / 2) - ' + (currentRule.meshWidthDeductionMM ?? 10)}
+                      {'Mesh W = (W - ' + (currentRule.meshWidthDeductionMM ?? 10) + ') / 2'}
                     </span>
                   </div>
 
                   <div className="flex items-center space-x-2 pt-1">
-                    <span className="text-sm font-mono text-slate-300 font-bold">(W / 2) −</span>
+                    <span className="text-sm font-mono text-slate-300 font-bold">(W −</span>
                     <div className="flex items-center space-x-1.5 flex-1">
                       <button
                         type="button"

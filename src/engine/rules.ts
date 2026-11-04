@@ -17,7 +17,7 @@ export const getRuleKey = (frameType: FrameType, windowType: WindowType, profile
 export const WORKSHOP_REFERENCE_PRESET: SystemProfilePreset = {
   id: 'workshop-ref',
   name: "Builder's Method of Sum (Tamil Nadu Workshop Audited Standards)",
-  description: 'Audited shop formulas: 2T (H-94, W/2-12, -94 glass, 58mm material), 2.5T (H-82, W/2-8, -94 glass, Mesh H-2, W/2-10, 58mm material), 3T (H-91, W/3+11, -94 glass, 58mm material), 4T (H-92, W/4+11, Glass -95, 58mm material), Single Window (H-64, W-64, -124 glass), Double Window (H-64, W/2-37, Mullion H-6, -126 glass), 3-Open Window (H-64, W/3-40, Glass -125, Mullion H-6), Fixed (Direct OU-96 glass).',
+  description: 'Audited shop formulas: 2T (H-94, W/2-12, -94 glass, 58mm material), 2.5T (H-82, (W-10)/2, -94 glass, Mesh H-10, Mesh (W-10)/2, 58mm material), 3T (H-91, W/3+11, -94 glass, 58mm material), 4T (H-92, W/4+11, Glass -95, 58mm material), Single Window (H-64, W-64, -124 glass), Double Window (H-64, W/2-37, Mullion H-6, -126 glass), 3-Open Window (H-64, W/3-40, Glass -125, Mullion H-6), Fixed (Direct OU-96 glass).',
   version: 'v2.1-audited',
   rules: {
         '3-track_sliding_85mm': {
@@ -118,11 +118,11 @@ export const WORKSHOP_REFERENCE_PRESET: SystemProfilePreset = {
       id: '2.5-track_sliding',
       frameType: '2.5-track',
       windowType: 'sliding',
-      name: '2.5 Track Sliding Window (H-82, W/2-8, -94 Glass, Mesh H-2, Mesh W/2-10, Material 58mm)',
-      description: 'Sliding 2.5-Track: Shutter Height H-82, Shutter Width W/2-8, Glass -94mm, Mesh H-2, Mesh W/2-10, Material 58mm',
+      name: '2.5 Track Sliding Window (H-82, (W-10)/2, -94 Glass, Mesh H-10, Mesh (W-10)/2, Material 58mm)',
+      description: 'Sliding 2.5-Track: Shutter Height H-82, Shutter Width (W-10)/2, Glass -94mm, Mesh H-10, Mesh (W-10)/2, Material 58mm',
       heightDeductionMM: 82,
       divisionFactor: 2,
-      widthDeductionMM: 8,
+      widthDeductionMM: 10,
       overlapMM: 0,
       sideClearanceMM: 0,
       mirrorHeightDeductionMM: 94,
@@ -131,7 +131,7 @@ export const WORKSHOP_REFERENCE_PRESET: SystemProfilePreset = {
       profileDepthMM: 58,
       sashProfileWidthMM: 50,
       glassGrooveDepthMM: 8,
-      meshHeightDeductionMM: 2,
+      meshHeightDeductionMM: 10,
       meshWidthDeductionMM: 10
     },
     '3.5-track_sliding': {

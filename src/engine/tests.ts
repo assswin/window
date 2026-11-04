@@ -114,9 +114,9 @@ export class GoldenTestSuite {
 
     // 3. COMBINATION 2: 2.5 Track + Sliding Window (48" x 60")
     // Audited Height: H - 82 = 1524 - 82 = 1442 mm
-    // Audited Width: (W / 2) - 8 = (1219 / 2) - 8 = 609.5 - 8 = 602 mm
-    // Audited Glass: Shutter - 94 mm -> H: 1442 - 94 = 1348 mm, W: 602 - 94 = 508 mm
-    // Audited Mesh: W × (H - 2) = 602 × 1440 mm
+    // Audited Width: (W - 10) / 2 = (1219 - 10) / 2 = 1209 / 2 = 604.5 -> 605 mm
+    // Audited Glass: Shutter - 94 mm -> H: 1442 - 94 = 1348 mm, W: 605 - 94 = 511 mm
+    // Audited Mesh: (W - 10)/2 × (H - 10) = 605 × 1432 mm
     const res2_5Sliding = WindowCalculationEngine.calculate({
       widthInch: 48,
       heightInch: 60,
@@ -127,18 +127,18 @@ export class GoldenTestSuite {
     });
 
     results.push({
-      name: 'Audited Case 2: 2.5T Sliding [H-82, W/2-8, -94 glass, Mesh H-2, Mesh W/2-10]',
+      name: 'Audited Case 2: 2.5T Sliding [H-82, (W-10)/2, -94 glass, Mesh H-10, Mesh (W-10)/2]',
       category: 'Handwritten Golden Case',
       passed: res2_5Sliding.panel.heightMM === 1442 &&
-              res2_5Sliding.panel.widthMM === 602 &&
+              res2_5Sliding.panel.widthMM === 605 &&
               res2_5Sliding.panel.count === 2 &&
               res2_5Sliding.mirror.heightMM === 1348 &&
-              res2_5Sliding.mirror.widthMM === 508 &&
+              res2_5Sliding.mirror.widthMM === 511 &&
               (res2_5Sliding.additionalPanels?.length || 0) === 1 &&
-              res2_5Sliding.additionalPanels?.[0]?.heightMM === 1440 &&
-              res2_5Sliding.additionalPanels?.[0]?.widthMM === 600,
+              res2_5Sliding.additionalPanels?.[0]?.heightMM === 1432 &&
+              res2_5Sliding.additionalPanels?.[0]?.widthMM === 605,
       input: { width: 48, height: 60, frame: '2.5 Track', type: 'Sliding' },
-      expected: { panelH: 1442, panelW: 602, mirrorH: 1348, mirrorW: 508, meshH: 1440, meshW: 600 },
+      expected: { panelH: 1442, panelW: 605, mirrorH: 1348, mirrorW: 511, meshH: 1432, meshW: 605 },
       actual: {
         panelH: res2_5Sliding.panel.heightMM,
         panelW: res2_5Sliding.panel.widthMM,
@@ -486,7 +486,7 @@ export class GoldenTestSuite {
       actual: { wMM: noOffsetCalc.convertedWidthMM, hMM: noOffsetCalc.convertedHeightMM }
     });
 
-    // 20. 2.5 TRACK SLIDING WITH +5MM OUTPUT MM VERIFICATION: H-82, W/2-8, -94 GLASS
+    // 20. 2.5 TRACK SLIDING WITH +5MM OUTPUT MM VERIFICATION: H-82, (W-10)/2, -94 GLASS
     const res2_5With5mm = WindowCalculationEngine.calculate({
       widthInch: 48,
       heightInch: 60,
@@ -497,17 +497,17 @@ export class GoldenTestSuite {
     });
 
     results.push({
-      name: '2.5T Sliding Full Cut (+5mm Output MM): H-82, W/2-8, -94 glass',
+      name: '2.5T Sliding Full Cut (+5mm Output MM): H-82, (W-10)/2, -94 glass',
       category: 'Rule Combination',
       passed: res2_5With5mm.convertedWidthMM === 1224 &&
               res2_5With5mm.convertedHeightMM === 1529 &&
               res2_5With5mm.panel.heightMM === 1447 &&
-              res2_5With5mm.panel.widthMM === 604 &&
+              res2_5With5mm.panel.widthMM === 607 &&
               res2_5With5mm.mirror.heightMM === 1353 &&
-              res2_5With5mm.mirror.widthMM === 510 &&
+              res2_5With5mm.mirror.widthMM === 513 &&
               (res2_5With5mm.additionalPanels?.length || 0) === 1,
       input: { width: 48, height: 60, frame: '2.5 Track', customOffsetMM: 5 },
-      expected: { frameW: 1224, frameH: 1529, panelH: 1447, panelW: 604, mirrorH: 1353, mirrorW: 510, meshPanel: 1 },
+      expected: { frameW: 1224, frameH: 1529, panelH: 1447, panelW: 607, mirrorH: 1353, mirrorW: 513, meshPanel: 1 },
       actual: {
         frameW: res2_5With5mm.convertedWidthMM,
         frameH: res2_5With5mm.convertedHeightMM,
@@ -730,14 +730,14 @@ export class GoldenTestSuite {
       }
     });
 
-    // 29. 2.5 TRACK MESH WIDTH FORMULA & CUSTOM DEDUCTION VERIFICATION (W/2 - 10 default, customizable)
+    // 29. 2.5 TRACK MESH WIDTH FORMULA & CUSTOM DEDUCTION VERIFICATION ((W - 10) / 2 default, customizable)
     const customMeshRule = {
       ...WORKSHOP_REFERENCE_PRESET.rules['2.5-track_sliding'],
       meshWidthDeductionMM: 15,
       meshHeightDeductionMM: 4
     };
     const resCustomMesh = WindowCalculationEngine.calculate({
-      widthInch: 48, // 1219 mm -> W/2 - 15 = 609.5 - 15 = 594.5 -> 595 mm
+      widthInch: 48, // 1219 mm -> (W - 15) / 2 = (1219 - 15) / 2 = 1204 / 2 = 602 mm
       heightInch: 60, // 1524 mm -> H - 82 = 1442 mm -> Mesh H = 1442 - 4 = 1438 mm
       frameType: '2.5-track',
       windowType: 'sliding',
@@ -745,15 +745,15 @@ export class GoldenTestSuite {
     }, customMeshRule);
 
     const passCustomMesh = (resCustomMesh.additionalPanels?.length || 0) === 1 &&
-                           resCustomMesh.additionalPanels?.[0]?.widthMM === 595 &&
+                           resCustomMesh.additionalPanels?.[0]?.widthMM === 602 &&
                            resCustomMesh.additionalPanels?.[0]?.heightMM === 1438;
 
     results.push({
-      name: '2.5 Track Mesh Custom Deduction: Mesh Width (W/2 - 15 = 595 mm) & Height (H - 4 = 1438 mm)',
+      name: '2.5 Track Mesh Custom Deduction: Mesh Width ((W - 15) / 2 = 602 mm) & Height (H - 4 = 1438 mm)',
       category: 'Rule Combination',
       passed: passCustomMesh,
       input: { width: 48, height: 60, customMeshWidthDed: 15, customMeshHeightDed: 4 },
-      expected: { meshW: 595, meshH: 1438 },
+      expected: { meshW: 602, meshH: 1438 },
       actual: {
         meshW: resCustomMesh.additionalPanels?.[0]?.widthMM,
         meshH: resCustomMesh.additionalPanels?.[0]?.heightMM
@@ -1198,10 +1198,10 @@ export class GoldenTestSuite {
       siteWidth: '48"',
       modelName: '2.5T SLIDING (MESH)',
       outerFrameMM: '1524 H × 1219 W',
-      sashCutMM: '1442 H × 602 W',
+      sashCutMM: '1442 H × 605 W',
       interlockMM: '1437 mm',
-      mirrorCutMM: '1348 H × 508 W',
-      meshCutMM: '1438 H × 602 W'
+      mirrorCutMM: '1348 H × 511 W',
+      meshCutMM: '1432 H × 605 W'
     };
     const slidingRowColor = getLSModelColor(row2_5TSliding);
     const passRowUniformColor =

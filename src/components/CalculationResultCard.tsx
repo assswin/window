@@ -77,9 +77,9 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
         return `H-${activeRule.heightDeductionMM} | W/4+${wAdd} | -${activeRule.mirrorHeightDeductionMM} glass | 58mm`;
       }
       if (input.frameType === '2.5-track') {
-        const meshDeduction = activeRule.meshHeightDeductionMM ?? 2;
+        const meshDeduction = activeRule.meshHeightDeductionMM ?? 10;
         const meshWDeduction = activeRule.meshWidthDeductionMM ?? 10;
-        return `H-${activeRule.heightDeductionMM} | W/2-${activeRule.widthDeductionMM} | Mesh H-${meshDeduction}, W/2-${meshWDeduction} | -${activeRule.mirrorHeightDeductionMM} glass | 58mm`;
+        return `H-${activeRule.heightDeductionMM} | (W-${activeRule.widthDeductionMM})/2 | Mesh H-${meshDeduction}, (W-${meshWDeduction})/2 | -${activeRule.mirrorHeightDeductionMM} glass | 58mm`;
       }
       if (input.frameType === '3.5-track' || input.frameType === '3-track') {
         const wAdd = activeRule.widthAdditionMM ?? 11;
@@ -426,7 +426,9 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                           ? `W/4 + ${activeRule.widthAdditionMM ?? 11}`
                           : (input.frameType === '3.5-track' || input.frameType === '3-track'
                             ? `W/3 + ${activeRule.widthAdditionMM ?? 11}`
-                            : `W/2 - ${activeRule.widthDeductionMM}`))
+                            : (input.frameType === '2.5-track'
+                              ? `(W - ${activeRule.widthDeductionMM}) / 2`
+                              : `W/2 - ${activeRule.widthDeductionMM}`)))
                         : (input.casementSubtype === 'triple'
                           ? `W/3 - ${activeRule.widthDeductionMM}`
                           : (input.casementSubtype === 'double' ? `W/2 - ${activeRule.widthDeductionMM}` : `W - ${activeRule.widthDeductionMM}`))}
@@ -463,7 +465,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                 <div className="bg-slate-900 p-2.5 rounded border border-slate-800 flex items-center justify-between text-xs font-mono">
                   <div>
                     <span className="text-slate-300 text-xs block font-sans">{t('கொசு வலை சஷ் (SS Mesh Shutter):', 'Wire Mesh Sash (SS Mesh):')}</span>
-                    <span className="text-xs text-slate-400">{`1 Piece (Mesh W/2-${activeRule.meshWidthDeductionMM ?? 10} × Mesh H-${activeRule.meshHeightDeductionMM ?? 2}mm)`}</span>
+                    <span className="text-xs text-slate-400">{`1 Piece (Mesh (W-${activeRule.meshWidthDeductionMM ?? 10})/2 × Mesh H-${activeRule.meshHeightDeductionMM ?? 10}mm)`}</span>
                   </div>
                   <span className="text-sm font-bold text-emerald-400">
                     {currentResult.additionalPanels[0].heightMM + ' × ' + currentResult.additionalPanels[0].widthMM + ' mm'}
