@@ -628,16 +628,16 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                         {t('4. கொசுவலை சஷ் உயரம் கழிப்பு (Mosquito Mesh Shutter Height):', '4. Mosquito Mesh Shutter Height Deduction:')}
                       </label>
                       <span className="text-[11px] text-slate-400">
-                        {t('கண்ணாடி சஷ் உயரத்திலிருந்து கொசுவலை சஷ்க்கு கழிக்கப்படும் மிமீ', 'Deduction in mm subtracted from glass shutter height')}
+                        {t('மொத்த பிரேம் உயரத்திலிருந்து (Frame Height H) கொசுவலை சஷ்க்கு கழிக்கப்படும் மிமீ ((H - 10))', 'Deduction in mm subtracted directly from window outer height H ((H - 10))')}
                       </span>
                     </div>
                     <span className="text-xs font-mono font-bold text-blue-400 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-900">
-                      {'Mesh H = Shutter H - ' + (currentRule.meshHeightDeductionMM ?? 10)}
+                      {'Mesh H = H - ' + (currentRule.meshHeightDeductionMM ?? 10)}
                     </span>
                   </div>
 
                   <div className="flex items-center space-x-2 pt-1">
-                    <span className="text-sm font-mono text-slate-300 font-bold">Shutter H −</span>
+                    <span className="text-sm font-mono text-slate-300 font-bold">H −</span>
                     <div className="flex items-center space-x-1.5 flex-1">
                       <button
                         type="button"

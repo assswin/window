@@ -116,7 +116,7 @@ export class GoldenTestSuite {
     // Audited Height: H - 82 = 1524 - 82 = 1442 mm
     // Audited Width: (W - 10) / 2 = (1219 - 10) / 2 = 1209 / 2 = 604.5 -> 605 mm
     // Audited Glass: Shutter - 94 mm -> H: 1442 - 94 = 1348 mm, W: 605 - 94 = 511 mm
-    // Audited Mesh: (W - 10)/2 × (H - 10) = 605 × 1432 mm
+    // Audited Mesh: (W - 10)/2 × (H - 10) = 605 × 1514 mm (directly from window height H, not shutter height)
     const res2_5Sliding = WindowCalculationEngine.calculate({
       widthInch: 48,
       heightInch: 60,
@@ -135,10 +135,10 @@ export class GoldenTestSuite {
               res2_5Sliding.mirror.heightMM === 1348 &&
               res2_5Sliding.mirror.widthMM === 511 &&
               (res2_5Sliding.additionalPanels?.length || 0) === 1 &&
-              res2_5Sliding.additionalPanels?.[0]?.heightMM === 1432 &&
+              res2_5Sliding.additionalPanels?.[0]?.heightMM === 1514 &&
               res2_5Sliding.additionalPanels?.[0]?.widthMM === 605,
       input: { width: 48, height: 60, frame: '2.5 Track', type: 'Sliding' },
-      expected: { panelH: 1442, panelW: 605, mirrorH: 1348, mirrorW: 511, meshH: 1432, meshW: 605 },
+      expected: { panelH: 1442, panelW: 605, mirrorH: 1348, mirrorW: 511, meshH: 1514, meshW: 605 },
       actual: {
         panelH: res2_5Sliding.panel.heightMM,
         panelW: res2_5Sliding.panel.widthMM,
@@ -730,7 +730,7 @@ export class GoldenTestSuite {
       }
     });
 
-    // 29. 2.5 TRACK MESH WIDTH FORMULA & CUSTOM DEDUCTION VERIFICATION ((W - 10) / 2 default, customizable)
+    // 29. 2.5 TRACK MESH WIDTH FORMULA & CUSTOM DEDUCTION VERIFICATION ((W - 10) / 2 default, customizable; H - 10 default, customizable)
     const customMeshRule = {
       ...WORKSHOP_REFERENCE_PRESET.rules['2.5-track_sliding'],
       meshWidthDeductionMM: 15,
@@ -738,7 +738,7 @@ export class GoldenTestSuite {
     };
     const resCustomMesh = WindowCalculationEngine.calculate({
       widthInch: 48, // 1219 mm -> (W - 15) / 2 = (1219 - 15) / 2 = 1204 / 2 = 602 mm
-      heightInch: 60, // 1524 mm -> H - 82 = 1442 mm -> Mesh H = 1442 - 4 = 1438 mm
+      heightInch: 60, // 1524 mm -> direct window height output H - 4 = 1524 - 4 = 1520 mm (no shutter height)
       frameType: '2.5-track',
       windowType: 'sliding',
       unit: 'inch'
@@ -746,14 +746,14 @@ export class GoldenTestSuite {
 
     const passCustomMesh = (resCustomMesh.additionalPanels?.length || 0) === 1 &&
                            resCustomMesh.additionalPanels?.[0]?.widthMM === 602 &&
-                           resCustomMesh.additionalPanels?.[0]?.heightMM === 1438;
+                           resCustomMesh.additionalPanels?.[0]?.heightMM === 1520;
 
     results.push({
-      name: '2.5 Track Mesh Custom Deduction: Mesh Width ((W - 15) / 2 = 602 mm) & Height (H - 4 = 1438 mm)',
+      name: '2.5 Track Mesh Custom Deduction: Mesh Width ((W - 15) / 2 = 602 mm) & Height (H - 4 = 1520 mm)',
       category: 'Rule Combination',
       passed: passCustomMesh,
       input: { width: 48, height: 60, customMeshWidthDed: 15, customMeshHeightDed: 4 },
-      expected: { meshW: 602, meshH: 1438 },
+      expected: { meshW: 602, meshH: 1520 },
       actual: {
         meshW: resCustomMesh.additionalPanels?.[0]?.widthMM,
         meshH: resCustomMesh.additionalPanels?.[0]?.heightMM
@@ -1201,7 +1201,7 @@ export class GoldenTestSuite {
       sashCutMM: '1442 H × 605 W',
       interlockMM: '1437 mm',
       mirrorCutMM: '1348 H × 511 W',
-      meshCutMM: '1432 H × 605 W'
+      meshCutMM: '1514 H × 605 W'
     };
     const slidingRowColor = getLSModelColor(row2_5TSliding);
     const passRowUniformColor =

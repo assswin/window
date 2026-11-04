@@ -803,7 +803,8 @@ export class WindowCalculationEngine {
     if (input.frameType === '2.5-track') {
       const meshHeightDed = rule.meshHeightDeductionMM ?? 10;
       const meshWidthDed = rule.meshWidthDeductionMM ?? 10;
-      const meshH = Math.max(10, panelHeightMM - meshHeightDed);
+      // Mesh Height is based directly on total window height output value (H - deduction), NOT sash/shutter height
+      const meshH = Math.max(10, convertedHeightMM - meshHeightDed);
       const meshW = Math.max(10, Math.round((convertedWidthMM - meshWidthDed) / 2));
 
       const meshPanel: PanelOutput = {
@@ -823,8 +824,8 @@ export class WindowCalculationEngine {
 
       steps.push({
         label: '2.5 Track Mosquito Mesh Shutter',
-        formula: `Mesh Panel Width = (W - ${meshWidthDed}) / 2 mm, Height = Shutter Height - ${meshHeightDed} mm`,
-        calculation: `W: (${convertedWidthMM} - ${meshWidthDed}) / 2 = ${meshW} mm | H: ${panelHeightMM} - ${meshHeightDed} = ${meshH} mm (1 Shutter)`,
+        formula: `Mesh Panel Width = (W - ${meshWidthDed}) / 2 mm, Height = H - ${meshHeightDed} mm`,
+        calculation: `W: (${convertedWidthMM} - ${meshWidthDed}) / 2 = ${meshW} mm | H: ${convertedHeightMM} - ${meshHeightDed} = ${meshH} mm (1 Shutter)`,
         result: `${meshW} × ${meshH} mm`,
         note: 'High-durability stainless steel 304 insect barrier screen with nylon track rollers.'
       });
