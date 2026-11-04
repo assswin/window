@@ -420,7 +420,7 @@ export const JINDAL_STANDARD_PRESET: SystemProfilePreset = {
       mirrorHeightDeductionMM: 78,
       mirrorWidthDeductionMM: 78,
       mirrorDeductionReference: 'panel',
-      profileDepthMM: 62,
+      profileDepthMM: 58,
       sashProfileWidthMM: 48,
       glassGrooveDepthMM: 8
     },
@@ -456,7 +456,7 @@ export const JINDAL_STANDARD_PRESET: SystemProfilePreset = {
       mirrorHeightDeductionMM: 78,
       mirrorWidthDeductionMM: 78,
       mirrorDeductionReference: 'panel',
-      profileDepthMM: 88,
+      profileDepthMM: 58,
       sashProfileWidthMM: 48,
       glassGrooveDepthMM: 8
     },
@@ -492,7 +492,7 @@ export const JINDAL_STANDARD_PRESET: SystemProfilePreset = {
       mirrorHeightDeductionMM: 78,
       mirrorWidthDeductionMM: 78,
       mirrorDeductionReference: 'panel',
-      profileDepthMM: 106,
+      profileDepthMM: 58,
       sashProfileWidthMM: 48,
       glassGrooveDepthMM: 8
     },
@@ -552,6 +552,21 @@ export class RulesEngineManager {
         if (savedCustomRules) {
           const parsed = JSON.parse(savedCustomRules);
           this.activeRules = { ...this.activeRules, ...parsed };
+        }
+
+        // Sanitize & enforce 58mm material depth for standard sliding series (fix legacy 88mm / 106mm in localStorage)
+        const standard58Keys = ['2-track_sliding', '2.5-track_sliding', '3-track_sliding', '3.5-track_sliding', '4-track_sliding'];
+        let needsResave = false;
+        standard58Keys.forEach((k) => {
+          if (this.activeRules[k] && this.activeRules[k].profileDepthMM !== 58) {
+            this.activeRules[k] = { ...this.activeRules[k], profileDepthMM: 58 };
+            needsResave = true;
+          }
+        });
+        if (needsResave && savedCustomRules) {
+          try {
+            window.localStorage.setItem(STORAGE_KEY_CUSTOM_RULES, JSON.stringify(this.activeRules));
+          } catch (_) {}
         }
 
         const savedAuditLogs = window.localStorage.getItem(STORAGE_KEY_AUDIT_LOGS);

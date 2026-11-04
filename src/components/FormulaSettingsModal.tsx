@@ -53,7 +53,15 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       RulesEngineManager.initialize();
-      setRules(RulesEngineManager.getAllActiveRules());
+      const allActive = RulesEngineManager.getAllActiveRules();
+      // Enforce 58mm material depth on 2.5-track and standard sliding tabs
+      const standard58Keys = ['2-track_sliding', '2.5-track_sliding', '3-track_sliding', '3.5-track_sliding', '4-track_sliding'];
+      standard58Keys.forEach((k) => {
+        if (allActive[k] && allActive[k].profileDepthMM !== 58) {
+          allActive[k] = { ...allActive[k], profileDepthMM: 58 };
+        }
+      });
+      setRules(allActive);
       setIsSaved(false);
       if (initialTabKey) {
         setActiveTabKey(initialTabKey);
@@ -546,7 +554,13 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                     </span>
                   </div>
                   <span className="text-xs font-mono font-bold text-amber-400 bg-amber-950/50 px-2.5 py-1 rounded border border-amber-900">
-                    {activeTabKey.includes('65mm') ? '65 mm Material' : `${currentRule.profileDepthMM ?? 58} mm Material`}
+                    {activeTabKey.includes('85mm')
+                      ? '85 mm Material'
+                      : (activeTabKey.includes('65mm')
+                        ? '65 mm Material'
+                        : (activeTabKey === '2-track_sliding' || activeTabKey === '2.5-track_sliding' || activeTabKey === '3-track_sliding' || activeTabKey === '4-track_sliding'
+                          ? '58 mm Material'
+                          : `${currentRule.profileDepthMM ?? 58} mm Material`))}
                   </span>
                 </div>
               )}
