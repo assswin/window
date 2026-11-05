@@ -105,8 +105,17 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
     return `H-${activeRule.heightDeductionMM} | W-${activeRule.widthDeductionMM} | -${activeRule.mirrorHeightDeductionMM}`;
   };
 
+  const getResultLabel = (res?: CalculationResult, idx: number = 0): string => {
+    if (!res) return `W${idx + 1}`;
+    if (res.input?.windowLabel) return res.input.windowLabel;
+    if (res.id) return res.id;
+    const letter = res.input?.variantLetter?.toLowerCase().trim();
+    const num = res.input?.windowNumber || (idx + 1);
+    return letter ? `W${num}${letter}` : `W${num}`;
+  };
+
   const handleCopySingle = async (res: CalculationResult, idx: number) => {
-    const title = 'W' + (idx + 1);
+    const title = getResultLabel(res, idx);
     const text = `${title} (${res.convertedHeightMM} × ${res.convertedWidthMM} mm)\n` +
       `Frame: ${res.frame.leftRightCutMM} mm (H) × ${res.frame.topBottomCutMM} mm (W)\n` +
       (res.input.windowType === 'ventilator'
@@ -168,7 +177,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
           >
             <span>{t('விவரம்', 'Detail')}</span>
             <span className="max-w-[70px] sm:max-w-[120px] truncate">
-              {'(' + ('W' + (selectedIndex + 1)) + ')'}
+              {'(' + getResultLabel(currentResult, selectedIndex) + ')'}
             </span>
           </button>
         </div>
@@ -191,7 +200,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
 
         {results.map((r, idx) => {
           const isSelected = viewMode === 'detail' && selectedIndex === idx;
-          const label = 'W' + (idx + 1);
+          const label = getResultLabel(r, idx);
           return (
             <button
               key={idx}
@@ -242,7 +251,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-heading font-bold text-white">
-                      {'W' + (idx + 1)}
+                      {getResultLabel(r, idx)}
                     </span>
                     <span className="text-xs font-mono font-bold text-emerald-400">
                       {r.convertedHeightMM + ' × ' + r.convertedWidthMM + ' mm'}
@@ -284,7 +293,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
             <div>
               <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                 <span className="text-sm font-heading font-bold text-white">
-                  {'W' + (selectedIndex + 1)}
+                  {getResultLabel(currentResult, selectedIndex)}
                 </span>
                 {(() => {
                   let badgeColorClass = 'bg-slate-900 text-slate-300 border-slate-700';
@@ -358,7 +367,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
             <button
               type="button"
               onClick={async () => {
-                const text = `Window ${selectedIndex + 1} (${convertedHeightMM} × ${convertedWidthMM} mm)\nFrame: ${frame.leftRightCutMM} mm (H) × ${frame.topBottomCutMM} mm (W)\n` +
+                const text = `${getResultLabel(currentResult, selectedIndex)} (${convertedHeightMM} × ${convertedWidthMM} mm)\nFrame: ${frame.leftRightCutMM} mm (H) × ${frame.topBottomCutMM} mm (W)\n` +
                   (panel.count > 0 ? `Sash (${panel.count * 4} Pcs • 2H+2W): ${panel.heightMM} × ${panel.widthMM} mm\n` : `Direct Glazing (No Sash)\n`) +
                   (currentResult.interlockMM !== undefined ? `Interlock: ${currentResult.interlockMM} mm (Sash H - 5)\n` : '') +
                   (currentResult.mullionMM !== undefined ? `Mullion (Sash H - 6, ${currentResult.input.casementSubtype === 'triple' ? '2 Pcs' : '1 Pc'}): ${currentResult.mullionMM} mm\n` : (frame.mullionCutMM ? `Mullion: ${frame.mullionCutMM} mm\n` : '')) +
@@ -574,11 +583,11 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
             >
               <span>⬅️</span>
               <span className="max-w-[60px] sm:max-w-[100px] truncate">
-                {'W' + selectedIndex}
+                {selectedIndex > 0 ? getResultLabel(results[selectedIndex - 1], selectedIndex - 1) : `W${selectedIndex}`}
               </span>
             </button>
             <span className="text-xs text-slate-300 font-mono font-bold text-center px-1 truncate min-w-0">
-              {'W' + (selectedIndex + 1) + ' (' + (selectedIndex + 1) + '/' + results.length + ')'}
+              {`${getResultLabel(currentResult, selectedIndex)} (${selectedIndex + 1}/${results.length})`}
             </span>
             <button
               type="button"
@@ -592,7 +601,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
               }
             >
               <span className="max-w-[60px] sm:max-w-[100px] truncate">
-                {'W' + (selectedIndex + 2)}
+                {selectedIndex < results.length - 1 ? getResultLabel(results[selectedIndex + 1], selectedIndex + 1) : `W${selectedIndex + 2}`}
               </span>
               <span>➔</span>
             </button>

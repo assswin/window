@@ -348,7 +348,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 flex-shrink-0 no-scrollbar">
         {results.map((r, idx) => {
           const isSelected = selectedIndex === idx;
-          const label = 'W' + (idx + 1);
+          const label = r.input?.windowLabel || r.id || ('W' + (idx + 1));
           return (
             <button
               key={idx}
@@ -384,7 +384,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
             <div>
               <div className="flex items-center space-x-1.5">
                 <span className="text-sm font-bold text-white">
-                  {'W' + (selectedIndex + 1)}
+                  {currentResult.input?.windowLabel || currentResult.id || ('W' + (selectedIndex + 1))}
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 font-bold">
                   {currentResult.convertedHeightMM + ' × ' + currentResult.convertedWidthMM + ' mm'}
@@ -535,11 +535,11 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
             >
               <span>⬅️</span>
               <span className="max-w-[60px] sm:max-w-[100px] truncate">
-                {'W' + selectedIndex}
+                {selectedIndex > 0 ? (results[selectedIndex - 1]?.input?.windowLabel || results[selectedIndex - 1]?.id || `W${selectedIndex}`) : `W${selectedIndex}`}
               </span>
             </button>
             <span className="text-xs text-slate-300 font-mono font-bold text-center px-1 truncate min-w-0">
-              {'W' + (selectedIndex + 1) + ' (' + (selectedIndex + 1) + '/' + results.length + ')'}
+              {`${currentResult.input?.windowLabel || currentResult.id || ('W' + (selectedIndex + 1))} (${selectedIndex + 1}/${results.length})`}
             </span>
             <button
               type="button"
@@ -553,7 +553,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
               }
             >
               <span className="max-w-[60px] sm:max-w-[100px] truncate">
-                {'W' + (selectedIndex + 2)}
+                {selectedIndex < results.length - 1 ? (results[selectedIndex + 1]?.input?.windowLabel || results[selectedIndex + 1]?.id || `W${selectedIndex + 2}`) : `W${selectedIndex + 2}`}
               </span>
               <span>➔</span>
             </button>
@@ -573,8 +573,8 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 className="bg-slate-950 rounded-xl p-2.5 border border-slate-800 hover:border-blue-500/50 transition cursor-pointer space-y-1.5 touch-manipulation active:scale-[0.99]"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white max-w-[150px] truncate" title={'W' + (idx + 1)}>
-                    {'W' + (idx + 1)}
+                  <span className="text-xs font-bold text-white max-w-[150px] truncate" title={r.input?.windowLabel || r.id || ('W' + (idx + 1))}>
+                    {r.input?.windowLabel || r.id || ('W' + (idx + 1))}
                   </span>
                   <span className="text-xs font-mono font-bold text-emerald-400">
                     {r.convertedHeightMM + ' × ' + r.convertedWidthMM + ' mm'}

@@ -147,11 +147,26 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
   // Update single window field
   const updateWindow = (index: number, updates: Partial<WindowInput>) => {
     setError(null);
-    const updated = windows.map((win, i) => (i === index ? { ...win, ...updates } : win));
+    const resolvedNums = resolveWindowNumbers(windows);
+    const updated = windows.map((win, i) => {
+      if (i !== index) return win;
+      const baseNum = win.windowNumber || resolvedNums[i] || (i + 1);
+      const letter = updates.variantLetter !== undefined
+        ? (updates.variantLetter ? updates.variantLetter.toLowerCase().trim() : '')
+        : (win.variantLetter ? win.variantLetter.toLowerCase().trim() : '');
+      const newLabel = letter ? `W${baseNum}${letter}` : `W${baseNum}`;
+      return {
+        ...win,
+        windowNumber: baseNum,
+        ...updates,
+        variantLetter: letter,
+        windowLabel: newLabel
+      };
+    });
     const variants = computeWindowVariantLabels(updated);
     const updatedWithLabels = updated.map((win, i) => ({
       ...win,
-      windowLabel: variants[i]?.windowLabel || ('W' + (i + 1))
+      windowLabel: variants[i]?.windowLabel || win.windowLabel || ('W' + (i + 1))
     }));
     lastEmittedRef.current = updatedWithLabels;
     setWindows(updatedWithLabels);
