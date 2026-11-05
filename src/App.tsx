@@ -310,7 +310,7 @@ export const App: React.FC = () => {
     setUndoToast({
       visible: true,
       isReset: true,
-      title: 'அளவுகள் மீட்டமைக்கப்பட்டன (Reset to Default)',
+      title: 'அளவுகள் மீட்டமைக்கப்பட்டன (Reset to Window 1)',
       description: 'முந்தைய அளவுகளை மீட்டெடுக்க Undo செய்க'
     });
   };

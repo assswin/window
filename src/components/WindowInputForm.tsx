@@ -396,7 +396,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
       <div className="flex items-center justify-between pb-3 border-b border-slate-800 flex-shrink-0">
         <div>
           <h2 className="text-base font-heading font-bold text-white">
-            {t(`1. ஜன்னல் அளவுகள் (W1 - W${windows.length})`, `1. Window Dimensions (W1 - W${windows.length})`)}
+            {windows.length > 1 ? t(`1. ஜன்னல் அளவுகள் (W1 - W${windows.length})`, `1. Window Dimensions (W1 - W${windows.length})`) : t('1. ஜன்னல் அளவுகள் (Window 1)', '1. Window Dimensions (Window 1)')}
           </h2>
           <p className="text-xs text-slate-300 mt-0.5">
             {t('அளவுகளை உள்ளிட்டு சேமிக்க வெட்டு அளவுகள் பெறுக', 'Enter dimensions to calculate cutting sizes')}
@@ -434,7 +434,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
               onResetAll();
             }}
             className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs transition cursor-pointer active:scale-95 touch-manipulation"
-            title={t('இயல்புநிலைக்கு மீட்டமைக்க', 'Reset to default W1-W10')}
+            title={t('இயல்புநிலைக்கு மீட்டமைக்க (Window 1)', 'Reset to default Window 1')}
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span className="hidden xs:inline">{t('மீட்டமை', 'Reset')}</span>
@@ -605,7 +605,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
       {/* 3. WINDOW SELECTOR TABS & VIEW TOGGLE */}
       <div className="flex items-center justify-between gap-1">
         <span className="text-xs font-heading font-semibold text-slate-300">
-          {t(`ஜன்னல் தேர்வு (${windows.length} Windows):`, `Select Window (${windows.length} Windows):`)}
+          {windows.length > 1 ? t(`ஜன்னல் தேர்வு (${windows.length} Windows):`, `Select Window (${windows.length} Windows):`) : t('ஜன்னல் தேர்வு (1 Window):', 'Select Window (1 Window):')}
         </span>
         <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-xs">
           <button

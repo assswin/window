@@ -70,10 +70,17 @@ export const createNewWindow = (
   };
 };
 
-export const DEFAULT_10_WINDOWS: WindowInput[] = [
+export const STORAGE_VERSION = 'v2_single_window_default';
+export const STORAGE_KEY_VERSION = 'windowbuilder_storage_version';
+
+export const DEFAULT_INITIAL_WINDOWS: WindowInput[] = [
   {
     widthInch: 48,
     heightInch: 60,
+    widthCm: 121.9,
+    heightCm: 152.4,
+    widthMM: 1219,
+    heightMM: 1524,
     frameType: '2-track',
     windowType: 'sliding',
     unit: 'inch',
@@ -83,153 +90,51 @@ export const DEFAULT_10_WINDOWS: WindowInput[] = [
     profileSeries: '60mm',
     reinforcementSteel: false,
     glassType: '5mm_single',
+    windowNumber: 1,
+    variantLetter: '',
     windowLabel: 'W1',
-    quantity: 1
-  },
-  {
-    widthInch: 72,
-    heightInch: 60,
-    frameType: '3.5-track',
-    windowType: 'sliding',
-    unit: 'inch',
-    conversionFactor: 25.4,
-    customOffsetMM: 5,
-    weldingAllowanceMM: 0,
-    profileSeries: '60mm',
-    reinforcementSteel: false,
-    glassType: '5mm_single',
-    windowLabel: 'W2',
-    quantity: 1
-  },
-  {
-    widthInch: 48,
-    heightInch: 48,
-    frameType: '2.5-track',
-    windowType: 'sliding',
-    unit: 'inch',
-    conversionFactor: 25.4,
-    customOffsetMM: 5,
-    weldingAllowanceMM: 0,
-    profileSeries: '60mm',
-    reinforcementSteel: false,
-    glassType: '5mm_single',
-    windowLabel: 'W3',
-    quantity: 1
-  },
-  {
-    widthInch: 48,
-    heightInch: 48,
-    frameType: '2-track',
-    windowType: 'sliding',
-    unit: 'inch',
-    conversionFactor: 25.4,
-    customOffsetMM: 5,
-    weldingAllowanceMM: 0,
-    profileSeries: '60mm',
-    reinforcementSteel: false,
-    glassType: '5mm_single',
-    windowLabel: 'W4',
-    quantity: 1
-  },
-  {
-    widthInch: 60,
-    heightInch: 48,
-    frameType: '2-track',
-    windowType: 'sliding',
-    unit: 'inch',
-    conversionFactor: 25.4,
-    customOffsetMM: 5,
-    weldingAllowanceMM: 0,
-    profileSeries: '60mm',
-    reinforcementSteel: false,
-    glassType: '5mm_single',
-    windowLabel: 'W5',
-    quantity: 1
-  },
-  {
-    widthInch: 30,
-    heightInch: 48,
-    frameType: '2-track',
-    windowType: 'sliding',
-    unit: 'inch',
-    conversionFactor: 25.4,
-    customOffsetMM: 5,
-    weldingAllowanceMM: 0,
-    profileSeries: '60mm',
-    reinforcementSteel: false,
-    glassType: '5mm_single',
-    windowLabel: 'W6',
-    quantity: 1
-  },
-  {
-    widthInch: 48,
-    heightInch: 36,
-    frameType: '2-track',
-    windowType: 'sliding',
-    unit: 'inch',
-    conversionFactor: 25.4,
-    customOffsetMM: 5,
-    weldingAllowanceMM: 0,
-    profileSeries: '60mm',
-    reinforcementSteel: false,
-    glassType: '5mm_single',
-    windowLabel: 'W7',
-    quantity: 1
-  },
-  {
-    widthInch: 72,
-    heightInch: 48,
-    frameType: '3.5-track',
-    windowType: 'sliding',
-    unit: 'inch',
-    conversionFactor: 25.4,
-    customOffsetMM: 5,
-    weldingAllowanceMM: 0,
-    profileSeries: '60mm',
-    reinforcementSteel: false,
-    glassType: '5mm_single',
-    windowLabel: 'W8',
-    quantity: 1
-  },
-  {
-    widthInch: 36,
-    heightInch: 36,
-    frameType: 'no-track',
-    windowType: 'open',
-    unit: 'inch',
-    conversionFactor: 25.4,
-    customOffsetMM: 5,
-    weldingAllowanceMM: 0,
-    profileSeries: '60mm',
-    reinforcementSteel: false,
-    glassType: '5mm_single',
-    windowLabel: 'W9',
-    quantity: 1
-  },
-  {
-    widthInch: 24,
-    heightInch: 36,
-    frameType: 'no-track',
-    windowType: 'fixed',
-    unit: 'inch',
-    conversionFactor: 25.4,
-    customOffsetMM: 5,
-    weldingAllowanceMM: 0,
-    profileSeries: '60mm',
-    reinforcementSteel: false,
-    glassType: '5mm_single',
-    windowLabel: 'W10',
     quantity: 1
   }
 ];
 
+// Alias for backwards-compatibility
+export const DEFAULT_10_WINDOWS: WindowInput[] = DEFAULT_INITIAL_WINDOWS;
+
+export const isLegacy10DefaultWindows = (windows: WindowInput[]): boolean => {
+  if (!Array.isArray(windows) || windows.length !== 10) return false;
+  const legacyDims = [
+    [48, 60],
+    [72, 60],
+    [48, 48],
+    [48, 48],
+    [60, 48],
+    [30, 48],
+    [48, 36],
+    [72, 48],
+    [36, 36],
+    [24, 36]
+  ];
+  return windows.every((w, idx) => {
+    const expected = legacyDims[idx];
+    return w.widthInch === expected[0] && w.heightInch === expected[1];
+  });
+};
+
 export const loadStored10Windows = (): WindowInput[] => {
   try {
+    const version = localStorage.getItem(STORAGE_KEY_VERSION);
     const raw = localStorage.getItem(STORAGE_KEY_10_INPUTS);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Output mm default +5mm; if added mm is missing or negative integer, initialize to 0
+        // If it's the old 10 default windows seed, discard them and start only with Window 1
+        if (version !== STORAGE_VERSION && isLegacy10DefaultWindows(parsed)) {
+          localStorage.setItem(STORAGE_KEY_VERSION, STORAGE_VERSION);
+          saveStored10Windows(DEFAULT_INITIAL_WINDOWS);
+          return DEFAULT_INITIAL_WINDOWS;
+        }
+
+        localStorage.setItem(STORAGE_KEY_VERSION, STORAGE_VERSION);
         return parsed.map((w, i) => {
           const wInch = w.widthInch || 48;
           const hInch = w.heightInch || 60;
@@ -251,7 +156,12 @@ export const loadStored10Windows = (): WindowInput[] => {
       }
     }
   } catch (_) {}
-  return DEFAULT_10_WINDOWS;
+
+  try {
+    localStorage.setItem(STORAGE_KEY_VERSION, STORAGE_VERSION);
+    saveStored10Windows(DEFAULT_INITIAL_WINDOWS);
+  } catch (_) {}
+  return DEFAULT_INITIAL_WINDOWS;
 };
 
 export const saveStored10Windows = (windows: WindowInput[]) => {

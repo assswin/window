@@ -559,7 +559,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
             )}
           </div>
 
-          {/* Navigation between W1..W10 */}
+          {/* Navigation between windows */}
           <div className="flex items-center justify-between pt-1 gap-2">
             <button
               type="button"
