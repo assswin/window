@@ -405,7 +405,13 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                     ? (currentResult.input.profileSeries === '85mm' 
                         ? (currentResult.input.frameType === '2.5-track' ? '2.5T SLIDING DOOR (MESH)' : ((currentResult.input.frameType === '3-track' || currentResult.input.frameType === '3.5-track') ? '3T SLIDING DOOR' : '2T SLIDING DOOR'))
                         : currentResult.input.frameType.toUpperCase().replace('-TRACK', ' TRACK')) 
-                    : (currentResult.input.windowType === 'ventilator' ? 'VENTILATOR' : (currentResult.input.windowType === 'fixed' ? 'FIXED' : 'OPEN CASEMENT'))
+                    : (currentResult.input.windowType === 'ventilator' 
+                        ? (currentResult.input.ventilatorSubtype === 'fan' ? `VENTILATOR • FAN (${(currentResult.input.ventilatorFanSide || 'left').toUpperCase()})` : 'VENTILATOR • LOUVER')
+                        : (currentResult.input.windowType === 'fixed' 
+                            ? 'FIXED DIRECT GLAZING' 
+                            : (currentResult.input.casementSubtype === 'triple' 
+                                ? '3-OPEN CASEMENT (2 MULLIONS)' 
+                                : (currentResult.input.casementSubtype === 'double' ? 'DOUBLE CASEMENT (MULLION)' : 'SINGLE CASEMENT'))))
                 )}
               </span>
             </div>
@@ -443,7 +449,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                   'px-2 py-1 rounded transition cursor-pointer flex items-center space-x-1 ' +
                   (cadView === 'section_a' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white')
                 }
-                title="Section A-A: Horizontal Plan Cross-Section through Jambs & Interlock"
+                title="Section A-A: Horizontal Plan Cross-Section"
               >
                 <SplitSquareHorizontal className="w-3 h-3" />
                 <span>Section A-A (Plan)</span>
@@ -455,7 +461,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                   'px-2 py-1 rounded transition cursor-pointer flex items-center space-x-1 ' +
                   (cadView === 'section_b' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white')
                 }
-                title="Section B-B: Vertical Cross-Section through Head, Sash & Sill"
+                title="Section B-B: Vertical Cross-Section"
               >
                 <SplitSquareVertical className="w-3 h-3" />
                 <span>Section B-B (Vertical)</span>
@@ -483,7 +489,9 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
             <div className="bg-slate-950 p-2 rounded-lg border border-slate-800 text-center">
               <span className="text-[10px] text-slate-500 block font-sans">{t('சஷ் அளவு (Sash Cut)', 'Sash Cut')}</span>
               <span className="font-bold text-emerald-400">
-                {currentResult.input.windowType === 'ventilator' ? '-' : (currentResult.panel.heightMM + ' × ' + currentResult.panel.widthMM + ' mm')}
+                {currentResult.input.windowType === 'ventilator' || currentResult.input.windowType === 'fixed'
+                  ? '-' 
+                  : (currentResult.panel.heightMM + ' × ' + currentResult.panel.widthMM + ' mm')}
               </span>
             </div>
             <div className="bg-slate-950 p-2 rounded-lg border border-slate-800 text-center">
@@ -493,9 +501,23 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
               </span>
             </div>
             <div className="bg-slate-950 p-2 rounded-lg border border-slate-800 text-center">
-              <span className="text-[10px] text-slate-500 block font-sans">{t('கொசுவலை (Mesh Sash)', 'Mosquito Mesh')}</span>
+              <span className="text-[10px] text-slate-500 block font-sans">
+                {currentResult.input.windowType === 'open' && (currentResult.input.casementSubtype === 'double' || currentResult.input.casementSubtype === 'triple')
+                  ? t('முல்லியன் (Mullion Cut)', 'Mullion Cut')
+                  : currentResult.input.windowType === 'fixed'
+                    ? t('கிளேசிங் பீட் (Glazing Bead)', 'Glazing Bead')
+                    : currentResult.input.windowType === 'ventilator'
+                      ? t('காற்றோட்டம் (Air Aperture)', 'Airflow Aperture')
+                      : t('கொசுவலை (Mesh Sash)', 'Mosquito Mesh')}
+              </span>
               <span className="font-bold text-amber-400">
-                {currentResult.additionalPanels?.[0] ? `${currentResult.additionalPanels[0].heightMM} × ${currentResult.additionalPanels[0].widthMM} mm` : '-'}
+                {currentResult.input.windowType === 'open' && (currentResult.input.casementSubtype === 'double' || currentResult.input.casementSubtype === 'triple')
+                  ? `${currentResult.mullionMM || currentResult.frame.mullionCutMM || (currentResult.convertedHeightMM - 6)} mm (${currentResult.input.casementSubtype === 'triple' ? '2 Pcs' : '1 Pc'})`
+                  : currentResult.input.windowType === 'fixed'
+                    ? `45° Mitre (${(currentResult.mirror.heightMM * 2 + currentResult.mirror.widthMM * 2)} mm)`
+                    : currentResult.input.windowType === 'ventilator'
+                      ? `${currentResult.convertedHeightMM - 88} × ${currentResult.convertedWidthMM - 88} mm`
+                      : (currentResult.additionalPanels?.[0] ? `${currentResult.additionalPanels[0].heightMM} × ${currentResult.additionalPanels[0].widthMM} mm` : '-')}
               </span>
             </div>
           </div>
@@ -688,22 +710,31 @@ export const WindowBlueprintSVG: React.FC<{
     rollerWheel: isWhite ? '#e2e8f0' : '#475569',
     rollerStroke: isWhite ? '#0f172a' : '#f8fafc',
     titleBg: isWhite ? '#f8fafc' : '#0f172a',
-    titleBorder: isWhite ? '#cbd5e1' : '#1e3a8a'
+    titleBorder: isWhite ? '#cbd5e1' : '#1e3a8a',
+    gasket: isWhite ? '#0f172a' : '#38bdf8',
+    beadFill: isWhite ? '#f1f5f9' : '#1e293b',
+    fanAccent: isWhite ? '#ea580c' : '#fb923c'
   };
 
   const svgW = 940;
   const svgH = 630;
   const uniqueId = `cad-${result.id || Math.random().toString(36).substring(2, 7)}`;
 
-  // Determine if this window has a wire mesh shutter (2.5-track or mesh door)
-  const isMeshWindow = input.frameType === '2.5-track' || (additionalPanels && additionalPanels.length > 0);
+  // Window System Identification
   const isSliding = input.windowType === 'sliding';
+  const isOpen = input.windowType === 'open';
+  const isFixed = input.windowType === 'fixed';
+  const isVentilator = input.windowType === 'ventilator';
   const isDoor = input.profileSeries === '85mm';
+  const isMeshWindow = isSliding && (input.frameType === '2.5-track' || (additionalPanels && additionalPanels.length > 0));
+
+  const casementSubtype = input.casementSubtype || 'single';
+  const ventilatorSubtype = input.ventilatorSubtype || 'normal';
+  const ventilatorFanSide = input.ventilatorFanSide || 'left';
 
   // -------------------------------------------------------------
   // CALCULATE PROPORTIONS & GEOMETRY FOR ALL-IN-ONE LAYOUT
   // -------------------------------------------------------------
-  // Elevation sits at Left side: x: 50 to 520, y: 70 to 450
   const elevMaxW = isElevationOnly ? 720 : 470;
   const elevMaxH = isElevationOnly ? 490 : 380;
   const elevLeft = isElevationOnly ? 110 : 50;
@@ -731,25 +762,36 @@ export const WindowBlueprintSVG: React.FC<{
   const innerElevH = elevH - frameThick * 2;
 
   // Sashes division
-  const panelCount = Math.max(1, panel.count || (isMeshWindow ? 2 : 2));
-  const singleSashW = innerElevW / panelCount;
+  const panelCount = isSliding
+    ? Math.max(1, panel.count || (isMeshWindow ? 2 : 2))
+    : isOpen
+      ? (casementSubtype === 'triple' ? 3 : casementSubtype === 'double' ? 2 : 1)
+      : 0;
+
+  const singleSashW = panelCount > 0 ? innerElevW / panelCount : innerElevW;
 
   // Section Cut Coordinates on Elevation
   const secLineAY = actualElevY + elevH * 0.52; // Horizontal line A-A
-  const secLineBX = isMeshWindow 
-    ? innerElevX + singleSashW + singleSashW * 0.5 // passing through mesh panel
-    : innerElevX + singleSashW * 0.75; // passing through right panel
+  const secLineBX = isSliding
+    ? (isMeshWindow 
+        ? innerElevX + singleSashW * 1.5 // through mesh panel
+        : innerElevX + (panelCount > 1 ? singleSashW * 1.5 : singleSashW * 0.5))
+    : isOpen
+      ? (casementSubtype === 'double' || casementSubtype === 'triple'
+          ? actualElevX + elevW * 0.28 // through left casement sash
+          : actualElevX + elevW * 0.5)
+      : isVentilator
+        ? (ventilatorSubtype === 'fan' ? actualElevX + elevW * 0.72 : actualElevX + elevW * 0.5)
+        : actualElevX + elevW * 0.5; // Fixed window
 
   // -------------------------------------------------------------
   // SECTION B-B (VERTICAL SECTION) GEOMETRY (Top-Right)
-  // Aligned with height of elevation
   // -------------------------------------------------------------
   const secBX = isSectionBOnly ? 320 : 570;
   const secBW = isSectionBOnly ? 300 : 310;
   const secBY = isSectionBOnly ? 80 : actualElevY;
   const secBH = isSectionBOnly ? 480 : elevH;
 
-  // Head and Sill profile dimensions in Section B-B
   const headProfileH = Math.max(26, frameThick * 2.2);
   const sillProfileH = Math.max(30, frameThick * 2.6);
   const secTopSashH = Math.max(20, frameThick * 1.8);
@@ -758,7 +800,6 @@ export const WindowBlueprintSVG: React.FC<{
 
   // -------------------------------------------------------------
   // SECTION A-A (HORIZONTAL SECTION) GEOMETRY (Bottom)
-  // Aligned with width of elevation
   // -------------------------------------------------------------
   const secAX = isSectionAOnly ? 60 : actualElevX;
   const secAW = isSectionAOnly ? 820 : elevW;
@@ -778,7 +819,7 @@ export const WindowBlueprintSVG: React.FC<{
       className="w-full h-auto select-none font-sans"
     >
       <defs>
-        {/* Diamond Wire Mesh Hatch Pattern (Crucial reference element) */}
+        {/* Diamond Wire Mesh Hatch Pattern */}
         <pattern
           id={`${uniqueId}-diamond-mesh`}
           width="10"
@@ -844,7 +885,6 @@ export const WindowBlueprintSVG: React.FC<{
       {/* 0. DRAWING SHEET BACKGROUND & CAD TITLE BLOCK BORDER */}
       <rect x="0" y="0" width={svgW} height={svgH} fill={c.bg} />
 
-      {/* Outer CAD Border lines */}
       <rect
         x="12"
         y="12"
@@ -906,7 +946,7 @@ export const WindowBlueprintSVG: React.FC<{
           fontFamily="monospace"
           textAnchor="end"
         >
-          {`PROFILE: ${result.input.profileSeries || '58mm'}  |  SCALE: PROPORTIONAL (NTS)`}
+          {`PROFILE: ${result.input.profileSeries || (isSliding ? '58mm' : '60mm')}  |  SCALE: PROPORTIONAL (NTS)`}
         </text>
         <text
           x={svgW - 28}
@@ -916,7 +956,13 @@ export const WindowBlueprintSVG: React.FC<{
           fontFamily="monospace"
           textAnchor="end"
         >
-          {`Sash: ${panel.heightMM || '-'}×${panel.widthMM || '-'} mm  |  Glass: ${mirror.heightMM || '-'}×${mirror.widthMM || '-'} mm${additionalPanels?.[0] ? `  |  Mesh: ${additionalPanels[0].heightMM}×${additionalPanels[0].widthMM} mm` : ''}`}
+          {isFixed
+            ? `Direct Glass: ${mirror.heightMM || '-'}×${mirror.widthMM || '-'} mm  |  Glazing Bead: 45° Mitre`
+            : isVentilator
+              ? `Type: ${ventilatorSubtype === 'fan' ? `Exhaust Fan (${ventilatorFanSide.toUpperCase()}) + Louvers` : 'Glass Louvers (Airflow)'}  |  Clear: ${convertedHeightMM - 88}×${convertedWidthMM - 88} mm`
+              : isOpen
+                ? `Sash: ${panel.heightMM || '-'}×${panel.widthMM || '-'} mm  |  Glass: ${mirror.heightMM || '-'}×${mirror.widthMM || '-'} mm${(casementSubtype === 'double' || casementSubtype === 'triple') ? `  |  Mullion: ${result.mullionMM || result.frame.mullionCutMM || (convertedHeightMM - 6)} mm` : ''}`
+                : `Sash: ${panel.heightMM || '-'}×${panel.widthMM || '-'} mm  |  Glass: ${mirror.heightMM || '-'}×${mirror.widthMM || '-'} mm${additionalPanels?.[0] ? `  |  Mesh: ${additionalPanels[0].heightMM}×${additionalPanels[0].widthMM} mm` : ''}`}
         </text>
       </g>
 
@@ -935,7 +981,9 @@ export const WindowBlueprintSVG: React.FC<{
             letterSpacing="0.8"
             textAnchor="middle"
           >
-            {isTamil ? 'முகப்பு வரைபடம் (FRONT ELEVATION)' : 'FRONT ELEVATION (LOOKING FROM OUTSIDE)'}
+            {isTamil 
+              ? `முகப்பு வரைபடம் (FRONT ELEVATION - ${getLSModelName(result)})` 
+              : `FRONT ELEVATION - ${getLSModelName(result)} (OUTSIDE VIEW)`}
           </text>
 
           {/* OVERALL WIDTH DIMENSION (TOP) */}
@@ -1057,7 +1105,7 @@ export const WindowBlueprintSVG: React.FC<{
             strokeWidth="1.5"
           />
 
-          {/* 45° Welded Mitre Corner Lines (Signature architectural detailing) */}
+          {/* 45° Welded Mitre Corner Lines */}
           <line x1={actualElevX} y1={actualElevY} x2={innerElevX} y2={innerElevY} stroke={c.lineMedium} strokeWidth="1" />
           <line x1={actualElevX + elevW} y1={actualElevY} x2={innerElevX + innerElevW} y2={innerElevY} stroke={c.lineMedium} strokeWidth="1" />
           <line x1={actualElevX} y1={actualElevY + elevH} x2={innerElevX} y2={innerElevY + innerElevH} stroke={c.lineMedium} strokeWidth="1" />
@@ -1074,244 +1122,411 @@ export const WindowBlueprintSVG: React.FC<{
             strokeWidth="1"
           />
 
-          {/* SASH PANELS */}
-          {panelCount > 0 ? (
-            Array.from({ length: panelCount }).map((_, pIdx) => {
-              const sX = innerElevX + pIdx * singleSashW;
-              const sashProfileThick = Math.max(6, Math.min(10, singleSashW * 0.05));
-              const isMeshPanel = isMeshWindow && pIdx === panelCount - 1; // Last panel is Mosquito Mesh in 2.5-track
+          {/* ========================================================= */}
+          {/* SPECIFIC ELEVATION CONTENT BASED ON WINDOW TYPE           */}
+          {/* ========================================================= */}
+          {isSliding ? (
+            /* A. SLIDING WINDOW ELEVATION */
+            <g id="elev-sliding-panels">
+              {Array.from({ length: panelCount }).map((_, pIdx) => {
+                const sX = innerElevX + pIdx * singleSashW;
+                const sashProfileThick = Math.max(6, Math.min(10, singleSashW * 0.05));
+                const isMeshPanel = isMeshWindow && pIdx === panelCount - 1;
 
-              const gX = sX + sashProfileThick;
-              const gY = innerElevY + sashProfileThick;
-              const gW = Math.max(10, singleSashW - sashProfileThick * 2);
-              const gH = Math.max(10, innerElevH - sashProfileThick * 2);
+                const gX = sX + sashProfileThick;
+                const gY = innerElevY + sashProfileThick;
+                const gW = Math.max(10, singleSashW - sashProfileThick * 2);
+                const gH = Math.max(10, innerElevH - sashProfileThick * 2);
 
-              return (
-                <g key={`elev-sash-${pIdx}`}>
-                  {/* Sash Outer Frame */}
-                  <rect
-                    x={sX + 1}
-                    y={innerElevY + 1}
-                    width={singleSashW - 2}
-                    height={innerElevH - 2}
-                    fill={c.profileFillDark}
-                    stroke={c.profileStroke}
-                    strokeWidth="1.2"
-                  />
-                  {/* 45° Sash Mitres */}
-                  <line x1={sX + 1} y1={innerElevY + 1} x2={gX} y2={gY} stroke={c.lineMedium} strokeWidth="0.8" />
-                  <line x1={sX + singleSashW - 1} y1={innerElevY + 1} x2={gX + gW} y2={gY} stroke={c.lineMedium} strokeWidth="0.8" />
-                  <line x1={sX + 1} y1={innerElevY + innerElevH - 1} x2={gX} y2={gY + gH} stroke={c.lineMedium} strokeWidth="0.8" />
-                  <line x1={sX + singleSashW - 1} y1={innerElevY + innerElevH - 1} x2={gX + gW} y2={gY + gH} stroke={c.lineMedium} strokeWidth="0.8" />
-
-                  {/* Panel Content: Glass or Wire Mesh */}
-                  {isMeshPanel ? (
-                    // Wire Mesh Panel (Hatched with Diamond Mesh Pattern)
-                    <g>
-                      <rect
-                        x={gX}
-                        y={gY}
-                        width={gW}
-                        height={gH}
-                        fill={c.meshBg}
-                        stroke={c.lineMedium}
-                        strokeWidth="0.8"
-                      />
-                      <rect
-                        x={gX}
-                        y={gY}
-                        width={gW}
-                        height={gH}
-                        fill={`url(#${uniqueId}-diamond-mesh)`}
-                        stroke="none"
-                      />
-                      {/* Sliding Direction Arrow Left (mesh closes leftwards) */}
-                      {isSliding && (
-                        <g>
-                          <line
-                            x1={gX + gW * 0.65}
-                            y1={gY + gH * 0.5}
-                            x2={gX + gW * 0.35}
-                            y2={gY + gH * 0.5}
-                            stroke={c.arrowFill}
-                            strokeWidth="1.8"
-                            markerEnd={`url(#${uniqueId}-slide-arrow)`}
-                          />
-                        </g>
-                      )}
-                      {/* Label badge */}
-                      <rect
-                        x={gX + gW / 2 - 38}
-                        y={gY + gH / 2 - 13}
-                        width="76"
-                        height="26"
-                        rx="3"
-                        fill={c.dimBadgeBg}
-                        stroke={c.dimBadgeBorder}
-                        strokeWidth="0.75"
-                        fillOpacity="0.92"
-                      />
-                      <text
-                        x={gX + gW / 2}
-                        y={gY + gH / 2 - 2}
-                        fill={c.steelFill}
-                        fontSize="7.5"
-                        fontWeight="bold"
-                        textAnchor="middle"
-                      >
-                        {isDoor ? 'DOOR MESH (SS)' : 'MOSQUITO MESH'}
-                      </text>
-                      <text
-                        x={gX + gW / 2}
-                        y={gY + gH / 2 + 8}
-                        fill={c.lineDark}
-                        fontSize="7"
-                        fontFamily="monospace"
-                        textAnchor="middle"
-                      >
-                        {additionalPanels?.[0] ? `${additionalPanels[0].heightMM}×${additionalPanels[0].widthMM}` : `${panel.heightMM}×${panel.widthMM}`}
-                      </text>
-                    </g>
-                  ) : (
-                    // Architectural Glass Panel
-                    <g>
-                      <rect
-                        x={gX}
-                        y={gY}
-                        width={gW}
-                        height={gH}
-                        fill={c.glassFill}
-                        fillOpacity={c.glassFillOpacity}
-                        stroke={c.glassStroke}
-                        strokeWidth="1"
-                      />
-                      {/* Architectural Glass diagonal reflection sheen lines */}
-                      <line x1={gX + 12} y1={gY + 8} x2={gX + 32} y2={gY + 45} stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5" />
-                      <line x1={gX + 18} y1={gY + 8} x2={gX + 42} y2={gY + 50} stroke="#ffffff" strokeWidth="0.6" strokeOpacity="0.4" />
-
-                      {/* Sliding Direction Arrow Right (glass opens rightwards) */}
-                      {isSliding && (
-                        <g>
-                          <line
-                            x1={gX + gW * 0.35}
-                            y1={gY + gH * 0.5}
-                            x2={gX + gW * 0.65}
-                            y2={gY + gH * 0.5}
-                            stroke={c.arrowFill}
-                            strokeWidth="1.8"
-                            markerEnd={`url(#${uniqueId}-slide-arrow)`}
-                          />
-                        </g>
-                      )}
-
-                      {/* Casement opening swing triangle if open casement */}
-                      {input.windowType === 'open' && (
-                        <path
-                          d={`M ${gX + 2} ${gY + 2} L ${gX + gW - 2} ${gY + gH / 2} L ${gX + 2} ${gY + gH - 2}`}
-                          fill="none"
-                          stroke={c.lineMedium}
-                          strokeWidth="1"
-                          strokeDasharray="4 3"
-                        />
-                      )}
-
-                      {/* Sash Size Badge */}
-                      <rect
-                        x={gX + gW / 2 - 38}
-                        y={gY + gH / 2 - 13}
-                        width="76"
-                        height="26"
-                        rx="3"
-                        fill={c.dimBadgeBg}
-                        stroke={c.dimBadgeBorder}
-                        strokeWidth="0.75"
-                        fillOpacity="0.92"
-                      />
-                      <text
-                        x={gX + gW / 2}
-                        y={gY + gH / 2 - 2}
-                        fill={c.steelFill}
-                        fontSize="7.5"
-                        fontWeight="bold"
-                        textAnchor="middle"
-                      >
-                        {`${isDoor ? 'DOOR SASH' : 'SASH'} ${pIdx + 1}`}
-                      </text>
-                      <text
-                        x={gX + gW / 2}
-                        y={gY + gH / 2 + 8}
-                        fill={c.lineDark}
-                        fontSize="7"
-                        fontFamily="monospace"
-                        textAnchor="middle"
-                      >
-                        {`${panel.heightMM}×${panel.widthMM}`}
-                      </text>
-                    </g>
-                  )}
-                </g>
-              );
-            })
-          ) : input.windowType === 'ventilator' ? (
-            // Ventilator louvers
-            <g>
-              {[1, 2, 3, 4, 5, 6].map((i) => {
-                const ly = innerElevY + (innerElevH / 7) * i;
                 return (
-                  <line
-                    key={`louver-${i}`}
-                    x1={innerElevX + 6}
-                    y1={ly}
-                    x2={innerElevX + innerElevW - 6}
-                    y2={ly}
-                    stroke={c.lineMedium}
-                    strokeWidth="1.5"
-                    strokeDasharray="4 2"
-                  />
+                  <g key={`elev-sliding-sash-${pIdx}`}>
+                    <rect
+                      x={sX + 1}
+                      y={innerElevY + 1}
+                      width={singleSashW - 2}
+                      height={innerElevH - 2}
+                      fill={c.profileFillDark}
+                      stroke={c.profileStroke}
+                      strokeWidth="1.2"
+                    />
+                    <line x1={sX + 1} y1={innerElevY + 1} x2={gX} y2={gY} stroke={c.lineMedium} strokeWidth="0.8" />
+                    <line x1={sX + singleSashW - 1} y1={innerElevY + 1} x2={gX + gW} y2={gY} stroke={c.lineMedium} strokeWidth="0.8" />
+                    <line x1={sX + 1} y1={innerElevY + innerElevH - 1} x2={gX} y2={gY + gH} stroke={c.lineMedium} strokeWidth="0.8" />
+                    <line x1={sX + singleSashW - 1} y1={innerElevY + innerElevH - 1} x2={gX + gW} y2={gY + gH} stroke={c.lineMedium} strokeWidth="0.8" />
+
+                    {isMeshPanel ? (
+                      <g>
+                        <rect x={gX} y={gY} width={gW} height={gH} fill={c.meshBg} stroke={c.lineMedium} strokeWidth="0.8" />
+                        <rect x={gX} y={gY} width={gW} height={gH} fill={`url(#${uniqueId}-diamond-mesh)`} stroke="none" />
+                        <line
+                          x1={gX + gW * 0.65}
+                          y1={gY + gH * 0.5}
+                          x2={gX + gW * 0.35}
+                          y2={gY + gH * 0.5}
+                          stroke={c.arrowFill}
+                          strokeWidth="1.8"
+                          markerEnd={`url(#${uniqueId}-slide-arrow)`}
+                        />
+                        <rect
+                          x={gX + gW / 2 - 38}
+                          y={gY + gH / 2 - 13}
+                          width="76"
+                          height="26"
+                          rx="3"
+                          fill={c.dimBadgeBg}
+                          stroke={c.dimBadgeBorder}
+                          strokeWidth="0.75"
+                          fillOpacity="0.92"
+                        />
+                        <text x={gX + gW / 2} y={gY + gH / 2 - 2} fill={c.steelFill} fontSize="7.5" fontWeight="bold" textAnchor="middle">
+                          {isDoor ? 'DOOR MESH (SS)' : 'MOSQUITO MESH'}
+                        </text>
+                        <text x={gX + gW / 2} y={gY + gH / 2 + 8} fill={c.lineDark} fontSize="7" fontFamily="monospace" textAnchor="middle">
+                          {additionalPanels?.[0] ? `${additionalPanels[0].heightMM}×${additionalPanels[0].widthMM}` : `${panel.heightMM}×${panel.widthMM}`}
+                        </text>
+                      </g>
+                    ) : (
+                      <g>
+                        <rect x={gX} y={gY} width={gW} height={gH} fill={c.glassFill} fillOpacity={c.glassFillOpacity} stroke={c.glassStroke} strokeWidth="1" />
+                        <line x1={gX + 12} y1={gY + 8} x2={gX + 32} y2={gY + 45} stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5" />
+                        <line x1={gX + 18} y1={gY + 8} x2={gX + 42} y2={gY + 50} stroke="#ffffff" strokeWidth="0.6" strokeOpacity="0.4" />
+                        <line
+                          x1={gX + gW * 0.35}
+                          y1={gY + gH * 0.5}
+                          x2={gX + gW * 0.65}
+                          y2={gY + gH * 0.5}
+                          stroke={c.arrowFill}
+                          strokeWidth="1.8"
+                          markerEnd={`url(#${uniqueId}-slide-arrow)`}
+                        />
+                        <rect
+                          x={gX + gW / 2 - 38}
+                          y={gY + gH / 2 - 13}
+                          width="76"
+                          height="26"
+                          rx="3"
+                          fill={c.dimBadgeBg}
+                          stroke={c.dimBadgeBorder}
+                          strokeWidth="0.75"
+                          fillOpacity="0.92"
+                        />
+                        <text x={gX + gW / 2} y={gY + gH / 2 - 2} fill={c.steelFill} fontSize="7.5" fontWeight="bold" textAnchor="middle">
+                          {`${isDoor ? 'DOOR SASH' : 'SASH'} ${pIdx + 1}`}
+                        </text>
+                        <text x={gX + gW / 2} y={gY + gH / 2 + 8} fill={c.lineDark} fontSize="7" fontFamily="monospace" textAnchor="middle">
+                          {`${panel.heightMM}×${panel.widthMM}`}
+                        </text>
+                      </g>
+                    )}
+                  </g>
                 );
               })}
-              <text
-                x={innerElevX + innerElevW / 2}
-                y={innerElevY + innerElevH / 2}
-                fill={c.lineDark}
-                fontSize="8.5"
-                fontWeight="bold"
-                textAnchor="middle"
-              >
-                VENTILATOR LOUVERS
-              </text>
             </g>
-          ) : (
-            // Fixed Direct Glazing
-            <g>
+          ) : isOpen ? (
+            /* B. OPEN CASEMENT WINDOW ELEVATION */
+            <g id="elev-open-casement">
+              {casementSubtype === 'single' ? (
+                // B.1 SINGLE OPEN WINDOW
+                (() => {
+                  const sashThick = Math.max(8, frameThick * 1.1);
+                  const gX = innerElevX + sashThick;
+                  const gY = innerElevY + sashThick;
+                  const gW = innerElevW - sashThick * 2;
+                  const gH = innerElevH - sashThick * 2;
+                  return (
+                    <g>
+                      {/* Casement Sash Frame */}
+                      <rect
+                        x={innerElevX + 2}
+                        y={innerElevY + 2}
+                        width={innerElevW - 4}
+                        height={innerElevH - 4}
+                        fill={c.profileFillDark}
+                        stroke={c.profileStroke}
+                        strokeWidth="1.3"
+                      />
+                      {/* 45° Mitres */}
+                      <line x1={innerElevX + 2} y1={innerElevY + 2} x2={gX} y2={gY} stroke={c.lineMedium} strokeWidth="0.8" />
+                      <line x1={innerElevX + innerElevW - 2} y1={innerElevY + 2} x2={gX + gW} y2={gY} stroke={c.lineMedium} strokeWidth="0.8" />
+                      <line x1={innerElevX + 2} y1={innerElevY + innerElevH - 2} x2={gX} y2={gY + gH} stroke={c.lineMedium} strokeWidth="0.8" />
+                      <line x1={innerElevX + innerElevW - 2} y1={innerElevY + innerElevH - 2} x2={gX + gW} y2={gY + gH} stroke={c.lineMedium} strokeWidth="0.8" />
+                      {/* Glass */}
+                      <rect x={gX} y={gY} width={gW} height={gH} fill={c.glassFill} fillOpacity={c.glassFillOpacity} stroke={c.glassStroke} strokeWidth="1" />
+                      <line x1={gX + 16} y1={gY + 12} x2={gX + 46} y2={gY + 60} stroke="#ffffff" strokeWidth="1.2" strokeOpacity="0.5" />
+                      {/* Casement Opening Swing Triangle (Dashed) */}
+                      <path
+                        d={`M ${gX + 4} ${gY + 4} L ${gX + gW - 6} ${gY + gH / 2} L ${gX + 4} ${gY + gH - 4}`}
+                        fill="none"
+                        stroke={c.steelFill}
+                        strokeWidth="1.2"
+                        strokeDasharray="5 3"
+                      />
+                      {/* Casement Handle Symbol on Right Stile */}
+                      <rect x={innerElevX + innerElevW - sashThick + 2} y={innerElevY + innerElevH / 2 - 10} width="4" height="20" rx="1.5" fill={c.lineDark} />
+                      {/* Badge */}
+                      <rect x={gX + gW / 2 - 45} y={gY + gH / 2 - 13} width="90" height="26" rx="3" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.75" />
+                      <text x={gX + gW / 2} y={gY + gH / 2 - 2} fill={c.steelFill} fontSize="7.5" fontWeight="bold" textAnchor="middle">
+                        CASEMENT SASH
+                      </text>
+                      <text x={gX + gW / 2} y={gY + gH / 2 + 8} fill={c.lineDark} fontSize="7" fontFamily="monospace" textAnchor="middle">
+                        {`${panel.heightMM} × ${panel.widthMM} mm`}
+                      </text>
+                    </g>
+                  );
+                })()
+              ) : casementSubtype === 'double' ? (
+                // B.2 DOUBLE OPEN WINDOW (WITH CENTRAL MULLION)
+                (() => {
+                  const mullionW = Math.max(12, Math.min(20, innerElevW * 0.05));
+                  const mullionX = innerElevX + (innerElevW - mullionW) / 2;
+                  const bayW = (innerElevW - mullionW) / 2;
+                  const sashThick = Math.max(7, frameThick * 0.95);
+                  const mullionCut = result.mullionMM || result.frame.mullionCutMM || (convertedHeightMM - 6);
+
+                  return (
+                    <g>
+                      {/* Left Sash */}
+                      {(() => {
+                        const sX = innerElevX + 2;
+                        const sW = bayW - 2;
+                        const gX = sX + sashThick;
+                        const gY = innerElevY + sashThick;
+                        const gW = sW - sashThick * 2;
+                        const gH = innerElevH - sashThick * 2;
+                        return (
+                          <g>
+                            <rect x={sX} y={innerElevY + 2} width={sW} height={innerElevH - 4} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1.2" />
+                            <rect x={gX} y={gY} width={gW} height={gH} fill={c.glassFill} fillOpacity={c.glassFillOpacity} stroke={c.glassStroke} strokeWidth="1" />
+                            {/* Swing towards center */}
+                            <path d={`M ${gX + 4} ${gY + 4} L ${gX + gW - 4} ${gY + gH / 2} L ${gX + 4} ${gY + gH - 4}`} fill="none" stroke={c.steelFill} strokeWidth="1.2" strokeDasharray="5 3" />
+                            {/* Handle on center stile */}
+                            <rect x={sX + sW - sashThick + 1} y={innerElevY + innerElevH / 2 - 8} width="3.5" height="16" rx="1" fill={c.lineDark} />
+                            <rect x={gX + gW / 2 - 38} y={gY + gH / 2 - 13} width="76" height="26" rx="3" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.75" />
+                            <text x={gX + gW / 2} y={gY + gH / 2 - 2} fill={c.steelFill} fontSize="7.5" fontWeight="bold" textAnchor="middle">SASH 1 (LEFT)</text>
+                            <text x={gX + gW / 2} y={gY + gH / 2 + 8} fill={c.lineDark} fontSize="7" fontFamily="monospace" textAnchor="middle">{`${panel.heightMM}×${panel.widthMM}`}</text>
+                          </g>
+                        );
+                      })()}
+
+                      {/* CENTRAL MULLION PROFILE (T-PROFILE DIVISION) */}
+                      <g id="center-mullion-profile">
+                        <rect x={mullionX} y={innerElevY} width={mullionW} height={innerElevH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.3" />
+                        <rect x={mullionX + 3} y={innerElevY + 6} width={mullionW - 6} height={innerElevH - 12} fill={c.steelFill} fillOpacity="0.75" />
+                        <g transform={`translate(${mullionX + mullionW / 2}, ${innerElevY + innerElevH / 2}) rotate(-90)`}>
+                          <rect x="-42" y="-7.5" width="84" height="15" rx="2" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.6" />
+                          <text x="0" y="3" fill={c.steelFill} fontSize="7" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
+                            {`MULLION: ${mullionCut} mm`}
+                          </text>
+                        </g>
+                      </g>
+
+                      {/* Right Sash */}
+                      {(() => {
+                        const sX = mullionX + mullionW;
+                        const sW = bayW - 2;
+                        const gX = sX + sashThick;
+                        const gY = innerElevY + sashThick;
+                        const gW = sW - sashThick * 2;
+                        const gH = innerElevH - sashThick * 2;
+                        return (
+                          <g>
+                            <rect x={sX} y={innerElevY + 2} width={sW} height={innerElevH - 4} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1.2" />
+                            <rect x={gX} y={gY} width={gW} height={gH} fill={c.glassFill} fillOpacity={c.glassFillOpacity} stroke={c.glassStroke} strokeWidth="1" />
+                            {/* Swing towards center */}
+                            <path d={`M ${gX + gW - 4} ${gY + 4} L ${gX + 4} ${gY + gH / 2} L ${gX + gW - 4} ${gY + gH - 4}`} fill="none" stroke={c.steelFill} strokeWidth="1.2" strokeDasharray="5 3" />
+                            {/* Handle on center stile */}
+                            <rect x={sX + 2} y={innerElevY + innerElevH / 2 - 8} width="3.5" height="16" rx="1" fill={c.lineDark} />
+                            <rect x={gX + gW / 2 - 38} y={gY + gH / 2 - 13} width="76" height="26" rx="3" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.75" />
+                            <text x={gX + gW / 2} y={gY + gH / 2 - 2} fill={c.steelFill} fontSize="7.5" fontWeight="bold" textAnchor="middle">SASH 2 (RIGHT)</text>
+                            <text x={gX + gW / 2} y={gY + gH / 2 + 8} fill={c.lineDark} fontSize="7" fontFamily="monospace" textAnchor="middle">{`${panel.heightMM}×${panel.widthMM}`}</text>
+                          </g>
+                        );
+                      })()}
+                    </g>
+                  );
+                })()
+              ) : (
+                // B.3 3-OPEN WINDOW (WITH 2 VERTICAL MULLIONS)
+                (() => {
+                  const mullionW = Math.max(10, Math.min(16, innerElevW * 0.04));
+                  const bayW = (innerElevW - mullionW * 2) / 3;
+                  const sashThick = Math.max(6, frameThick * 0.9);
+                  const mullionCut = result.mullionMM || result.frame.mullionCutMM || (convertedHeightMM - 6);
+
+                  return (
+                    <g>
+                      {[0, 1, 2].map((idx) => {
+                        const sX = innerElevX + idx * (bayW + mullionW);
+                        const gX = sX + sashThick;
+                        const gY = innerElevY + sashThick;
+                        const gW = bayW - sashThick * 2;
+                        const gH = innerElevH - sashThick * 2;
+                        return (
+                          <g key={`triple-sash-${idx}`}>
+                            <rect x={sX + 1} y={innerElevY + 2} width={bayW - 2} height={innerElevH - 4} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1.2" />
+                            <rect x={gX} y={gY} width={gW} height={gH} fill={c.glassFill} fillOpacity={c.glassFillOpacity} stroke={c.glassStroke} strokeWidth="1" />
+                            <path d={`M ${gX + 3} ${gY + 3} L ${gX + gW - 3} ${gY + gH / 2} L ${gX + 3} ${gY + gH - 3}`} fill="none" stroke={c.steelFill} strokeWidth="1" strokeDasharray="4 2" />
+                            <rect x={gX + gW / 2 - 32} y={gY + gH / 2 - 12} width="64" height="24" rx="2" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.6" />
+                            <text x={gX + gW / 2} y={gY + gH / 2 - 2} fill={c.steelFill} fontSize="7" fontWeight="bold" textAnchor="middle">{`SASH ${idx + 1}`}</text>
+                            <text x={gX + gW / 2} y={gY + gH / 2 + 7} fill={c.lineDark} fontSize="6.5" fontFamily="monospace" textAnchor="middle">{`${panel.heightMM}×${panel.widthMM}`}</text>
+                          </g>
+                        );
+                      })}
+                      {/* Mullion 1 & Mullion 2 */}
+                      {[1, 2].map((mIdx) => {
+                        const mX = innerElevX + mIdx * bayW + (mIdx - 1) * mullionW;
+                        return (
+                          <g key={`mullion-${mIdx}`}>
+                            <rect x={mX} y={innerElevY} width={mullionW} height={innerElevH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+                            <rect x={mX + 2} y={innerElevY + 6} width={mullionW - 4} height={innerElevH - 12} fill={c.steelFill} fillOpacity="0.75" />
+                            <text x={mX + mullionW / 2} y={innerElevY + 16} fill="#ffffff" fontSize="5.5" fontWeight="bold" textAnchor="middle">M</text>
+                          </g>
+                        );
+                      })}
+                      <rect x={actualElevX + elevW / 2 - 45} y={innerElevY + innerElevH - 18} width="90" height="14" rx="2" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.6" />
+                      <text x={actualElevX + elevW / 2} y={innerElevY + innerElevH - 8} fill={c.steelFill} fontSize="7" fontWeight="bold" textAnchor="middle">
+                        {`2 MULLIONS: ${mullionCut} mm` }
+                      </text>
+                    </g>
+                  );
+                })()
+              )}
+            </g>
+          ) : isFixed ? (
+            /* C. FIXED WINDOW ELEVATION (DIRECT GLAZING) */
+            <g id="elev-fixed-glazing">
+              {/* Snap-in Glazing Bead Line */}
               <rect
-                x={innerElevX + 4}
-                y={innerElevY + 4}
-                width={innerElevW - 8}
-                height={innerElevH - 8}
+                x={innerElevX + 8}
+                y={innerElevY + 8}
+                width={innerElevW - 16}
+                height={innerElevH - 16}
+                fill="none"
+                stroke={c.beadFill}
+                strokeWidth="2.5"
+              />
+              <line x1={innerElevX} y1={innerElevY} x2={innerElevX + 8} y2={innerElevY + 8} stroke={c.lineMedium} strokeWidth="0.8" />
+              <line x1={innerElevX + innerElevW} y1={innerElevY} x2={innerElevX + innerElevW - 8} y2={innerElevY + 8} stroke={c.lineMedium} strokeWidth="0.8" />
+              <line x1={innerElevX} y1={innerElevY + innerElevH} x2={innerElevX + 8} y2={innerElevY + innerElevH - 8} stroke={c.lineMedium} strokeWidth="0.8" />
+              <line x1={innerElevX + innerElevW} y1={innerElevY + innerElevH} x2={innerElevX + innerElevW - 8} y2={innerElevY + innerElevH - 8} stroke={c.lineMedium} strokeWidth="0.8" />
+
+              {/* Panoramic Glass Pane */}
+              <rect
+                x={innerElevX + 9}
+                y={innerElevY + 9}
+                width={innerElevW - 18}
+                height={innerElevH - 18}
                 fill={c.glassFill}
                 fillOpacity={c.glassFillOpacity}
                 stroke={c.glassStroke}
                 strokeWidth="1.2"
               />
-              <text
-                x={innerElevX + innerElevW / 2}
-                y={innerElevY + innerElevH / 2}
-                fill={c.lineDark}
-                fontSize="9"
-                fontWeight="bold"
-                textAnchor="middle"
-              >
-                DIRECT FIXED GLAZING
+              {/* Architectural Reflection Sheen Lines */}
+              <line x1={innerElevX + 25} y1={innerElevY + 20} x2={innerElevX + 70} y2={innerElevY + 110} stroke="#ffffff" strokeWidth="1.5" strokeOpacity="0.6" />
+              <line x1={innerElevX + 35} y1={innerElevY + 20} x2={innerElevX + 85} y2={innerElevY + 120} stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.4" />
+              <line x1={innerElevX + innerElevW - 80} y1={innerElevY + innerElevH - 110} x2={innerElevX + innerElevW - 35} y2={innerElevY + innerElevH - 20} stroke="#ffffff" strokeWidth="1.2" strokeOpacity="0.5" />
+
+              {/* Fixed Direct Glazing Architectural Badge */}
+              <rect
+                x={innerElevX + innerElevW / 2 - 80}
+                y={innerElevY + innerElevH / 2 - 24}
+                width="160"
+                height="48"
+                rx="4"
+                fill={c.dimBadgeBg}
+                stroke={c.dimBadgeBorder}
+                strokeWidth="0.85"
+                fillOpacity="0.95"
+              />
+              <text x={innerElevX + innerElevW / 2} y={innerElevY + innerElevH / 2 - 8} fill={c.steelFill} fontSize="8.5" fontWeight="bold" textAnchor="middle">
+                FIXED DIRECT GLAZING
               </text>
+              <text x={innerElevX + innerElevW / 2} y={innerElevY + innerElevH / 2 + 5} fill={c.lineDark} fontSize="7.5" fontFamily="monospace" textAnchor="middle">
+                {`Glass Cut: ${mirror.heightMM} × ${mirror.widthMM} mm`}
+              </text>
+              <text x={innerElevX + innerElevW / 2} y={innerElevY + innerElevH / 2 + 17} fill={c.lineMedium} fontSize="7" textAnchor="middle">
+                {`Area: ${mirror.sqFeet} Sq.Ft • Snap-in Bead 45°`}
+              </text>
+            </g>
+          ) : (
+            /* D. VENTILATOR ELEVATION */
+            <g id="elev-ventilator">
+              {ventilatorSubtype === 'fan' ? (
+                // D.1 VENTILATOR WITH EXHAUST FAN PROVISION
+                (() => {
+                  const bayW = (innerElevW - 12) / 2;
+                  const fanOnLeft = ventilatorFanSide === 'left';
+                  const fanX = fanOnLeft ? innerElevX + 2 : innerElevX + bayW + 10;
+                  const louverX = fanOnLeft ? innerElevX + bayW + 10 : innerElevX + 2;
+                  const mullionX = innerElevX + bayW + 2;
+                  const fanRadius = Math.min(bayW * 0.36, innerElevH * 0.36);
+
+                  return (
+                    <g>
+                      {/* Fan Zone Bay */}
+                      <rect x={fanX} y={innerElevY + 2} width={bayW} height={innerElevH - 4} fill={c.meshBg} stroke={c.profileStroke} strokeWidth="1" />
+                      {/* Circular Exhaust Fan Cut-out Hole */}
+                      <circle cx={fanX + bayW / 2} cy={innerElevY + innerElevH / 2} r={fanRadius} fill={c.dimBadgeBg} stroke={c.fanAccent} strokeWidth="1.8" />
+                      <circle cx={fanX + bayW / 2} cy={innerElevY + innerElevH / 2} r="5" fill={c.fanAccent} />
+                      {/* Crosshairs & fan blades */}
+                      <line x1={fanX + bayW / 2 - fanRadius} y1={innerElevY + innerElevH / 2} x2={fanX + bayW / 2 + fanRadius} y2={innerElevY + innerElevH / 2} stroke={c.fanAccent} strokeWidth="0.8" strokeDasharray="3 2" />
+                      <line x1={fanX + bayW / 2} y1={innerElevY + innerElevH / 2 - fanRadius} x2={fanX + bayW / 2} y2={innerElevY + innerElevH / 2 + fanRadius} stroke={c.fanAccent} strokeWidth="0.8" strokeDasharray="3 2" />
+                      <path d={`M ${fanX + bayW / 2} ${innerElevY + innerElevH / 2} Q ${fanX + bayW / 2 + fanRadius * 0.5} ${innerElevY + innerElevH / 2 - fanRadius * 0.5} ${fanX + bayW / 2} ${innerElevY + innerElevH / 2 - fanRadius + 3}`} fill="none" stroke={c.fanAccent} strokeWidth="1.2" />
+                      <path d={`M ${fanX + bayW / 2} ${innerElevY + innerElevH / 2} Q ${fanX + bayW / 2 - fanRadius * 0.5} ${innerElevY + innerElevH / 2 + fanRadius * 0.5} ${fanX + bayW / 2} ${innerElevY + innerElevH / 2 + fanRadius - 3}`} fill="none" stroke={c.fanAccent} strokeWidth="1.2" />
+                      <rect x={fanX + bayW / 2 - 45} y={innerElevY + innerElevH / 2 + fanRadius + 4} width="90" height="15" rx="2" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.6" />
+                      <text x={fanX + bayW / 2} y={innerElevY + innerElevH / 2 + fanRadius + 14} fill={c.fanAccent} fontSize="7" fontWeight="bold" textAnchor="middle">
+                        EXHAUST FAN (Ø 175 mm)
+                      </text>
+
+                      {/* Intermediate Dividing Mullion */}
+                      <rect x={mullionX} y={innerElevY} width="8" height={innerElevH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+
+                      {/* Louver Zone Bay */}
+                      <rect x={louverX} y={innerElevY + 2} width={bayW} height={innerElevH - 4} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+                      {[1, 2, 3, 4, 5].map((i) => {
+                        const ly = innerElevY + (innerElevH / 6) * i;
+                        return (
+                          <line key={`fan-louver-${i}`} x1={louverX + 4} y1={ly} x2={louverX + bayW - 4} y2={ly} stroke={c.lineDark} strokeWidth="2" strokeDasharray="6 3" />
+                        );
+                      })}
+                      <rect x={louverX + bayW / 2 - 35} y={innerElevY + innerElevH / 2 - 10} width="70" height="20" rx="2" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.6" />
+                      <text x={louverX + bayW / 2} y={innerElevY + innerElevH / 2 + 3} fill={c.steelFill} fontSize="7" fontWeight="bold" textAnchor="middle">
+                        AIR LOUVERS
+                      </text>
+                    </g>
+                  );
+                })()
+              ) : (
+                // D.2 NORMAL VENTILATOR (ALL LOUVER BLADES)
+                <g>
+                  {/* Louver blades */}
+                  {[1, 2, 3, 4, 5, 6].map((i) => {
+                    const ly = innerElevY + (innerElevH / 7) * i;
+                    return (
+                      <g key={`norm-louver-${i}`}>
+                        <rect x={innerElevX + 6} y={ly - 4} width={innerElevW - 12} height="8" rx="1.5" fill={c.glassFill} fillOpacity="0.4" stroke={c.glassStroke} strokeWidth="0.8" />
+                        <line x1={innerElevX + 6} y1={ly} x2={innerElevX + innerElevW - 6} y2={ly} stroke={c.lineDark} strokeWidth="1.2" strokeDasharray="5 2" />
+                      </g>
+                    );
+                  })}
+                  {/* Louver side clip galleries */}
+                  <rect x={innerElevX + 2} y={innerElevY + 4} width="4" height={innerElevH - 8} fill={c.lineDark} rx="1" />
+                  <rect x={innerElevX + innerElevW - 6} y={innerElevY + 4} width="4" height={innerElevH - 8} fill={c.lineDark} rx="1" />
+                  <rect x={innerElevX + innerElevW / 2 - 70} y={innerElevY + innerElevH / 2 - 16} width="140" height="32" rx="3" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.75" />
+                  <text x={innerElevX + innerElevW / 2} y={innerElevY + innerElevH / 2 - 3} fill={c.steelFill} fontSize="8" fontWeight="bold" textAnchor="middle">
+                    VENTILATOR (AIR LOUVERS)
+                  </text>
+                  <text x={innerElevX + innerElevW / 2} y={innerElevY + innerElevH / 2 + 9} fill={c.lineDark} fontSize="7" fontFamily="monospace" textAnchor="middle">
+                    {`Clear Opening: ${convertedHeightMM - 88} × ${convertedWidthMM - 88} mm`}
+                  </text>
+                </g>
+              )}
             </g>
           )}
 
           {/* ========================================================= */}
           {/* SECTION CUTTING PLANES (A-A & B-B) ON ELEVATION           */}
-          {/* Matches the user's reference CAD diagram precisely        */}
           {/* ========================================================= */}
-          {/* SECTION A-A CUTTING LINE (Horizontal dashed line) */}
           <g id="cutting-plane-aa">
             <line
               x1={actualElevX - 18}
@@ -1353,7 +1568,6 @@ export const WindowBlueprintSVG: React.FC<{
             </text>
           </g>
 
-          {/* SECTION B-B CUTTING LINE (Vertical dashed line) */}
           <g id="cutting-plane-bb">
             <line
               x1={secLineBX}
@@ -1399,11 +1613,10 @@ export const WindowBlueprintSVG: React.FC<{
 
       {/* ============================================================= */}
       {/* 2. SECTION B-B (VERTICAL CROSS-SECTION THROUGH HEAD & SILL)   */}
-      {/* Positioned on Top-Right, matching the user reference image   */}
       {/* ============================================================= */}
       {(isAllInOne || isSectionBOnly) && (
         <g id="section-bb-group" transform={isSectionBOnly ? `translate(0, 0)` : ''}>
-          {/* Section B-B Title Header */}
+          {/* Header Title */}
           <text
             x={secBX + secBW / 2}
             y={secBY - 26}
@@ -1419,13 +1632,19 @@ export const WindowBlueprintSVG: React.FC<{
             x={secBX + secBW / 2}
             y={secBY - 14}
             fill={c.lineLight}
-            fontSize="7.5"
+            fontSize="7"
             textAnchor="middle"
           >
-            VERTICAL SECTION (HEAD, SASH & TRACK SILL)
+            {isFixed 
+              ? 'VERTICAL SECTION (FIXED HEAD & SNAP-IN GLAZING BEADS)'
+              : isVentilator
+                ? 'VERTICAL SECTION (VENTILATOR HEAD, LOUVERS & WEATHER SILL)'
+                : isOpen
+                  ? 'VERTICAL SECTION (CASEMENT HEAD, REBATE & WEATHER SILL)'
+                  : 'VERTICAL SECTION (HEAD, SASH & TRACK SILL)'}
           </text>
 
-          {/* Section Outline Box container */}
+          {/* Container box */}
           <rect
             x={secBX}
             y={secBY}
@@ -1437,309 +1656,214 @@ export const WindowBlueprintSVG: React.FC<{
             rx="2"
           />
 
-          {/* 2.1 HEAD PROFILE (UPVC Head Outer Frame at Top) */}
-          <g id="sec-b-head">
-            <rect
-              x={secBX + 20}
-              y={secBY + 8}
-              width={secBW - 40}
-              height={headProfileH}
-              fill={c.profileFill}
-              stroke={c.profileStroke}
-              strokeWidth="1.2"
-            />
-            {/* Multi-chamber internal cavity webs */}
-            <line x1={secBX + 20 + (secBW - 40) * 0.33} y1={secBY + 8} x2={secBX + 20 + (secBW - 40) * 0.33} y2={secBY + 8 + headProfileH} stroke={c.lineMedium} strokeWidth="0.8" />
-            <line x1={secBX + 20 + (secBW - 40) * 0.66} y1={secBY + 8} x2={secBX + 20 + (secBW - 40) * 0.66} y2={secBY + 8 + headProfileH} stroke={c.lineMedium} strokeWidth="0.8" />
-            {/* Steel Reinforcement Chamber (Blue filled) */}
-            <rect
-              x={secBX + 20 + (secBW - 40) * 0.36}
-              y={secBY + 12}
-              width={(secBW - 40) * 0.28}
-              height={headProfileH - 8}
-              fill={c.steelFill}
-              fillOpacity="0.8"
-              stroke={c.steelFill}
-              strokeWidth="0.5"
-            />
-            <text
-              x={secBX + secBW / 2}
-              y={secBY + 8 + headProfileH / 2 + 3}
-              fill="#ffffff"
-              fontSize="6"
-              fontWeight="bold"
-              fontFamily="monospace"
-              textAnchor="middle"
-            >
-              STEEL
-            </text>
-            <text x={secBX + 12} y={secBY + 8 + headProfileH / 2} fill={c.lineMedium} fontSize="6.5" textAnchor="end">
-              Head
-            </text>
-          </g>
+          {isSliding ? (
+            /* 2.A SLIDING SECTION B-B */
+            <g id="sec-b-sliding">
+              {/* Head Profile */}
+              <rect x={secBX + 20} y={secBY + 8} width={secBW - 40} height={headProfileH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <line x1={secBX + 20 + (secBW - 40) * 0.33} y1={secBY + 8} x2={secBX + 20 + (secBW - 40) * 0.33} y2={secBY + 8 + headProfileH} stroke={c.lineMedium} strokeWidth="0.8" />
+              <line x1={secBX + 20 + (secBW - 40) * 0.66} y1={secBY + 8} x2={secBX + 20 + (secBW - 40) * 0.66} y2={secBY + 8 + headProfileH} stroke={c.lineMedium} strokeWidth="0.8" />
+              <rect x={secBX + 20 + (secBW - 40) * 0.36} y={secBY + 12} width={(secBW - 40) * 0.28} height={headProfileH - 8} fill={c.steelFill} fillOpacity="0.8" />
+              <text x={secBX + secBW / 2} y={secBY + 8 + headProfileH / 2 + 3} fill="#ffffff" fontSize="6" fontWeight="bold" fontFamily="monospace" textAnchor="middle">STEEL</text>
+              <text x={secBX + 12} y={secBY + 8 + headProfileH / 2} fill={c.lineMedium} fontSize="6.5" textAnchor="end">Head</text>
 
-          {/* 2.2 TOP SASH RAILS (Gripping Glass & Mesh) */}
-          <g id="sec-b-top-sash">
-            {/* Track 1: Inner Glass Sash Top Rail */}
-            <rect
-              x={secBX + 35}
-              y={secBY + 8 + headProfileH + 4}
-              width={45}
-              height={secTopSashH}
-              fill={c.profileFillDark}
-              stroke={c.profileStroke}
-              strokeWidth="1"
-            />
-            {/* Steel in Top Sash 1 */}
-            <rect
-              x={secBX + 42}
-              y={secBY + 8 + headProfileH + 7}
-              width={16}
-              height={secTopSashH - 6}
-              fill={c.steelFill}
-              fillOpacity="0.75"
-            />
+              {/* Top Sash Rails */}
+              <rect x={secBX + 35} y={secBY + 8 + headProfileH + 4} width={45} height={secTopSashH} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+              <rect x={secBX + 42} y={secBY + 8 + headProfileH + 7} width={16} height={secTopSashH - 6} fill={c.steelFill} fillOpacity="0.75" />
+              <rect x={secBX + 95} y={secBY + 8 + headProfileH + 4} width={45} height={secTopSashH} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+              <rect x={secBX + 102} y={secBY + 8 + headProfileH + 7} width={16} height={secTopSashH - 6} fill={c.steelFill} fillOpacity="0.75" />
+              {isMeshWindow && (
+                <rect x={secBX + 155} y={secBY + 8 + headProfileH + 4} width={32} height={secTopSashH - 4} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="0.9" />
+              )}
 
-            {/* Track 2: Outer Glass Sash Top Rail */}
-            <rect
-              x={secBX + 95}
-              y={secBY + 8 + headProfileH + 4}
-              width={45}
-              height={secTopSashH}
-              fill={c.profileFillDark}
-              stroke={c.profileStroke}
-              strokeWidth="1"
-            />
-            <rect
-              x={secBX + 102}
-              y={secBY + 8 + headProfileH + 7}
-              width={16}
-              height={secTopSashH - 6}
-              fill={c.steelFill}
-              fillOpacity="0.75"
-            />
+              {/* Spanning glass & mesh ribbons */}
+              <rect x={secBX + 55} y={secBY + 8 + headProfileH + 4 + secTopSashH} width={4} height={secBH - headProfileH - sillProfileH - secTopSashH - secBotSashH - 16} fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.75" />
+              <rect x={secBX + 115} y={secBY + 8 + headProfileH + 4 + secTopSashH} width={4} height={secBH - headProfileH - sillProfileH - secTopSashH - secBotSashH - 16} fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.75" />
+              {isMeshWindow && (
+                <line x1={secBX + 171} y1={secBY + 8 + headProfileH + 4 + secTopSashH - 4} x2={secBX + 171} y2={secBY + secBH - sillProfileH - 4 - secBotSashH + 4} stroke={c.meshPatternColor} strokeWidth="1.5" strokeDasharray="2 2" />
+              )}
 
-            {/* Track 3: Mosquito Mesh Top Guide (if mesh window) */}
-            {isMeshWindow && (
-              <rect
-                x={secBX + 155}
-                y={secBY + 8 + headProfileH + 4}
-                width={32}
-                height={secTopSashH - 4}
-                fill={c.profileFill}
-                stroke={c.profileStroke}
-                strokeWidth="0.9"
-              />
-            )}
-          </g>
+              {/* Break lines */}
+              <path d={`M ${secBX + 25} ${secBreakY - 6} L ${secBX + 80} ${secBreakY - 6} L ${secBX + 90} ${secBreakY - 14} L ${secBX + 100} ${secBreakY + 2} L ${secBX + 110} ${secBreakY - 6} L ${secBX + secBW - 25} ${secBreakY - 6}`} fill="none" stroke={c.lineDark} strokeWidth="1" />
+              <path d={`M ${secBX + 25} ${secBreakY + 6} L ${secBX + 80} ${secBreakY + 6} L ${secBX + 90} ${secBreakY - 2} L ${secBX + 100} ${secBreakY + 14} L ${secBX + 110} ${secBreakY + 6} L ${secBX + secBW - 25} ${secBreakY + 6}`} fill="none" stroke={c.lineDark} strokeWidth="1" />
 
-          {/* 2.3 SPANNING GLASS & MESH VERTICAL LINES */}
-          <g id="sec-b-spans">
-            {/* Glass Pane 1 (Vertical blue ribbon) */}
-            <rect
-              x={secBX + 55}
-              y={secBY + 8 + headProfileH + 4 + secTopSashH}
-              width={4}
-              height={secBH - headProfileH - sillProfileH - secTopSashH - secBotSashH - 16}
-              fill={c.glassFill}
-              stroke={c.glassStroke}
-              strokeWidth="0.75"
-            />
+              {/* Bottom Sash Rails with Rollers */}
+              <rect x={secBX + 35} y={secBY + secBH - sillProfileH - 4 - secBotSashH} width={45} height={secBotSashH} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+              <circle cx={secBX + 57.5} cy={secBY + secBH - sillProfileH - 4} r="6.5" fill={c.rollerWheel} stroke={c.rollerStroke} strokeWidth="1" />
+              <circle cx={secBX + 57.5} cy={secBY + secBH - sillProfileH - 4} r="2" fill={c.steelFill} />
 
-            {/* Glass Pane 2 */}
-            <rect
-              x={secBX + 115}
-              y={secBY + 8 + headProfileH + 4 + secTopSashH}
-              width={4}
-              height={secBH - headProfileH - sillProfileH - secTopSashH - secBotSashH - 16}
-              fill={c.glassFill}
-              stroke={c.glassStroke}
-              strokeWidth="0.75"
-            />
+              <rect x={secBX + 95} y={secBY + secBH - sillProfileH - 4 - secBotSashH} width={45} height={secBotSashH} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+              <circle cx={secBX + 117.5} cy={secBY + secBH - sillProfileH - 4} r="6.5" fill={c.rollerWheel} stroke={c.rollerStroke} strokeWidth="1" />
+              <circle cx={secBX + 117.5} cy={secBY + secBH - sillProfileH - 4} r="2" fill={c.steelFill} />
 
-            {/* Mesh Screen Span (if mesh window) */}
-            {isMeshWindow && (
-              <line
-                x1={secBX + 171}
-                y1={secBY + 8 + headProfileH + 4 + secTopSashH - 4}
-                x2={secBX + 171}
-                y2={secBY + secBH - sillProfileH - 4 - secBotSashH + 4}
-                stroke={c.meshPatternColor}
-                strokeWidth="1.5"
-                strokeDasharray="2 2"
-              />
-            )}
+              {isMeshWindow && (
+                <g>
+                  <rect x={secBX + 155} y={secBY + secBH - sillProfileH - 4 - secBotSashH + 4} width={32} height={secBotSashH - 4} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="0.9" />
+                  <circle cx={secBX + 171} cy={secBY + secBH - sillProfileH - 4} r="5" fill={c.rollerWheel} stroke={c.rollerStroke} strokeWidth="0.8" />
+                </g>
+              )}
 
-            {/* ARCHITECTURAL BREAK LINE (Standard CAD symbol in center) */}
-            <g id="sec-b-break-lines">
-              <path
-                d={`M ${secBX + 25} ${secBreakY - 6} L ${secBX + 80} ${secBreakY - 6} L ${secBX + 90} ${secBreakY - 14} L ${secBX + 100} ${secBreakY + 2} L ${secBX + 110} ${secBreakY - 6} L ${secBX + secBW - 25} ${secBreakY - 6}`}
-                fill="none"
-                stroke={c.lineDark}
-                strokeWidth="1"
-              />
-              <path
-                d={`M ${secBX + 25} ${secBreakY + 6} L ${secBX + 80} ${secBreakY + 6} L ${secBX + 90} ${secBreakY - 2} L ${secBX + 100} ${secBreakY + 14} L ${secBX + 110} ${secBreakY + 6} L ${secBX + secBW - 25} ${secBreakY + 6}`}
-                fill="none"
-                stroke={c.lineDark}
-                strokeWidth="1"
-              />
+              {/* Sill Multi-track Profile */}
+              <rect x={secBX + 20} y={secBY + secBH - sillProfileH - 4} width={secBW - 40} height={sillProfileH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <path d={`M ${secBX + 54} ${secBY + secBH - sillProfileH - 4} L ${secBX + 54} ${secBY + secBH - sillProfileH - 8} L ${secBX + 61} ${secBY + secBH - sillProfileH - 8} L ${secBX + 61} ${secBY + secBH - sillProfileH - 4} Z`} fill={c.steelFill} stroke={c.profileStroke} strokeWidth="0.8" />
+              <path d={`M ${secBX + 114} ${secBY + secBH - sillProfileH - 4} L ${secBX + 114} ${secBY + secBH - sillProfileH - 8} L ${secBX + 121} ${secBY + secBH - sillProfileH - 8} L ${secBX + 121} ${secBY + secBH - sillProfileH - 4} Z`} fill={c.steelFill} stroke={c.profileStroke} strokeWidth="0.8" />
+              {isMeshWindow && (
+                <path d={`M ${secBX + 168} ${secBY + secBH - sillProfileH - 4} L ${secBX + 168} ${secBY + secBH - sillProfileH - 7} L ${secBX + 174} ${secBY + secBH - sillProfileH - 7} L ${secBX + 174} ${secBY + secBH - sillProfileH - 4} Z`} fill={c.steelFill} stroke={c.profileStroke} strokeWidth="0.8" />
+              )}
+              <line x1={secBX + 20 + (secBW - 40) * 0.33} y1={secBY + secBH - sillProfileH - 4} x2={secBX + 20 + (secBW - 40) * 0.33} y2={secBY + secBH - 4} stroke={c.lineMedium} strokeWidth="0.8" />
+              <line x1={secBX + 20 + (secBW - 40) * 0.66} y1={secBY + secBH - sillProfileH - 4} x2={secBX + 20 + (secBW - 40) * 0.66} y2={secBY + secBH - 4} stroke={c.lineMedium} strokeWidth="0.8" />
+              <rect x={secBX + 20 + (secBW - 40) * 0.36} y={secBY + secBH - sillProfileH} width={(secBW - 40) * 0.28} height={sillProfileH - 8} fill={c.steelFill} fillOpacity="0.8" />
+              <circle cx={secBX + 32} cy={secBY + secBH - 14} r="3" fill="none" stroke={c.dimLine} strokeWidth="0.8" />
+              <text x={secBX + 12} y={secBY + secBH - sillProfileH / 2} fill={c.lineMedium} fontSize="6.5" textAnchor="end">Sill</text>
+
+              <text x={secBX + 57.5} y={secBY + secBH + 12} fill={c.lineDark} fontSize="7" fontWeight="bold" textAnchor="middle">Track 1</text>
+              <text x={secBX + 117.5} y={secBY + secBH + 12} fill={c.lineDark} fontSize="7" fontWeight="bold" textAnchor="middle">Track 2</text>
+              {isMeshWindow && <text x={secBX + 171} y={secBY + secBH + 12} fill={c.steelFill} fontSize="7" fontWeight="bold" textAnchor="middle">Mesh Track</text>}
             </g>
-          </g>
+          ) : isOpen ? (
+            /* 2.B CASEMENT SECTION B-B (NO ROLLERS, REBATED WEATHER SILL) */
+            <g id="sec-b-casement">
+              {/* Casement Head Frame Profile */}
+              <rect x={secBX + 20} y={secBY + 8} width={secBW - 40} height={headProfileH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secBX + 30} y={secBY + 12} width={secBW - 60} height={headProfileH - 8} fill={c.steelFill} fillOpacity="0.75" />
+              <text x={secBX + secBW / 2} y={secBY + 8 + headProfileH / 2 + 3} fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">STEEL (CASEMENT HEAD)</text>
+              {/* EPDM Gasket Line */}
+              <line x1={secBX + 25} y1={secBY + 8 + headProfileH} x2={secBX + secBW - 25} y2={secBY + 8 + headProfileH} stroke={c.gasket} strokeWidth="2" strokeDasharray="3 1" />
 
-          {/* 2.4 BOTTOM SASH RAILS WITH ROLLERS */}
-          <g id="sec-b-bot-sash">
-            {/* Bottom Sash 1 Rail */}
-            <rect
-              x={secBX + 35}
-              y={secBY + secBH - sillProfileH - 4 - secBotSashH}
-              width={45}
-              height={secBotSashH}
-              fill={c.profileFillDark}
-              stroke={c.profileStroke}
-              strokeWidth="1"
-            />
-            {/* Roller Wheel 1 resting on track rail */}
-            <circle
-              cx={secBX + 57.5}
-              cy={secBY + secBH - sillProfileH - 4}
-              r="6.5"
-              fill={c.rollerWheel}
-              stroke={c.rollerStroke}
-              strokeWidth="1"
-            />
-            <circle cx={secBX + 57.5} cy={secBY + secBH - sillProfileH - 4} r="2" fill={c.steelFill} />
+              {/* Casement Sash Top Rail */}
+              <rect x={secBX + 40} y={secBY + 8 + headProfileH + 4} width={secBW - 80} height={secTopSashH} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1.1" />
+              <rect x={secBX + 55} y={secBY + 8 + headProfileH + 7} width={secBW - 110} height={secTopSashH - 6} fill={c.steelFill} fillOpacity="0.7" />
+              {/* Snap-in Glazing Bead Top */}
+              <rect x={secBX + secBW / 2 + 5} y={secBY + 8 + headProfileH + 4 + secTopSashH - 6} width="16" height="6" fill={c.beadFill} stroke={c.profileStroke} strokeWidth="0.8" />
+              <text x={secBX + 35} y={secBY + 8 + headProfileH + secTopSashH / 2 + 4} fill={c.lineMedium} fontSize="6" textAnchor="end">Top Rail</text>
 
-            {/* Bottom Sash 2 Rail */}
-            <rect
-              x={secBX + 95}
-              y={secBY + secBH - sillProfileH - 4 - secBotSashH}
-              width={45}
-              height={secBotSashH}
-              fill={c.profileFillDark}
-              stroke={c.profileStroke}
-              strokeWidth="1"
-            />
-            {/* Roller Wheel 2 */}
-            <circle
-              cx={secBX + 117.5}
-              cy={secBY + secBH - sillProfileH - 4}
-              r="6.5"
-              fill={c.rollerWheel}
-              stroke={c.rollerStroke}
-              strokeWidth="1"
-            />
-            <circle cx={secBX + 117.5} cy={secBY + secBH - sillProfileH - 4} r="2" fill={c.steelFill} />
+              {/* Glass Ribbon Span */}
+              <rect x={secBX + secBW / 2 - 2.5} y={secBY + 8 + headProfileH + 4 + secTopSashH} width="5" height={secBH - headProfileH - sillProfileH - secTopSashH - secBotSashH - 16} fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.8" />
+              <line x1={secBX + secBW / 2 + 8} y1={secBY + 8 + headProfileH + 4 + secTopSashH + 15} x2={secBX + secBW / 2 + 25} y2={secBY + 8 + headProfileH + 4 + secTopSashH + 45} stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5" />
 
-            {/* Mesh Bottom Rail (if mesh window) */}
-            {isMeshWindow && (
-              <g>
-                <rect
-                  x={secBX + 155}
-                  y={secBY + secBH - sillProfileH - 4 - secBotSashH + 4}
-                  width={32}
-                  height={secBotSashH - 4}
-                  fill={c.profileFill}
-                  stroke={c.profileStroke}
-                  strokeWidth="0.9"
-                />
-                <circle
-                  cx={secBX + 171}
-                  cy={secBY + secBH - sillProfileH - 4}
-                  r="5"
-                  fill={c.rollerWheel}
-                  stroke={c.rollerStroke}
-                  strokeWidth="0.8"
-                />
-              </g>
-            )}
-          </g>
+              {/* Break lines */}
+              <path d={`M ${secBX + 25} ${secBreakY - 6} L ${secBX + 80} ${secBreakY - 6} L ${secBX + 90} ${secBreakY - 14} L ${secBX + 100} ${secBreakY + 2} L ${secBX + 110} ${secBreakY - 6} L ${secBX + secBW - 25} ${secBreakY - 6}`} fill="none" stroke={c.lineDark} strokeWidth="1" />
+              <path d={`M ${secBX + 25} ${secBreakY + 6} L ${secBX + 80} ${secBreakY + 6} L ${secBX + 90} ${secBreakY - 2} L ${secBX + 100} ${secBreakY + 14} L ${secBX + 110} ${secBreakY + 6} L ${secBX + secBW - 25} ${secBreakY + 6}`} fill="none" stroke={c.lineDark} strokeWidth="1" />
 
-          {/* 2.5 SILL TRACK MULTICHAMBER PROFILE (Bottom outer frame) */}
-          <g id="sec-b-sill-track">
-            {/* Main Sill Box */}
-            <rect
-              x={secBX + 20}
-              y={secBY + secBH - sillProfileH - 4}
-              width={secBW - 40}
-              height={sillProfileH}
-              fill={c.profileFill}
-              stroke={c.profileStroke}
-              strokeWidth="1.2"
-            />
-            {/* Raised Track Rails where rollers roll! */}
-            {/* Rail 1 */}
-            <path
-              d={`M ${secBX + 54} ${secBY + secBH - sillProfileH - 4} L ${secBX + 54} ${secBY + secBH - sillProfileH - 8} L ${secBX + 61} ${secBY + secBH - sillProfileH - 8} L ${secBX + 61} ${secBY + secBH - sillProfileH - 4} Z`}
-              fill={c.steelFill}
-              stroke={c.profileStroke}
-              strokeWidth="0.8"
-            />
-            {/* Rail 2 */}
-            <path
-              d={`M ${secBX + 114} ${secBY + secBH - sillProfileH - 4} L ${secBX + 114} ${secBY + secBH - sillProfileH - 8} L ${secBX + 121} ${secBY + secBH - sillProfileH - 8} L ${secBX + 121} ${secBY + secBH - sillProfileH - 4} Z`}
-              fill={c.steelFill}
-              stroke={c.profileStroke}
-              strokeWidth="0.8"
-            />
-            {/* Rail 3 (Mesh Rail) */}
-            {isMeshWindow && (
-              <path
-                d={`M ${secBX + 168} ${secBY + secBH - sillProfileH - 4} L ${secBX + 168} ${secBY + secBH - sillProfileH - 7} L ${secBX + 174} ${secBY + secBH - sillProfileH - 7} L ${secBX + 174} ${secBY + secBH - sillProfileH - 4} Z`}
-                fill={c.steelFill}
-                stroke={c.profileStroke}
-                strokeWidth="0.8"
-              />
-            )}
+              {/* Casement Sash Bottom Rail with Drip Edge */}
+              <rect x={secBX + 40} y={secBY + secBH - sillProfileH - 4 - secBotSashH} width={secBW - 80} height={secBotSashH} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1.1" />
+              <rect x={secBX + 55} y={secBY + secBH - sillProfileH - 4 - secBotSashH + 3} width={secBW - 110} height={secBotSashH - 6} fill={c.steelFill} fillOpacity="0.7" />
+              {/* Drip nose */}
+              <path d={`M ${secBX + 40} ${secBY + secBH - sillProfileH - 4} L ${secBX + 32} ${secBY + secBH - sillProfileH - 1} L ${secBX + 40} ${secBY + secBH - sillProfileH - 1} Z`} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="0.8" />
+              <text x={secBX + 35} y={secBY + secBH - sillProfileH - secBotSashH / 2} fill={c.lineMedium} fontSize="6" textAnchor="end">Bot Rail</text>
 
-            {/* Internal Chamber partitions and Drainage Slope */}
-            <line x1={secBX + 20 + (secBW - 40) * 0.33} y1={secBY + secBH - sillProfileH - 4} x2={secBX + 20 + (secBW - 40) * 0.33} y2={secBY + secBH - 4} stroke={c.lineMedium} strokeWidth="0.8" />
-            <line x1={secBX + 20 + (secBW - 40) * 0.66} y1={secBY + secBH - sillProfileH - 4} x2={secBX + 20 + (secBW - 40) * 0.66} y2={secBY + secBH - 4} stroke={c.lineMedium} strokeWidth="0.8" />
-            
-            {/* Steel in Sill */}
-            <rect
-              x={secBX + 20 + (secBW - 40) * 0.36}
-              y={secBY + secBH - sillProfileH}
-              width={(secBW - 40) * 0.28}
-              height={sillProfileH - 8}
-              fill={c.steelFill}
-              fillOpacity="0.8"
-              stroke={c.steelFill}
-              strokeWidth="0.5"
-            />
+              {/* Lower EPDM compression gasket */}
+              <line x1={secBX + 25} y1={secBY + secBH - sillProfileH - 4} x2={secBX + secBW - 25} y2={secBY + secBH - sillProfileH - 4} stroke={c.gasket} strokeWidth="2" strokeDasharray="3 1" />
 
-            {/* Drainage / Weep Hole symbol */}
-            <circle cx={secBX + 32} cy={secBY + secBH - 14} r="3" fill="none" stroke={c.dimLine} strokeWidth="0.8" />
+              {/* Casement Outer Frame Sill with Drainage Slope */}
+              <rect x={secBX + 20} y={secBY + secBH - sillProfileH - 4} width={secBW - 40} height={sillProfileH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secBX + 30} y={secBY + secBH - sillProfileH} width={secBW - 60} height={sillProfileH - 8} fill={c.steelFill} fillOpacity="0.75" />
+              {/* Drainage weep slot */}
+              <rect x={secBX + 28} y={secBY + secBH - 14} width="14" height="4" rx="1" fill="none" stroke={c.dimLine} strokeWidth="0.8" />
+              <text x={secBX + secBW / 2} y={secBY + secBH - sillProfileH / 2 + 2} fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">DRAINAGE SILL</text>
+              <text x={secBX + 12} y={secBY + secBH - sillProfileH / 2} fill={c.lineMedium} fontSize="6.5" textAnchor="end">Sill</text>
 
-            <text x={secBX + 12} y={secBY + secBH - sillProfileH / 2} fill={c.lineMedium} fontSize="6.5" textAnchor="end">
-              Sill
-            </text>
-          </g>
+              <text x={secBX + secBW / 2} y={secBY + secBH + 12} fill={c.steelFill} fontSize="7" fontWeight="bold" textAnchor="middle">EPDM Compression Rebates • Zero Rollers</text>
+            </g>
+          ) : isFixed ? (
+            /* 2.C FIXED WINDOW SECTION B-B (SNAP-IN GLAZING BEADS, DIRECT GLASS) */
+            <g id="sec-b-fixed">
+              {/* Fixed Frame Head Profile */}
+              <rect x={secBX + 20} y={secBY + 8} width={secBW - 40} height={headProfileH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secBX + 30} y={secBY + 12} width={secBW - 60} height={headProfileH - 8} fill={c.steelFill} fillOpacity="0.75" />
+              <text x={secBX + secBW / 2} y={secBY + 8 + headProfileH / 2 + 3} fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">STEEL (FIXED HEAD)</text>
+              <text x={secBX + 12} y={secBY + 8 + headProfileH / 2} fill={c.lineMedium} fontSize="6.5" textAnchor="end">Head</text>
 
-          {/* Section B Annotations */}
-          <g id="sec-b-labels">
-            <text x={secBX + 57.5} y={secBY + secBH + 12} fill={c.lineDark} fontSize="7" fontWeight="bold" textAnchor="middle">
-              Track 1
-            </text>
-            <text x={secBX + 117.5} y={secBY + secBH + 12} fill={c.lineDark} fontSize="7" fontWeight="bold" textAnchor="middle">
-              Track 2
-            </text>
-            {isMeshWindow && (
-              <text x={secBX + 171} y={secBY + secBH + 12} fill={c.steelFill} fontSize="7" fontWeight="bold" textAnchor="middle">
-                Mesh Track
-              </text>
-            )}
-          </g>
+              {/* Snap-in Glazing Bead Top */}
+              <rect x={secBX + secBW / 2 + 4} y={secBY + 8 + headProfileH} width="22" height="14" fill={c.beadFill} stroke={c.profileStroke} strokeWidth="1" />
+              <line x1={secBX + secBW / 2 + 4} y1={secBY + 8 + headProfileH} x2={secBX + secBW / 2 + 4} y2={secBY + 8 + headProfileH + 14} stroke={c.gasket} strokeWidth="2.5" />
+              <text x={secBX + secBW / 2 + 30} y={secBY + 8 + headProfileH + 10} fill={c.steelFill} fontSize="6" fontWeight="bold">Top Bead</text>
+
+              {/* Continuous Unbroken Direct Glass Pane */}
+              <rect x={secBX + secBW / 2 - 3} y={secBY + 8 + headProfileH} width="6" height={secBH - headProfileH - sillProfileH - 16} fill={c.glassFill} stroke={c.glassStroke} strokeWidth="1" />
+              <line x1={secBX + secBW / 2 + 8} y1={secBY + 8 + headProfileH + 30} x2={secBX + secBW / 2 + 28} y2={secBY + 8 + headProfileH + 80} stroke="#ffffff" strokeWidth="1.2" strokeOpacity="0.6" />
+
+              {/* Break lines */}
+              <path d={`M ${secBX + 25} ${secBreakY - 6} L ${secBX + 80} ${secBreakY - 6} L ${secBX + 90} ${secBreakY - 14} L ${secBX + 100} ${secBreakY + 2} L ${secBX + 110} ${secBreakY - 6} L ${secBX + secBW - 25} ${secBreakY - 6}`} fill="none" stroke={c.lineDark} strokeWidth="1" />
+              <path d={`M ${secBX + 25} ${secBreakY + 6} L ${secBX + 80} ${secBreakY + 6} L ${secBX + 90} ${secBreakY - 2} L ${secBX + 100} ${secBreakY + 14} L ${secBX + 110} ${secBreakY + 6} L ${secBX + secBW - 25} ${secBreakY + 6}`} fill="none" stroke={c.lineDark} strokeWidth="1" />
+
+              {/* Neoprene Setting Block under glass bottom */}
+              <rect x={secBX + secBW / 2 - 8} y={secBY + secBH - sillProfileH - 12} width="16" height="4" fill="#0f172a" />
+              <text x={secBX + secBW / 2 - 12} y={secBY + secBH - sillProfileH - 10} fill={c.lineMedium} fontSize="5.5" textAnchor="end">Setting Block</text>
+
+              {/* Snap-in Glazing Bead Bottom */}
+              <rect x={secBX + secBW / 2 + 4} y={secBY + secBH - sillProfileH - 22} width="22" height="14" fill={c.beadFill} stroke={c.profileStroke} strokeWidth="1" />
+              <line x1={secBX + secBW / 2 + 4} y1={secBY + secBH - sillProfileH - 22} x2={secBX + secBW / 2 + 4} y2={secBY + secBH - sillProfileH - 8} stroke={c.gasket} strokeWidth="2.5" />
+              <text x={secBX + secBW / 2 + 30} y={secBY + secBH - sillProfileH - 13} fill={c.steelFill} fontSize="6" fontWeight="bold">Bot Bead</text>
+
+              {/* Fixed Frame Sill Profile */}
+              <rect x={secBX + 20} y={secBY + secBH - sillProfileH - 4} width={secBW - 40} height={sillProfileH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secBX + 30} y={secBY + secBH - sillProfileH} width={secBW - 60} height={sillProfileH - 8} fill={c.steelFill} fillOpacity="0.75" />
+              <circle cx={secBX + 32} cy={secBY + secBH - 14} r="3" fill="none" stroke={c.dimLine} strokeWidth="0.8" />
+              <text x={secBX + secBW / 2} y={secBY + secBH - sillProfileH / 2 + 3} fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">FIXED SILL</text>
+              <text x={secBX + 12} y={secBY + secBH - sillProfileH / 2} fill={c.lineMedium} fontSize="6.5" textAnchor="end">Sill</text>
+
+              <text x={secBX + secBW / 2} y={secBY + secBH + 12} fill={c.steelFill} fontSize="7" fontWeight="bold" textAnchor="middle">Direct Glazed • No Sash Frame • No Rollers</text>
+            </g>
+          ) : (
+            /* 2.D VENTILATOR SECTION B-B (INCLINED LOUVER BLADES, AIRFLOW) */
+            <g id="sec-b-ventilator">
+              {/* Ventilator Head Profile */}
+              <rect x={secBX + 20} y={secBY + 8} width={secBW - 40} height={headProfileH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secBX + 30} y={secBY + 12} width={secBW - 60} height={headProfileH - 8} fill={c.steelFill} fillOpacity="0.75" />
+              <text x={secBX + secBW / 2} y={secBY + 8 + headProfileH / 2 + 3} fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">VENTILATOR HEAD</text>
+              <text x={secBX + 12} y={secBY + 8 + headProfileH / 2} fill={c.lineMedium} fontSize="6.5" textAnchor="end">Head</text>
+
+              {/* Inclined Louver Blades (4 blades showing air gap) */}
+              {[0, 1, 2, 3].map((bIdx) => {
+                const bY = secBY + 8 + headProfileH + 20 + bIdx * ((secBH - headProfileH - sillProfileH - 60) / 3);
+                return (
+                  <g key={`sec-b-louver-${bIdx}`}>
+                    {/* Inclined Glass Blade (30° angle) */}
+                    <polygon
+                      points={`${secBX + 80},${bY - 14} ${secBX + 170},${bY + 8} ${secBX + 168},${bY + 14} ${secBX + 78},${bY - 8}`}
+                      fill={c.glassFill}
+                      stroke={c.glassStroke}
+                      strokeWidth="1"
+                    />
+                    {/* Pivot clamp */}
+                    <circle cx={secBX + 125} cy={bY} r="3.5" fill={c.lineDark} />
+                    {/* Airflow curved streamline arrow */}
+                    <path
+                      d={`M ${secBX + 60} ${bY + 12} Q ${secBX + 110} ${bY + 18} ${secBX + 195} ${bY - 6}`}
+                      fill="none"
+                      stroke={c.steelFill}
+                      strokeWidth="1"
+                      strokeDasharray="3 2"
+                      markerEnd={`url(#${uniqueId}-slide-arrow)`}
+                    />
+                  </g>
+                );
+              })}
+
+              {/* Break lines */}
+              <path d={`M ${secBX + 25} ${secBreakY - 6} L ${secBX + 80} ${secBreakY - 6} L ${secBX + 90} ${secBreakY - 14} L ${secBX + 100} ${secBreakY + 2} L ${secBX + 110} ${secBreakY - 6} L ${secBX + secBW - 25} ${secBreakY - 6}`} fill="none" stroke={c.lineDark} strokeWidth="1" />
+              <path d={`M ${secBX + 25} ${secBreakY + 6} L ${secBX + 80} ${secBreakY + 6} L ${secBX + 90} ${secBreakY - 2} L ${secBX + 100} ${secBreakY + 14} L ${secBX + 110} ${secBreakY + 6} L ${secBX + secBW - 25} ${secBreakY + 6}`} fill="none" stroke={c.lineDark} strokeWidth="1" />
+
+              {/* Ventilator Sill with Raised Water Stop */}
+              <rect x={secBX + 20} y={secBY + secBH - sillProfileH - 4} width={secBW - 40} height={sillProfileH} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              {/* Stepped Water Barrier */}
+              <rect x={secBX + 140} y={secBY + secBH - sillProfileH - 9} width="16" height="5" fill={c.steelFill} />
+              <text x={secBX + secBW / 2} y={secBY + secBH - sillProfileH / 2 + 3} fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">WEATHER SILL</text>
+              <text x={secBX + 12} y={secBY + secBH - sillProfileH / 2} fill={c.lineMedium} fontSize="6.5" textAnchor="end">Sill</text>
+
+              <text x={secBX + secBW / 2} y={secBY + secBH + 12} fill={c.steelFill} fontSize="7" fontWeight="bold" textAnchor="middle">Natural Airflow • Inclined Louvers • Weather Step</text>
+            </g>
+          )}
         </g>
       )}
 
       {/* ============================================================= */}
       {/* 3. SECTION A-A (HORIZONTAL PLAN CROSS-SECTION)               */}
-      {/* Positioned on Bottom, matching the user reference image      */}
       {/* ============================================================= */}
       {(isAllInOne || isSectionAOnly) && (
         <g id="section-aa-group" transform={isSectionAOnly ? `translate(0, 0)` : ''}>
-          {/* Section A-A Title Header */}
+          {/* Header Title */}
           <text
             x={secAX + secAW / 2}
             y={secAY - 10}
@@ -1758,10 +1882,16 @@ export const WindowBlueprintSVG: React.FC<{
             fontSize="7"
             textAnchor="middle"
           >
-            HORIZONTAL PLAN SECTION (JAMBS, STILES & INTERLOCK)
+            {isFixed
+              ? 'HORIZONTAL PLAN SECTION (FIXED JAMBS & DIRECT CONTINUOUS GLAZING)'
+              : isVentilator
+                ? 'HORIZONTAL PLAN SECTION (VENTILATOR JAMBS & LOUVER GALLERY)'
+                : isOpen
+                  ? 'HORIZONTAL PLAN SECTION (JAMBS, CASEMENT STILES & T-MULLION)'
+                  : 'HORIZONTAL PLAN SECTION (JAMBS, STILES & INTERLOCK HOOKS)'}
           </text>
 
-          {/* Section Outline Box container */}
+          {/* Container box */}
           <rect
             x={secAX}
             y={secAY + 2}
@@ -1773,187 +1903,200 @@ export const WindowBlueprintSVG: React.FC<{
             rx="2"
           />
 
-          {/* 3.1 LEFT JAMB PROFILE (Outer Frame Profile on wall) */}
-          <g id="sec-a-left-jamb">
-            <rect
-              x={secAX + 8}
-              y={secAY + 14}
-              width={jambProfileW}
-              height={secAH - 28}
-              fill={c.profileFill}
-              stroke={c.profileStroke}
-              strokeWidth="1.2"
-            />
-            {/* Steel in left jamb */}
-            <rect
-              x={secAX + 12}
-              y={secAY + 20}
-              width={jambProfileW - 8}
-              height={(secAH - 28) * 0.4}
-              fill={c.steelFill}
-              fillOpacity="0.8"
-            />
-            {/* Masonry / Wall fixing hatch line on left */}
-            <line x1={secAX + 8} y1={secAY + 8} x2={secAX + 8} y2={secAY + secAH - 8} stroke={c.lineDark} strokeWidth="1.5" />
-            <text x={secAX + 8 + jambProfileW / 2} y={secAY + secAH - 6} fill={c.lineMedium} fontSize="6.5" textAnchor="middle">
-              Left Jamb
-            </text>
-          </g>
+          {isSliding ? (
+            /* 3.A SLIDING SECTION A-A (INTERLOCK HOOKS) */
+            <g id="sec-a-sliding">
+              {/* Left Jamb */}
+              <rect x={secAX + 8} y={secAY + 14} width={jambProfileW} height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secAX + 12} y={secAY + 20} width={jambProfileW - 8} height={(secAH - 28) * 0.4} fill={c.steelFill} fillOpacity="0.8" />
+              <line x1={secAX + 8} y1={secAY + 8} x2={secAX + 8} y2={secAY + secAH - 8} stroke={c.lineDark} strokeWidth="1.5" />
+              <text x={secAX + 8 + jambProfileW / 2} y={secAY + secAH - 6} fill={c.lineMedium} fontSize="6.5" textAnchor="middle">Left Jamb</text>
 
-          {/* 3.2 LEFT SASH VERTICAL STILE (Meeting Left Jamb) */}
-          <g id="sec-a-left-stile">
-            <rect
-              x={secAX + 8 + jambProfileW + 3}
-              y={secAY + 22}
-              width={26}
-              height={26}
-              fill={c.profileFillDark}
-              stroke={c.profileStroke}
-              strokeWidth="1"
-            />
-            {/* Wool pile weatherstrip brush between stile & jamb */}
-            <line
-              x1={secAX + 8 + jambProfileW + 1}
-              y1={secAY + 24}
-              x2={secAX + 8 + jambProfileW + 1}
-              y2={secAY + 46}
-              stroke={c.lineDark}
-              strokeWidth="2"
-              strokeDasharray="2 1"
-            />
-          </g>
+              {/* Left Stile with Woolpile */}
+              <rect x={secAX + 8 + jambProfileW + 3} y={secAY + 22} width={26} height={26} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+              <line x1={secAX + 8 + jambProfileW + 1} y1={secAY + 24} x2={secAX + 8 + jambProfileW + 1} y2={secAY + 46} stroke={c.lineDark} strokeWidth="2" strokeDasharray="2 1" />
 
-          {/* 3.3 GLASS SPAN 1 (Horizontal blue ribbon) */}
-          <g id="sec-a-glass-1">
-            <rect
-              x={secAX + 8 + jambProfileW + 29}
-              y={secAY + 33}
-              width={(secAW / 2) - jambProfileW - 44}
-              height={4}
-              fill={c.glassFill}
-              stroke={c.glassStroke}
-              strokeWidth="0.75"
-            />
-          </g>
+              {/* Glass Span 1 */}
+              <rect x={secAX + 8 + jambProfileW + 29} y={secAY + 33} width={(secAW / 2) - jambProfileW - 44} height={4} fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.75" />
 
-          {/* 3.4 CENTER INTERLOCK HOOKS (Crucial Hallmark Architectural Feature) */}
-          <g id="sec-a-center-interlock">
-            {/* Stile 1 (Inner Sash) */}
-            <rect
-              x={midX - 22}
-              y={secAY + 22}
-              width={22}
-              height={26}
-              fill={c.profileFillDark}
-              stroke={c.profileStroke}
-              strokeWidth="1"
-            />
-            {/* Interlock J-Hook 1 extending outwards */}
-            <path
-              d={`M ${midX} ${secAY + 24} L ${midX + 6} ${secAY + 24} L ${midX + 6} ${secAY + 36} L ${midX + 2} ${secAY + 36}`}
-              fill="none"
-              stroke={c.profileStroke}
-              strokeWidth="1.2"
-            />
+              {/* Center Interlock J-Hooks */}
+              <rect x={midX - 22} y={secAY + 22} width={22} height={26} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+              <path d={`M ${midX} ${secAY + 24} L ${midX + 6} ${secAY + 24} L ${midX + 6} ${secAY + 36} L ${midX + 2} ${secAY + 36}`} fill="none" stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={midX} y={secAY + 34} width={22} height={26} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+              <path d={`M ${midX} ${secAY + 58} L ${midX - 6} ${secAY + 58} L ${midX - 6} ${secAY + 46} L ${midX - 2} ${secAY + 46}`} fill="none" stroke={c.profileStroke} strokeWidth="1.2" />
+              <line x1={midX - 3} y1={secAY + 26} x2={midX - 3} y2={secAY + 44} stroke={c.lineDark} strokeWidth="2" strokeDasharray="2 1" />
+              <text x={midX} y={secAY + 70} fill={c.steelFill} fontSize="6.5" fontWeight="bold" textAnchor="middle">Interlock Hooks</text>
 
-            {/* Stile 2 (Outer Sash) */}
-            <rect
-              x={midX}
-              y={secAY + 34}
-              width={22}
-              height={26}
-              fill={c.profileFillDark}
-              stroke={c.profileStroke}
-              strokeWidth="1"
-            />
-            {/* Interlock J-Hook 2 interlocking with Hook 1 */}
-            <path
-              d={`M ${midX} ${secAY + 58} L ${midX - 6} ${secAY + 58} L ${midX - 6} ${secAY + 46} L ${midX - 2} ${secAY + 46}`}
-              fill="none"
-              stroke={c.profileStroke}
-              strokeWidth="1.2"
-            />
+              {/* Glass Span 2 */}
+              <rect x={midX + 22} y={secAY + 45} width={rightStileX - (midX + 22)} height={4} fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.75" />
+              {isMeshWindow && (
+                <line x1={midX - 10} y1={secAY + 18} x2={secAX + secAW - 8 - jambProfileW - 4} y2={secAY + 18} stroke={c.meshPatternColor} strokeWidth="1.5" strokeDasharray="2 2" />
+              )}
 
-            {/* Wool Pile Weatherstrip Cushion between interlocks */}
-            <line
-              x1={midX - 3}
-              y1={secAY + 26}
-              x2={midX - 3}
-              y2={secAY + 44}
-              stroke={c.lineDark}
-              strokeWidth="2"
-              strokeDasharray="2 1"
-            />
-            <text x={midX} y={secAY + 70} fill={c.steelFill} fontSize="6.5" fontWeight="bold" textAnchor="middle">
-              Interlock Hooks
-            </text>
-          </g>
+              {/* Right Stile & Right Jamb */}
+              <rect x={secAX + secAW - 8 - jambProfileW - 29} y={secAY + 34} width={26} height={26} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+              <rect x={secAX + secAW - 8 - jambProfileW} y={secAY + 14} width={jambProfileW} height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secAX + secAW - 8 - jambProfileW + 4} y={secAY + 20} width={jambProfileW - 8} height={(secAH - 28) * 0.4} fill={c.steelFill} fillOpacity="0.8" />
+              <line x1={secAX + secAW - 8} y1={secAY + 8} x2={secAX + secAW - 8} y2={secAY + secAH - 8} stroke={c.lineDark} strokeWidth="1.5" />
+              <text x={secAX + secAW - 8 - jambProfileW / 2} y={secAY + secAH - 6} fill={c.lineMedium} fontSize="6.5" textAnchor="middle">Right Jamb</text>
+            </g>
+          ) : isOpen ? (
+            /* 3.B CASEMENT SECTION A-A (T-MULLION / CASEMENT STILES & GASKETS) */
+            <g id="sec-a-casement">
+              {/* Left Jamb (Hinge Side) */}
+              <rect x={secAX + 8} y={secAY + 14} width={jambProfileW} height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secAX + 12} y={secAY + 20} width={jambProfileW - 8} height={(secAH - 28) * 0.45} fill={c.steelFill} fillOpacity="0.8" />
+              <line x1={secAX + 8} y1={secAY + 8} x2={secAX + 8} y2={secAY + secAH - 8} stroke={c.lineDark} strokeWidth="1.5" />
+              <line x1={secAX + 8 + jambProfileW} y1={secAY + 20} x2={secAX + 8 + jambProfileW} y2={secAY + secAH - 20} stroke={c.gasket} strokeWidth="2" strokeDasharray="3 1" />
+              <text x={secAX + 8 + jambProfileW / 2} y={secAY + secAH - 6} fill={c.lineMedium} fontSize="6" textAnchor="middle">Hinge Jamb</text>
 
-          {/* 3.5 GLASS SPAN 2 (OR MESH SPAN) TO RIGHT JAMB */}
-          <g id="sec-a-glass-2">
-            {/* Glass Span 2 */}
-            <rect
-              x={midX + 22}
-              y={secAY + 45}
-              width={rightStileX - (midX + 22)}
-              height={4}
-              fill={c.glassFill}
-              stroke={c.glassStroke}
-              strokeWidth="0.75"
-            />
+              {casementSubtype === 'single' ? (
+                // 3.B.1 SINGLE CASEMENT PLAN
+                <g>
+                  {/* Left Sash Stile */}
+                  <rect x={secAX + 8 + jambProfileW + 2} y={secAY + 24} width="24" height={secAH - 48} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1.1" />
+                  {/* Single Continuous Glass Pane with Glazing Beads */}
+                  <rect x={secAX + 8 + jambProfileW + 26} y={secAY + secAH / 2 - 2} width={secAW - jambProfileW * 2 - 68} height="4" fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.8" />
+                  {/* Right Sash Closing Stile with Espag Handle */}
+                  <rect x={secAX + secAW - 8 - jambProfileW - 26} y={secAY + 24} width="24" height={secAH - 48} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1.1" />
+                  {/* Espag handle projecting */}
+                  <rect x={secAX + secAW - 8 - jambProfileW - 28} y={secAY + secAH / 2 - 5} width="4" height="10" rx="1" fill={c.lineDark} />
+                  <text x={secAX + secAW / 2} y={secAY + 68} fill={c.steelFill} fontSize="6.5" fontWeight="bold" textAnchor="middle">
+                    {`Single Operable Casement (${panel.heightMM}×${panel.widthMM} mm)`}
+                  </text>
+                </g>
+              ) : (
+                // 3.B.2 DOUBLE / TRIPLE WITH CENTRAL T-MULLION
+                <g>
+                  {/* Left Sash Hinged Stile */}
+                  <rect x={secAX + 8 + jambProfileW + 2} y={secAY + 24} width="22" height={secAH - 48} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+                  {/* Glass Pane 1 */}
+                  <rect x={secAX + 8 + jambProfileW + 24} y={secAY + secAH / 2 - 2} width={midX - (secAX + 8 + jambProfileW + 40)} height="4" fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.8" />
+                  {/* Left Sash Closing Stile */}
+                  <rect x={midX - 32} y={secAY + 24} width="18" height={secAH - 48} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
 
-            {/* If Mesh Window: Mosquito Mesh Screen running parallel in outer track */}
-            {isMeshWindow && (
-              <line
-                x1={midX - 10}
-                y1={secAY + 18}
-                x2={secAX + secAW - 8 - jambProfileW - 4}
-                y2={secAY + 18}
-                stroke={c.meshPatternColor}
-                strokeWidth="1.5"
-                strokeDasharray="2 2"
+                  {/* CENTRAL T-MULLION PROFILE */}
+                  <rect x={midX - 12} y={secAY + 14} width="24" height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.3" />
+                  <rect x={midX - 8} y={secAY + 20} width="16" height={(secAH - 28) * 0.55} fill={c.steelFill} fillOpacity="0.85" />
+                  {/* Double Gaskets on Mullion faces */}
+                  <line x1={midX - 12} y1={secAY + 20} x2={midX - 12} y2={secAY + secAH - 20} stroke={c.gasket} strokeWidth="2" strokeDasharray="3 1" />
+                  <line x1={midX + 12} y1={secAY + 20} x2={midX + 12} y2={secAY + secAH - 20} stroke={c.gasket} strokeWidth="2" strokeDasharray="3 1" />
+                  <text x={midX} y={secAY + secAH - 6} fill={c.steelFill} fontSize="6" fontWeight="bold" textAnchor="middle">T-Mullion</text>
+
+                  {/* Right Sash Closing Stile */}
+                  <rect x={midX + 14} y={secAY + 24} width="18" height={secAH - 48} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+                  {/* Glass Pane 2 */}
+                  <rect x={midX + 32} y={secAY + secAH / 2 - 2} width={secAX + secAW - 8 - jambProfileW - 24 - (midX + 32)} height="4" fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.8" />
+                  {/* Right Sash Hinged Stile */}
+                  <rect x={secAX + secAW - 8 - jambProfileW - 24} y={secAY + 24} width="22" height={secAH - 48} fill={c.profileFillDark} stroke={c.profileStroke} strokeWidth="1" />
+                </g>
+              )}
+
+              {/* Right Jamb */}
+              <rect x={secAX + secAW - 8 - jambProfileW} y={secAY + 14} width={jambProfileW} height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secAX + secAW - 8 - jambProfileW + 4} y={secAY + 20} width={jambProfileW - 8} height={(secAH - 28) * 0.45} fill={c.steelFill} fillOpacity="0.8" />
+              <line x1={secAX + secAW - 8} y1={secAY + 8} x2={secAX + secAW - 8} y2={secAY + secAH - 8} stroke={c.lineDark} strokeWidth="1.5" />
+              <line x1={secAX + secAW - 8 - jambProfileW} y1={secAY + 20} x2={secAX + secAW - 8 - jambProfileW} y2={secAY + secAH - 20} stroke={c.gasket} strokeWidth="2" strokeDasharray="3 1" />
+              <text x={secAX + secAW - 8 - jambProfileW / 2} y={secAY + secAH - 6} fill={c.lineMedium} fontSize="6" textAnchor="middle">Lock Jamb</text>
+            </g>
+          ) : isFixed ? (
+            /* 3.C FIXED SECTION A-A (DIRECT GLAZING BEADS, UNBROKEN GLASS) */
+            <g id="sec-a-fixed">
+              {/* Left Fixed Jamb */}
+              <rect x={secAX + 8} y={secAY + 14} width={jambProfileW} height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secAX + 12} y={secAY + 20} width={jambProfileW - 8} height={(secAH - 28) * 0.5} fill={c.steelFill} fillOpacity="0.8" />
+              <line x1={secAX + 8} y1={secAY + 8} x2={secAX + 8} y2={secAY + secAH - 8} stroke={c.lineDark} strokeWidth="1.5" />
+              <text x={secAX + 8 + jambProfileW / 2} y={secAY + secAH - 6} fill={c.lineMedium} fontSize="6" textAnchor="middle">Left Fixed Jamb</text>
+
+              {/* Snap-in Glazing Bead Left */}
+              <rect x={secAX + 8 + jambProfileW} y={secAY + 22} width="16" height={secAH - 44} fill={c.beadFill} stroke={c.profileStroke} strokeWidth="1" />
+              <line x1={secAX + 8 + jambProfileW + 16} y1={secAY + 22} x2={secAX + 8 + jambProfileW + 16} y2={secAY + secAH - 22} stroke={c.gasket} strokeWidth="2.5" />
+
+              {/* Continuous Unbroken Direct Glass Pane Across Entire Width */}
+              <rect
+                x={secAX + 8 + jambProfileW + 16}
+                y={secAY + secAH / 2 - 3}
+                width={secAW - (jambProfileW * 2 + 48)}
+                height="6"
+                fill={c.glassFill}
+                stroke={c.glassStroke}
+                strokeWidth="1"
               />
-            )}
-          </g>
 
-          {/* 3.6 RIGHT SASH STILE & RIGHT JAMB PROFILE */}
-          <g id="sec-a-right-jamb">
-            {/* Right Sash Stile */}
-            <rect
-              x={secAX + secAW - 8 - jambProfileW - 29}
-              y={secAY + 34}
-              width={26}
-              height={26}
-              fill={c.profileFillDark}
-              stroke={c.profileStroke}
-              strokeWidth="1"
-            />
+              {/* Snap-in Glazing Bead Right */}
+              <rect x={secAX + secAW - 8 - jambProfileW - 16} y={secAY + 22} width="16" height={secAH - 44} fill={c.beadFill} stroke={c.profileStroke} strokeWidth="1" />
+              <line x1={secAX + secAW - 8 - jambProfileW - 16} y1={secAY + 22} x2={secAX + secAW - 8 - jambProfileW - 16} y2={secAY + secAH - 22} stroke={c.gasket} strokeWidth="2.5" />
 
-            {/* Right Jamb Profile */}
-            <rect
-              x={secAX + secAW - 8 - jambProfileW}
-              y={secAY + 14}
-              width={jambProfileW}
-              height={secAH - 28}
-              fill={c.profileFill}
-              stroke={c.profileStroke}
-              strokeWidth="1.2"
-            />
-            {/* Steel in right jamb */}
-            <rect
-              x={secAX + secAW - 8 - jambProfileW + 4}
-              y={secAY + 20}
-              width={jambProfileW - 8}
-              height={(secAH - 28) * 0.4}
-              fill={c.steelFill}
-              fillOpacity="0.8"
-            />
-            {/* Wall fixing line on right */}
-            <line x1={secAX + secAW - 8} y1={secAY + 8} x2={secAX + secAW - 8} y2={secAY + secAH - 8} stroke={c.lineDark} strokeWidth="1.5" />
-            <text x={secAX + secAW - 8 - jambProfileW / 2} y={secAY + secAH - 6} fill={c.lineMedium} fontSize="6.5" textAnchor="middle">
-              Right Jamb
-            </text>
-          </g>
+              {/* Right Fixed Jamb */}
+              <rect x={secAX + secAW - 8 - jambProfileW} y={secAY + 14} width={jambProfileW} height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <rect x={secAX + secAW - 8 - jambProfileW + 4} y={secAY + 20} width={jambProfileW - 8} height={(secAH - 28) * 0.5} fill={c.steelFill} fillOpacity="0.8" />
+              <line x1={secAX + secAW - 8} y1={secAY + 8} x2={secAX + secAW - 8} y2={secAY + secAH - 8} stroke={c.lineDark} strokeWidth="1.5" />
+              <text x={secAX + secAW - 8 - jambProfileW / 2} y={secAY + secAH - 6} fill={c.lineMedium} fontSize="6" textAnchor="middle">Right Fixed Jamb</text>
+
+              <rect x={midX - 70} y={secAY + 62} width="140" height="14" rx="2" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.6" />
+              <text x={midX} y={secAY + 72} fill={c.steelFill} fontSize="6.5" fontWeight="bold" textAnchor="middle">
+                {`Direct Continuous Glazing (${mirror.widthMM} mm W)`}
+              </text>
+            </g>
+          ) : (
+            /* 3.D VENTILATOR SECTION A-A (LOUVER GALLERY & FAN PORT) */
+            <g id="sec-a-ventilator">
+              {/* Left Jamb */}
+              <rect x={secAX + 8} y={secAY + 14} width={jambProfileW} height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <line x1={secAX + 8} y1={secAY + 8} x2={secAX + 8} y2={secAY + secAH - 8} stroke={c.lineDark} strokeWidth="1.5" />
+              {/* Left Gallery Clip */}
+              <rect x={secAX + 8 + jambProfileW} y={secAY + 24} width="10" height={secAH - 48} fill={c.lineDark} rx="1" />
+              <text x={secAX + 8 + jambProfileW / 2} y={secAY + secAH - 6} fill={c.lineMedium} fontSize="6" textAnchor="middle">Left Clip</text>
+
+              {ventilatorSubtype === 'fan' ? (
+                // Fan + Louver Plan Section
+                <g>
+                  {ventilatorFanSide === 'left' ? (
+                    <g>
+                      {/* Fan cut-out section on left */}
+                      <rect x={secAX + 8 + jambProfileW + 12} y={secAY + secAH / 2 - 2} width={(midX - (secAX + 8 + jambProfileW + 12)) * 0.3} height="4" fill={c.fanAccent} />
+                      <circle cx={secAX + 8 + jambProfileW + (midX - (secAX + 8 + jambProfileW)) * 0.5} cy={secAY + secAH / 2} r="14" fill="none" stroke={c.fanAccent} strokeWidth="1.5" strokeDasharray="3 2" />
+                      <rect x={midX - (midX - (secAX + 8 + jambProfileW + 12)) * 0.3} y={secAY + secAH / 2 - 2} width={(midX - (secAX + 8 + jambProfileW + 12)) * 0.3} height="4" fill={c.fanAccent} />
+                      <text x={secAX + 8 + jambProfileW + (midX - (secAX + 8 + jambProfileW)) * 0.5} y={secAY + 68} fill={c.fanAccent} fontSize="6" fontWeight="bold" textAnchor="middle">Fan Port (Ø 175mm)</text>
+
+                      {/* Divider */}
+                      <rect x={midX - 6} y={secAY + 14} width="12" height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1" />
+
+                      {/* Louver blade on right */}
+                      <rect x={midX + 10} y={secAY + secAH / 2 - 2.5} width={secAX + secAW - 8 - jambProfileW - 20 - midX} height="5" fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.8" rx="1.5" />
+                      <text x={midX + (secAX + secAW - 8 - jambProfileW - midX) * 0.5} y={secAY + 68} fill={c.steelFill} fontSize="6" fontWeight="bold" textAnchor="middle">Glass Louver Blade</text>
+                    </g>
+                  ) : (
+                    <g>
+                      {/* Louver blade on left */}
+                      <rect x={secAX + 8 + jambProfileW + 12} y={secAY + secAH / 2 - 2.5} width={midX - (secAX + 8 + jambProfileW + 22)} height="5" fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.8" rx="1.5" />
+                      <text x={secAX + 8 + jambProfileW + (midX - (secAX + 8 + jambProfileW)) * 0.5} y={secAY + 68} fill={c.steelFill} fontSize="6" fontWeight="bold" textAnchor="middle">Glass Louver Blade</text>
+
+                      {/* Divider */}
+                      <rect x={midX - 6} y={secAY + 14} width="12" height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1" />
+
+                      {/* Fan cut-out on right */}
+                      <circle cx={midX + (secAX + secAW - 8 - jambProfileW - midX) * 0.5} cy={secAY + secAH / 2} r="14" fill="none" stroke={c.fanAccent} strokeWidth="1.5" strokeDasharray="3 2" />
+                      <text x={midX + (secAX + secAW - 8 - jambProfileW - midX) * 0.5} y={secAY + 68} fill={c.fanAccent} fontSize="6" fontWeight="bold" textAnchor="middle">Fan Port (Ø 175mm)</text>
+                    </g>
+                  )}
+                </g>
+              ) : (
+                // Normal Louver Plan Section
+                <g>
+                  <rect x={secAX + 8 + jambProfileW + 12} y={secAY + secAH / 2 - 2.5} width={secAW - (jambProfileW * 2 + 40)} height="5" rx="2" fill={c.glassFill} stroke={c.glassStroke} strokeWidth="0.8" />
+                  <text x={midX} y={secAY + 68} fill={c.steelFill} fontSize="6.5" fontWeight="bold" textAnchor="middle">Continuous 4mm Glass Louver Blade</text>
+                </g>
+              )}
+
+              {/* Right Gallery Clip */}
+              <rect x={secAX + secAW - 8 - jambProfileW - 10} y={secAY + 24} width="10" height={secAH - 48} fill={c.lineDark} rx="1" />
+              {/* Right Jamb */}
+              <rect x={secAX + secAW - 8 - jambProfileW} y={secAY + 14} width={jambProfileW} height={secAH - 28} fill={c.profileFill} stroke={c.profileStroke} strokeWidth="1.2" />
+              <line x1={secAX + secAW - 8} y1={secAY + 8} x2={secAX + secAW - 8} y2={secAY + secAH - 8} stroke={c.lineDark} strokeWidth="1.5" />
+              <text x={secAX + secAW - 8 - jambProfileW / 2} y={secAY + secAH - 6} fill={c.lineMedium} fontSize="6" textAnchor="middle">Right Clip</text>
+            </g>
+          )}
         </g>
       )}
 
@@ -1976,7 +2119,13 @@ export const WindowBlueprintSVG: React.FC<{
           fontSize="7.5"
           fontFamily="monospace"
         >
-          {`FRAME CUT: ${result.frame.topBottomCutMM}W × ${result.frame.leftRightCutMM}H (45° Mitre) | SASH: ${panel.heightMM}H × ${panel.widthMM}W | GLASS: ${mirror.heightMM}H × ${mirror.widthMM}W${additionalPanels?.[0] ? ` | MESH: ${additionalPanels[0].heightMM}H × ${additionalPanels[0].widthMM}W` : ''}`}
+          {isFixed
+            ? `FRAME CUT: ${result.frame.topBottomCutMM}W × ${result.frame.leftRightCutMM}H (45° Mitre) | DIRECT GLASS: ${mirror.heightMM}H × ${mirror.widthMM}W | BEAD: 45° MITRED`
+            : isVentilator
+              ? `FRAME CUT: ${result.frame.topBottomCutMM}W × ${result.frame.leftRightCutMM}H (45° Mitre) | TYPE: ${ventilatorSubtype === 'fan' ? `FAN PROVISION (${ventilatorFanSide.toUpperCase()}) + LOUVERS` : 'VENTILATOR GLASS LOUVERS'}`
+              : isOpen
+                ? `FRAME CUT: ${result.frame.topBottomCutMM}W × ${result.frame.leftRightCutMM}H (45° Mitre) | SASH: ${panel.heightMM}H × ${panel.widthMM}W | GLASS: ${mirror.heightMM}H × ${mirror.widthMM}W${(casementSubtype === 'double' || casementSubtype === 'triple') ? ` | MULLION: ${result.mullionMM || result.frame.mullionCutMM || (convertedHeightMM - 6)} mm` : ''}`
+                : `FRAME CUT: ${result.frame.topBottomCutMM}W × ${result.frame.leftRightCutMM}H (45° Mitre) | SASH: ${panel.heightMM}H × ${panel.widthMM}W | GLASS: ${mirror.heightMM}H × ${mirror.widthMM}W${additionalPanels?.[0] ? ` | MESH: ${additionalPanels[0].heightMM}H × ${additionalPanels[0].widthMM}W` : ''}`}
         </text>
         <text
           x={svgW - 28}
