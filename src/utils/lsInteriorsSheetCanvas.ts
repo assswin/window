@@ -290,6 +290,7 @@ export const LS_MODEL_BG_COLOR_MAP: Record<string, LSModelBgColor> = {
   '2.5T SLIDING DOOR (MESH)': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
   '3T SLIDING DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
   'SL/SL/DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
+  'SL/SL/DOOR/MESH': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
   'SL/SL/MESH/DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
   'SL/SL/SL/DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
   'DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
@@ -702,7 +703,7 @@ export const getLSModelShortForm = (
 ): string => {
   if (typeof input === 'string') {
     const clean = input.replace(/^W\d+[a-z]?\s*[•\-]\s*/i, '').trim().toUpperCase();
-    if (clean.includes('SL/SL/MESH/DOOR') || (clean.includes('DOOR') && clean.includes('MESH'))) return '[SL/SL/MESH/DOOR]';
+    if (clean.includes('SL/SL/DOOR/MESH') || clean.includes('SL/SL/MESH/DOOR') || (clean.includes('DOOR') && clean.includes('MESH'))) return '[SL/SL/DOOR/MESH]';
     if (clean.includes('SL/SL/SL/DOOR') || (clean.includes('DOOR') && (clean.includes('3T') || clean.includes('3 TRACK') || clean.includes('3-TRACK')))) return '[SL/SL/SL/DOOR]';
     if (clean.includes('DOOR') || clean.includes('SL/SL/DOOR') || clean.includes('85MM')) return '[SL/SL/DOOR]';
     if (clean.includes('MESH') || clean.includes('2.5T')) return '[SL/SL/MESH]';
@@ -727,7 +728,7 @@ export const getLSModelShortForm = (
 
   if (windowType === 'sliding') {
     if (winInput.profileSeries === '85mm') {
-      if (frameType === '2.5-track') return '[SL/SL/MESH/DOOR]';
+      if (frameType === '2.5-track') return '[SL/SL/DOOR/MESH]';
       if (frameType === '3-track' || frameType === '3.5-track') return '[SL/SL/SL/DOOR]';
       return '[SL/SL/DOOR]';
     }

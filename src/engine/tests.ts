@@ -2898,7 +2898,7 @@ export class GoldenTestSuite {
       }
     });
 
-    // 81. 85MM 2.5-TRACK SLIDING DOOR (H-82, (W+12)/2, Glass -152, Mesh Same H&W, Material 85mm, [SL/SL/MESH/DOOR])
+    // 81. 85MM 2.5-TRACK SLIDING DOOR (H-82, (W+12)/2, Glass -152, Mesh Same H&W, Material 85mm, [SL/SL/DOOR/MESH])
     const doorInput85_2_5T: WindowInput = {
       unit: 'inch',
       widthInch: 72,
@@ -2933,12 +2933,12 @@ export class GoldenTestSuite {
       resDoor85_2_5T.additionalPanels[0].heightMM === 2052 &&
       resDoor85_2_5T.additionalPanels[0].widthMM === 921 &&
       resDoor85_2_5T.additionalPanels[0].count === 1 &&
-      rowDoor85_2_5T.modelName === '[SL/SL/MESH/DOOR]' &&
+      rowDoor85_2_5T.modelName === '[SL/SL/DOOR/MESH]' &&
       rowDoor85_2_5T.materialMM === '85 mm' &&
       door2_5TBg.canvas === '#fef08a';
 
     results.push({
-      name: '85mm 2.5-Track Sliding Door: Dedicated Formula (H-82, (W+12)/2, Glass -152, Mesh Same H&W, Material 85mm, [SL/SL/MESH/DOOR])',
+      name: '85mm 2.5-Track Sliding Door: Dedicated Formula (H-82, (W+12)/2, Glass -152, Mesh Same H&W, Material 85mm, [SL/SL/DOOR/MESH])',
       category: 'Rule Combination',
       passed: passTest81,
       input: { dimensions: '72" x 84"', series: '85mm', frameType: '2.5-track' },
@@ -2948,7 +2948,7 @@ export class GoldenTestSuite {
         interlock: '2047 mm',
         glass: '1900 x 769 mm (2 Pcs)',
         mesh: '2052 x 921 mm (1 Pc, Same H&W)',
-        model: '[SL/SL/MESH/DOOR]',
+        model: '[SL/SL/DOOR/MESH]',
         materialMM: '85 mm',
         bg: '#fef08a'
       },
