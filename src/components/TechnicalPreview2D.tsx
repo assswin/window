@@ -131,41 +131,36 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
     doc.setLineWidth(0.6);
     doc.rect(6, 6, 285, 198);
 
-    // 3. Header title
+    // Row 1 (y = 13 mm): Header Title & Site Dimensions (Zero Overlap)
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(13);
+    doc.setFontSize(11.5);
     doc.setTextColor(isWhite ? 15 : 255, isWhite ? 23 : 255, isWhite ? 42 : 255);
-    doc.text('L.S. INTERIORS — 2D ARCHITECTURAL CAD BLUEPRINT', 12, 14);
+    doc.text('L.S. INTERIORS — 2D ARCHITECTURAL CAD BLUEPRINT', 12, 13);
 
-    // 4. Subtitle: Window label & model
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.0);
+    doc.setTextColor(isWhite ? 15 : 248, isWhite ? 23 : 250, isWhite ? 42 : 252);
+    const siteDim = `Site: ${result.input.widthInch}" W × ${result.input.heightInch}" H (${result.convertedWidthMM} × ${result.convertedHeightMM} mm)`;
+    doc.text(siteDim, 285, 13, { align: 'right' });
+
+    // Row 2 (y = 18 mm): Window Label & Model Name (Left) + Drawing Count (Right)
     const winLabel = result.input.windowLabel || `Window ${index + 1}`;
     const modelName = getLSModelName(result);
-    doc.setFontSize(9.5);
-    doc.setTextColor(isWhite ? 2 : 56, isWhite ? 132 : 189, isWhite ? 199 : 248);
-    doc.text(`${winLabel} • ${modelName}  (Drawing ${index + 1} of ${total})`, 12, 19.5);
-
-    // 5. Material & Type
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(isWhite ? 100 : 148, isWhite ? 116 : 163, isWhite ? 139 : 184);
-    const material = result.input.profileSeries || (result.input.windowType === 'sliding' ? '58mm' : '60mm');
-    const trackLabel = result.input.windowType === 'sliding'
-      ? (result.input.profileSeries === '85mm' 
-          ? (result.input.frameType === '2.5-track' ? '2.5 TRACK DOOR (MESH)' : ((result.input.frameType === '3-track' || result.input.frameType === '3.5-track') ? '3 TRACK DOOR' : '2 TRACK DOOR')) 
-          : result.input.frameType.toUpperCase().replace('-', ' '))
-      : result.input.windowType.toUpperCase();
-    doc.text(`Material: ${material}  |  Specification: ${trackLabel}  |  All-in-One CAD (Elevation + Section A-A + Section B-B)`, 12, 24);
-
-    // 6. Top right specifications
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
-    doc.setTextColor(isWhite ? 15 : 248, isWhite ? 23 : 250, isWhite ? 42 : 252);
-    const siteDim = `Site: ${result.input.widthInch}" W × ${result.input.heightInch}" H (${result.frame.widthMM} × ${result.frame.heightMM} mm)`;
-    doc.text(siteDim, 285, 14, { align: 'right' });
+    doc.setTextColor(isWhite ? 2 : 56, isWhite ? 132 : 189, isWhite ? 199 : 248);
+    doc.text(`${winLabel} • ${modelName}`, 12, 18);
 
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.0);
+    doc.setTextColor(isWhite ? 2 : 56, isWhite ? 132 : 189, isWhite ? 199 : 248);
+    doc.text(`Drawing ${index + 1} of ${total}`, 285, 18, { align: 'right' });
+
+    // Row 3 (y = 23 mm): Complete Fabrication Cuts Row
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7.5);
-    doc.setTextColor(isWhite ? 100 : 148, isWhite ? 116 : 163, isWhite ? 139 : 184);
+    doc.setFontSize(7.2);
+    doc.setTextColor(isWhite ? 80 : 160, isWhite ? 95 : 175, isWhite ? 115 : 195);
+    const material = result.input.profileSeries || (result.input.windowType === 'sliding' ? '58mm' : '60mm');
     const frameCut = `Frame: ${result.frame.leftRightCutMM}H × ${result.frame.topBottomCutMM}W`;
     const sashCut = result.panel.heightMM > 0
       ? `Sash: ${result.panel.heightMM}H × ${result.panel.widthMM}W`
@@ -176,27 +171,30 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
     const meshCut = result.additionalPanels?.[0]
       ? `  |  Mesh: ${result.additionalPanels[0].heightMM}H × ${result.additionalPanels[0].widthMM}W`
       : '';
-    doc.text(`${frameCut}  |  ${sashCut}  |  ${glassCut}${meshCut}`, 285, 19.5, { align: 'right' });
+    const mullionCut = (result.input.windowType === 'open' && (result.input.casementSubtype === 'double' || result.input.casementSubtype === 'triple'))
+      ? `  |  Mullion: ${result.mullionMM || result.frame.mullionCutMM || (result.convertedHeightMM - 6)} mm`
+      : '';
+    doc.text(`Material: ${material}  |  ${frameCut}  |  ${sashCut}  |  ${glassCut}${meshCut}${mullionCut}`, 12, 23);
 
-    // 7. High-Resolution Blueprint Image
-    doc.addImage(imgData, 'JPEG', 10, 27, 277, 168);
+    // High-Resolution Blueprint Image (Cleanly bounded from y=26 to y=194)
+    doc.addImage(imgData, 'JPEG', 10, 26, 277, 168);
 
-    // 8. Footer divider & notes
+    // Footer divider & notes (y = 196.5 mm)
     doc.setDrawColor(isWhite ? 226 : 30, isWhite ? 232 : 41, isWhite ? 240 : 59);
     doc.setLineWidth(0.3);
-    doc.line(10, 198, 285, 198);
+    doc.line(10, 196.5, 285, 196.5);
 
-    doc.setFontSize(7);
+    doc.setFontSize(6.8);
     doc.setTextColor(isWhite ? 100 : 100, isWhite ? 116 : 116, isWhite ? 139 : 139);
-    doc.text(`Generated on ${new Date().toLocaleDateString('en-GB')} • WindowBuilder Pro (L.S. Interiors)`, 12, 201.5);
+    doc.text(`Generated on ${new Date().toLocaleDateString('en-GB')} • WindowBuilder Pro (L.S. Interiors)`, 12, 200.5);
 
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(isWhite ? 2 : 56, isWhite ? 132 : 189, isWhite ? 199 : 248);
-    doc.text(`Drawing ${index + 1} of ${total} • Elevation & Cross-Sections`, 148.5, 201.5, { align: 'center' });
+    doc.text(`Drawing ${index + 1} of ${total} • Architectural CAD Blueprint`, 148.5, 200.5, { align: 'center' });
 
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(isWhite ? 100 : 100, isWhite ? 116 : 116, isWhite ? 139 : 139);
-    doc.text(`Authorized Workshop CAD • All ${total} Windows`, 285, 201.5, { align: 'right' });
+    doc.text(`Authorized Workshop CAD • ${total} Windows`, 285, 200.5, { align: 'right' });
   };
 
   /**
@@ -2101,22 +2099,23 @@ export const WindowBlueprintSVG: React.FC<{
       )}
 
       {/* ============================================================= */}
-      {/* 4. SHEET FOOTER BAR                                           */}
+      {/* 4. SHEET FOOTER BAR (MULTI-TIERED TO PREVENT ANY TEXT OVERLAY) */}
       {/* ============================================================= */}
       <g id="cad-sheet-footer">
         <line
           x1="16"
-          y1={svgH - 28}
+          y1={svgH - 26}
           x2={svgW - 16}
-          y2={svgH - 28}
+          y2={svgH - 26}
           stroke={c.titleBorder}
           strokeWidth="0.8"
         />
+        {/* Row 1: Technical Cut Specifications */}
         <text
           x="28"
-          y={svgH - 18}
+          y={svgH - 16}
           fill={c.lineMedium}
-          fontSize="7.5"
+          fontSize="7.0"
           fontFamily="monospace"
         >
           {isFixed
@@ -2127,11 +2126,12 @@ export const WindowBlueprintSVG: React.FC<{
                 ? `FRAME CUT: ${result.frame.topBottomCutMM}W × ${result.frame.leftRightCutMM}H (45° Mitre) | SASH: ${panel.heightMM}H × ${panel.widthMM}W | GLASS: ${mirror.heightMM}H × ${mirror.widthMM}W${(casementSubtype === 'double' || casementSubtype === 'triple') ? ` | MULLION: ${result.mullionMM || result.frame.mullionCutMM || (convertedHeightMM - 6)} mm` : ''}`
                 : `FRAME CUT: ${result.frame.topBottomCutMM}W × ${result.frame.leftRightCutMM}H (45° Mitre) | SASH: ${panel.heightMM}H × ${panel.widthMM}W | GLASS: ${mirror.heightMM}H × ${mirror.widthMM}W${additionalPanels?.[0] ? ` | MESH: ${additionalPanels[0].heightMM}H × ${additionalPanels[0].widthMM}W` : ''}`}
         </text>
+        {/* Row 2: Right-aligned Authorized Studio Branding */}
         <text
           x={svgW - 28}
-          y={svgH - 18}
+          y={svgH - 7}
           fill={c.steelFill}
-          fontSize="7.5"
+          fontSize="6.8"
           fontWeight="bold"
           fontFamily="monospace"
           textAnchor="end"
