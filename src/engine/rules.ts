@@ -4,6 +4,7 @@ import { FrameType, WindowType, CasementSubtype, UPVCSeries, ProfileRule, System
 export const getRuleKey = (frameType: FrameType, windowType: WindowType, profileSeries?: UPVCSeries): string => {
   if (profileSeries === '85mm' && windowType === 'sliding') {
     if (frameType === '3-track' || frameType === '3.5-track') return '3-track_sliding_85mm';
+    if (frameType === '2.5-track') return '2.5-track_sliding_85mm';
     return '2-track_sliding_85mm';
   }
   if (profileSeries === '65mm' && windowType === 'sliding') {
@@ -17,10 +18,30 @@ export const getRuleKey = (frameType: FrameType, windowType: WindowType, profile
 export const WORKSHOP_REFERENCE_PRESET: SystemProfilePreset = {
   id: 'workshop-ref',
   name: "Builder's Method of Sum (Tamil Nadu Workshop Audited Standards)",
-  description: 'Audited shop formulas: 2T (H-94, W/2-12, -94 glass, 58mm material), 2.5T (H-82, (W-10)/2, -94 glass, Mesh H-10, Mesh (W-10)/2, 58mm material), 3T (H-91, W/3+11, -94 glass, 58mm material), 4T (H-92, W/4+11, Glass -95, 58mm material), Single Window (H-64, W-64, -124 glass), Double Window (H-64, W/2-37, Mullion H-6, -126 glass), 3-Open Window (H-64, W/3-40, Glass -125, Mullion H-6), Fixed (Direct OU-96 glass).',
+  description: 'Audited shop formulas: 2T (H-94, W/2-12, -94 glass, 58mm material), 2.5T (H-82, (W-10)/2, -94 glass, Mesh H-10, Mesh (W-10)/2, 58mm material), 2.5T Door 85mm (H-82, (W+12)/2, -152 glass, Mesh Same H&W, 85mm material), 3T (H-91, W/3+11, -94 glass, 58mm material), 4T (H-92, W/4+11, Glass -95, 58mm material), Single Window (H-64, W-64, -124 glass), Double Window (H-64, W/2-37, Mullion H-6, -126 glass), 3-Open Window (H-64, W/3-40, Glass -125, Mullion H-6), Fixed (Direct OU-96 glass).',
   version: 'v2.1-audited',
   rules: {
-        '3-track_sliding_85mm': {
+    '2.5-track_sliding_85mm': {
+      id: '2.5-track_sliding_85mm',
+      frameType: '2.5-track',
+      windowType: 'sliding',
+      name: '2.5 Track Sliding Door (85mm Material: H-82, (W+12)/2, Glass -152, Mesh Same H&W)',
+      description: 'Sliding 2.5-Track Door (85mm Series): Shutter Height H-82, Shutter Width (W+12)/2, Glass -152mm, Mesh Same H & W, Material 85mm',
+      heightDeductionMM: 82,
+      divisionFactor: 2,
+      widthDeductionMM: 0,
+      widthAdditionMM: 12,
+      overlapMM: 0,
+      sideClearanceMM: 0,
+      mirrorHeightDeductionMM: 152,
+      mirrorWidthDeductionMM: 152,
+      mirrorDeductionReference: 'panel',
+      profileDepthMM: 85,
+      sashProfileWidthMM: 75,
+      glassGrooveDepthMM: 12,
+      meshHeightDeductionMM: 0
+    },
+    '3-track_sliding_85mm': {
       id: '3-track_sliding_85mm',
       frameType: '3.5-track',
       windowType: 'sliding',
@@ -369,7 +390,27 @@ export const JINDAL_STANDARD_PRESET: SystemProfilePreset = {
   description: 'Logical standard for aluminium window fabrication (40mm track deduction, 25mm overlap, 78mm glass rebate).',
   version: 'v1.0-standard',
   rules: {
-        '3-track_sliding_85mm': {
+    '2.5-track_sliding_85mm': {
+      id: '2.5-track_sliding_85mm',
+      frameType: '2.5-track',
+      windowType: 'sliding',
+      name: '2.5 Track Sliding Door (85mm Material: H-82, (W+12)/2, Glass -152, Mesh Same H&W)',
+      description: 'Sliding 2.5-Track Door (85mm Series): Shutter Height H-82, Shutter Width (W+12)/2, Glass -152mm, Mesh Same H & W, Material 85mm',
+      heightDeductionMM: 82,
+      divisionFactor: 2,
+      widthDeductionMM: 0,
+      widthAdditionMM: 12,
+      overlapMM: 0,
+      sideClearanceMM: 0,
+      mirrorHeightDeductionMM: 152,
+      mirrorWidthDeductionMM: 152,
+      mirrorDeductionReference: 'panel',
+      profileDepthMM: 85,
+      sashProfileWidthMM: 75,
+      glassGrooveDepthMM: 12,
+      meshHeightDeductionMM: 0
+    },
+    '3-track_sliding_85mm': {
       id: '3-track_sliding_85mm',
       frameType: '3.5-track',
       windowType: 'sliding',
@@ -610,6 +651,7 @@ export class RulesEngineManager {
     if (isSliding) {
       if (profileSeries === '85mm') {
         if (frameType === '3-track' || frameType === '3.5-track') key = '3-track_sliding_85mm';
+        else if (frameType === '2.5-track') key = '2.5-track_sliding_85mm';
         else key = '2-track_sliding_85mm';
       } else if (profileSeries === '65mm') {
         if (frameType === '2-track') key = '2-track_sliding_65mm';

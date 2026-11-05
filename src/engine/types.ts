@@ -161,6 +161,7 @@ export interface ProfileRule {
   mullionSashDeductionMM?: number; // Deduction for mullion profile from sash height (e.g. 6mm, customizable)
   meshHeightDeductionMM?: number; // Deduction for mosquito mesh height (e.g. 2mm)
   meshWidthDeductionMM?: number; // Deduction for mosquito mesh width (e.g. 10mm: (W/2) - 10)
+  meshWidthAdditionMM?: number; // Addition for mosquito mesh width (e.g. 12mm: (W + 12) / 2 for 85mm 2.5T door)
 }
 
 export interface SystemProfilePreset {

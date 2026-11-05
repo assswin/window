@@ -335,6 +335,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
   const getActiveWindowSubtypeBadge = (): string => {
     if (activeWin.windowType === 'sliding') {
       if (activeWin.profileSeries === '85mm') {
+        if (activeWin.frameType === '2.5-track') return '2.5T DOOR (85MM)';
         return (activeWin.frameType === '3-track' || activeWin.frameType === '3.5-track')
           ? '3T DOOR (85MM)'
           : '2T DOOR (85MM)';
@@ -1090,7 +1091,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                         type="button"
                         onClick={() => {
                           const updates: Partial<WindowInput> = { profileSeries: '85mm' };
-                          if (activeWin.frameType === '2.5-track' || activeWin.frameType === '4-track') {
+                          if (activeWin.frameType === '4-track') {
                             updates.frameType = '2-track';
                           }
                           updateWindow(activeWindowIndex, updates);
@@ -1104,7 +1105,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                       >
                         <div className="leading-tight text-[11px]">85 mm</div>
                         <div className="text-[9px] opacity-80 font-normal">
-                          {t('டோர் (Door 2T & 3T)', 'Door (2T & 3T)')}
+                          {t('டோர் (Door 2T, 2.5T, 3T)', 'Door (2T, 2.5T, 3T)')}
                         </div>
                       </button>
                     </div>
@@ -1112,17 +1113,18 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
 
                   {/* Track Frame Buttons */}
                   {activeWin.profileSeries === '85mm' ? (
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <div className="grid grid-cols-3 gap-1.5">
                       {[
-                        { id: '2-track' as FrameType, label: '2 Track Door', desc: t('2 சஷ் டோர் (2 Panels)', '2 Panels Door') },
-                        { id: '3.5-track' as FrameType, label: '3 Track Door', desc: t('3 சஷ் டோர் (3 Panels)', '3 Panels Door') }
+                        { id: '2-track' as FrameType, label: '2 Track Door', desc: t('2 சஷ் (2 Panels)', '2 Panels Door') },
+                        { id: '2.5-track' as FrameType, label: '2.5 Track Door', desc: t('வலை டோர் (Mesh Door)', '2 Panels + Mesh') },
+                        { id: '3.5-track' as FrameType, label: '3 Track Door', desc: t('3 சஷ் (3 Panels)', '3 Panels Door') }
                       ].map((tItem) => (
                         <button
                           key={tItem.id}
                           type="button"
                           onClick={() => updateWindow(activeWindowIndex, { frameType: tItem.id })}
                           className={
-                            'py-2 px-1.5 rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation text-center ' +
+                            'py-2 px-1 rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation text-center ' +
                             ((activeWin.frameType === tItem.id || (tItem.id === '3.5-track' && activeWin.frameType === '3-track'))
                               ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
                               : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white')

@@ -2898,6 +2898,118 @@ export class GoldenTestSuite {
       }
     });
 
+    // 81. 85MM 2.5-TRACK SLIDING DOOR (H-82, (W+12)/2, Glass -152, Mesh Same H&W, Material 85mm, [SL/SL/MESH/DOOR])
+    const doorInput85_2_5T: WindowInput = {
+      unit: 'inch',
+      widthInch: 72,
+      heightInch: 84,
+      windowType: 'sliding',
+      frameType: '2.5-track',
+      profileSeries: '85mm',
+      customOffsetMM: 0
+    };
+
+    const resDoor85_2_5T = WindowCalculationEngine.calculate(doorInput85_2_5T);
+    const rowDoor85_2_5T = prepareLSRows([resDoor85_2_5T])[0];
+    const door2_5TBg = getLSModelBgColor(rowDoor85_2_5T);
+
+    // 72" -> 1829 mm, 84" -> 2134 mm
+    // Panel H: 2134 - 82 = 2052 mm
+    // Panel W: (1829 + 12) / 2 = 1841 / 2 = 920.5 -> 921 mm (2 Shutters)
+    // Interlock: 2052 - 5 = 2047 mm
+    // Glass: H: 2052 - 152 = 1900 mm, W: 921 - 152 = 769 mm (2 Glasses)
+    // Mesh: Same H & W -> Mesh H: 2052 mm, Mesh W: 921 mm (1 Pc)
+    const passTest81 =
+      resDoor85_2_5T.frame.profileDepthMM === 85 &&
+      resDoor85_2_5T.panel.heightMM === 2052 &&
+      resDoor85_2_5T.panel.widthMM === 921 &&
+      resDoor85_2_5T.panel.count === 2 &&
+      resDoor85_2_5T.interlockMM === 2047 &&
+      resDoor85_2_5T.mirror.heightMM === 1900 &&
+      resDoor85_2_5T.mirror.widthMM === 769 &&
+      resDoor85_2_5T.mirror.count === 2 &&
+      resDoor85_2_5T.additionalPanels !== undefined &&
+      resDoor85_2_5T.additionalPanels.length > 0 &&
+      resDoor85_2_5T.additionalPanels[0].heightMM === 2052 &&
+      resDoor85_2_5T.additionalPanels[0].widthMM === 921 &&
+      resDoor85_2_5T.additionalPanels[0].count === 1 &&
+      rowDoor85_2_5T.modelName === '[SL/SL/MESH/DOOR]' &&
+      rowDoor85_2_5T.materialMM === '85 mm' &&
+      door2_5TBg.canvas === '#fef08a';
+
+    results.push({
+      name: '85mm 2.5-Track Sliding Door: Dedicated Formula (H-82, (W+12)/2, Glass -152, Mesh Same H&W, Material 85mm, [SL/SL/MESH/DOOR])',
+      category: 'Rule Combination',
+      passed: passTest81,
+      input: { dimensions: '72" x 84"', series: '85mm', frameType: '2.5-track' },
+      expected: {
+        material: 85,
+        sash: '2052 x 921 mm (2 Pcs)',
+        interlock: '2047 mm',
+        glass: '1900 x 769 mm (2 Pcs)',
+        mesh: '2052 x 921 mm (1 Pc, Same H&W)',
+        model: '[SL/SL/MESH/DOOR]',
+        materialMM: '85 mm',
+        bg: '#fef08a'
+      },
+      actual: {
+        material: resDoor85_2_5T.frame.profileDepthMM,
+        sash: `${resDoor85_2_5T.panel.heightMM} x ${resDoor85_2_5T.panel.widthMM} mm (${resDoor85_2_5T.panel.count} Pcs)`,
+        interlock: `${resDoor85_2_5T.interlockMM} mm`,
+        glass: `${resDoor85_2_5T.mirror.heightMM} x ${resDoor85_2_5T.mirror.widthMM} mm (${resDoor85_2_5T.mirror.count} Pcs)`,
+        mesh: resDoor85_2_5T.additionalPanels?.[0] ? `${resDoor85_2_5T.additionalPanels[0].heightMM} x ${resDoor85_2_5T.additionalPanels[0].widthMM} mm (${resDoor85_2_5T.additionalPanels[0].count} Pc)` : 'None',
+        model: rowDoor85_2_5T.modelName,
+        materialMM: rowDoor85_2_5T.materialMM,
+        bg: door2_5TBg.canvas
+      }
+    });
+
+    // 82. 85MM 2.5-TRACK DOOR FORMULA CUSTOMIZATION: Customizable via RulesEngineManager
+    const orig85_2_5TRule = RulesEngineManager.getRule('2.5-track', 'sliding', undefined, '85mm');
+
+    // Customize 85mm 2.5T door: H-80, (W+16)/2, Glass-150
+    RulesEngineManager.updateRule('2.5-track_sliding_85mm', {
+      heightDeductionMM: 80,
+      widthAdditionMM: 16,
+      mirrorHeightDeductionMM: 150,
+      mirrorWidthDeductionMM: 150
+    }, 'User');
+
+    const resDoor2_5TCustom = WindowCalculationEngine.calculate(doorInput85_2_5T);
+
+    // 85mm 2.5T custom: 2134 - 80 = 2054 mm H; (1829 + 16) / 2 = 1845 / 2 = 922.5 -> 923 mm W; Glass H: 2054 - 150 = 1904 mm, Mesh H: 2054 mm, Mesh W: 923 mm
+    const passTest82 =
+      resDoor2_5TCustom.panel.heightMM === 2054 &&
+      resDoor2_5TCustom.panel.widthMM === 923 &&
+      resDoor2_5TCustom.mirror.heightMM === 1904 &&
+      resDoor2_5TCustom.additionalPanels?.[0]?.heightMM === 2054 &&
+      resDoor2_5TCustom.additionalPanels?.[0]?.widthMM === 923;
+
+    // Restore original rules
+    RulesEngineManager.updateRule('2.5-track_sliding_85mm', {
+      heightDeductionMM: orig85_2_5TRule.heightDeductionMM,
+      widthAdditionMM: orig85_2_5TRule.widthAdditionMM,
+      mirrorHeightDeductionMM: orig85_2_5TRule.mirrorHeightDeductionMM,
+      mirrorWidthDeductionMM: orig85_2_5TRule.mirrorWidthDeductionMM
+    }, 'User');
+
+    results.push({
+      name: '85mm 2.5-Track Door Formula Customization: Editable (H-82, (W+12)/2, Glass-152, Mesh Same H&W) recalculates dynamically',
+      category: 'Rule Combination',
+      passed: passTest82,
+      input: { customDoor2_5T: 'H-80, (W+16)/2, Glass-150' },
+      expected: {
+        customDoorSash: '2054 x 923 mm',
+        customDoorGlassH: 1904,
+        customDoorMesh: '2054 x 923 mm'
+      },
+      actual: {
+        customDoorSash: `${resDoor2_5TCustom.panel.heightMM} x ${resDoor2_5TCustom.panel.widthMM} mm`,
+        customDoorGlassH: resDoor2_5TCustom.mirror.heightMM,
+        customDoorMesh: `${resDoor2_5TCustom.additionalPanels?.[0]?.heightMM} x ${resDoor2_5TCustom.additionalPanels?.[0]?.widthMM} mm`
+      }
+    });
+
     const passedCount = results.filter(r => r.passed).length;
     return {
       passedCount,

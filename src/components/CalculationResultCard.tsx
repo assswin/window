@@ -60,6 +60,10 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
       if (is85mm && input.frameType === '2-track') {
         return `H-${activeRule.heightDeductionMM} | (W-${activeRule.widthDeductionMM})/2 | -${activeRule.mirrorHeightDeductionMM} glass | 85mm Door`;
       }
+      if (is85mm && input.frameType === '2.5-track') {
+        const wAdd = activeRule.widthAdditionMM ?? 12;
+        return `H-${activeRule.heightDeductionMM} | (W+${wAdd})/2 | Mesh Same H&W | -${activeRule.mirrorHeightDeductionMM} glass | 85mm Door`;
+      }
       if (is85mm && (input.frameType === '3.5-track' || input.frameType === '3-track')) {
         const wAdd = activeRule.widthAdditionMM ?? 90;
         return `H-${activeRule.heightDeductionMM} | (W+${wAdd})/3 | -${activeRule.mirrorHeightDeductionMM} glass | 85mm Door`;
@@ -287,8 +291,20 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                   let badgeText = '';
 
                   if (currentResult.input.windowType === 'sliding') {
-                    badgeColorClass = 'bg-amber-950/80 text-amber-300 border-amber-800/80';
-                    badgeText = currentResult.input.frameType.toUpperCase().replace('-TRACK', ' TRACK');
+                    const is85 = currentResult.input.profileSeries === '85mm';
+                    if (is85) {
+                      badgeColorClass = 'bg-amber-500/20 text-amber-300 border-amber-500/60 font-black';
+                      if (currentResult.input.frameType === '2.5-track') {
+                        badgeText = '2.5T DOOR (85MM)';
+                      } else if (currentResult.input.frameType === '3-track' || currentResult.input.frameType === '3.5-track') {
+                        badgeText = '3T DOOR (85MM)';
+                      } else {
+                        badgeText = '2T DOOR (85MM)';
+                      }
+                    } else {
+                      badgeColorClass = 'bg-amber-950/80 text-amber-300 border-amber-800/80';
+                      badgeText = currentResult.input.frameType.toUpperCase().replace('-TRACK', ' TRACK');
+                    }
                   } else if (currentResult.input.windowType === 'ventilator') {
                     if (currentResult.input.ventilatorSubtype === 'fan') {
                       const isRight = currentResult.input.ventilatorFanSide === 'right';
@@ -425,10 +441,18 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                         ? (input.frameType === '4-track'
                           ? `W/4 + ${activeRule.widthAdditionMM ?? 11}`
                           : (input.frameType === '3.5-track' || input.frameType === '3-track'
-                            ? `W/3 + ${activeRule.widthAdditionMM ?? 11}`
+                            ? (input.profileSeries === '85mm'
+                              ? `(W + ${activeRule.widthAdditionMM ?? 90}) / 3`
+                              : (input.profileSeries === '65mm'
+                                ? `(W + ${activeRule.widthAdditionMM ?? 48}) / 3`
+                                : `W/3 + ${activeRule.widthAdditionMM ?? 11}`))
                             : (input.frameType === '2.5-track'
-                              ? `(W - ${activeRule.widthDeductionMM}) / 2`
-                              : `W/2 - ${activeRule.widthDeductionMM}`)))
+                              ? (input.profileSeries === '85mm'
+                                ? `(W + ${activeRule.widthAdditionMM ?? 12}) / 2`
+                                : `(W - ${activeRule.widthDeductionMM}) / 2`)
+                              : (input.profileSeries === '85mm' || input.profileSeries === '65mm'
+                                ? `(W - ${activeRule.widthDeductionMM}) / 2`
+                                : `W/2 - ${activeRule.widthDeductionMM}`))))
                         : (input.casementSubtype === 'triple'
                           ? `W/3 - ${activeRule.widthDeductionMM}`
                           : (input.casementSubtype === 'double' ? `W/2 - ${activeRule.widthDeductionMM}` : `W - ${activeRule.widthDeductionMM}`))}
@@ -465,7 +489,11 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                 <div className="bg-slate-900 p-2.5 rounded border border-slate-800 flex items-center justify-between text-xs font-mono">
                   <div>
                     <span className="text-slate-300 text-xs block font-sans">{t('கொசு வலை சஷ் (SS Mesh Shutter):', 'Wire Mesh Sash (SS Mesh):')}</span>
-                    <span className="text-xs text-slate-400">{`1 Piece (Mesh (W-${activeRule.meshWidthDeductionMM ?? 10})/2 × Mesh H-${activeRule.meshHeightDeductionMM ?? 10}mm)`}</span>
+                    <span className="text-xs text-slate-400">
+                      {input.profileSeries === '85mm'
+                        ? `1 Piece (Mesh Height = Shutter Height • Width = (W+${activeRule.widthAdditionMM ?? 12})/2)`
+                        : `1 Piece (Mesh (W-${activeRule.meshWidthDeductionMM ?? 10})/2 × Mesh H-${activeRule.meshHeightDeductionMM ?? 10}mm)`}
+                    </span>
                   </div>
                   <span className="text-sm font-bold text-emerald-400">
                     {currentResult.additionalPanels[0].heightMM + ' × ' + currentResult.additionalPanels[0].widthMM + ' mm'}

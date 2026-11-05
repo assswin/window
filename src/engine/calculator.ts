@@ -525,6 +525,17 @@ export class WindowCalculationEngine {
         heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
         widthFormulaStr = `(W - ${wDed}) / 2 = (${convertedWidthMM} - ${wDed}) / 2 = ${panelWidthMM} mm`;
         shutterType = 'uPVC 85mm Sliding Door Sash';
+      } else if (is85mm && input.frameType === '2.5-track') {
+        const hDed = rule.heightDeductionMM ?? 82;
+        const wAdd = rule.widthAdditionMM ?? 12;
+        panelHeightMM = Math.max(10, convertedHeightMM - hDed);
+        panelWidthMM = Math.max(10, Math.round((convertedWidthMM + wAdd) / 2));
+        panelCount = 2;
+        mirrorDeductionMM = rule.mirrorHeightDeductionMM ?? 152;
+        formulaDesc = `2.5 Track Sliding Door (85mm): H-${hDed} | (W+${wAdd})/2 | -${mirrorDeductionMM} Glass | Mesh Same H&W | 85mm Door`;
+        heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
+        widthFormulaStr = `(W + ${wAdd}) / 2 = (${convertedWidthMM} + ${wAdd}) / 2 = ${panelWidthMM} mm`;
+        shutterType = 'uPVC 85mm Sliding Door Sash';
       } else if (is85mm && (input.frameType === '3.5-track' || input.frameType === '3-track')) {
         const hDed = rule.heightDeductionMM ?? 88;
         const wAdd = rule.widthAdditionMM ?? 90;
@@ -801,17 +812,36 @@ export class WindowCalculationEngine {
     // 7. Additional Panels for 2.5 Track (Mosquito Mesh Panel)
     const additionalPanels: PanelOutput[] = [];
     if (input.frameType === '2.5-track') {
-      const meshHeightDed = rule.meshHeightDeductionMM ?? 10;
-      const meshWidthDed = rule.meshWidthDeductionMM ?? 10;
-      // Mesh Height is based directly on total window height output value (H - deduction), NOT sash/shutter height
-      const meshH = Math.max(10, convertedHeightMM - meshHeightDed);
-      const meshW = Math.max(10, Math.round((convertedWidthMM - meshWidthDed) / 2));
+      const is85mmDoor = input.profileSeries === '85mm' || rule.profileDepthMM === 85;
+      let meshH: number;
+      let meshW: number;
+      let meshFormula: string;
+      let meshCalcStr: string;
+
+      if (is85mmDoor) {
+        // 85mm 2.5-Track Door: Mesh has same H value and W value as shutter
+        const meshHDed = rule.meshHeightDeductionMM ?? 0;
+        meshH = Math.max(10, panelHeightMM - meshHDed);
+        meshW = rule.meshWidthAdditionMM !== undefined
+          ? Math.max(10, Math.round((convertedWidthMM + rule.meshWidthAdditionMM) / 2))
+          : panelWidthMM;
+        meshFormula = `Mesh Height = Shutter Height (${panelHeightMM} mm), Mesh Width = Shutter Width (${panelWidthMM} mm)`;
+        meshCalcStr = `W: ${meshW} mm | H: ${meshH} mm (Same as Shutter)`;
+      } else {
+        // Standard 58mm 2.5-Track Window: Mesh Height = H - 10, Mesh Width = (W - 10) / 2
+        const meshHeightDed = rule.meshHeightDeductionMM ?? 10;
+        const meshWidthDed = rule.meshWidthDeductionMM ?? 10;
+        meshH = Math.max(10, convertedHeightMM - meshHeightDed);
+        meshW = Math.max(10, Math.round((convertedWidthMM - meshWidthDed) / 2));
+        meshFormula = `Mesh Panel Width = (W - ${meshWidthDed}) / 2 mm, Height = H - ${meshHeightDed} mm`;
+        meshCalcStr = `W: (${convertedWidthMM} - ${meshWidthDed}) / 2 = ${meshW} mm | H: ${convertedHeightMM} - ${meshHeightDed} = ${meshH} mm (1 Shutter)`;
+      }
 
       const meshPanel: PanelOutput = {
         count: 1,
         widthMM: meshW,
         heightMM: meshH,
-        shutterType: 'Mosquito Mesh Shutter (SS 304)',
+        shutterType: is85mmDoor ? 'Mosquito Mesh Door Shutter (85mm SS 304)' : 'Mosquito Mesh Shutter (SS 304)',
         cutAngle: '45_degree',
         weldingAllowanceMM: weldingAllowance,
         interlockOverlapMM: 0,
@@ -823,9 +853,9 @@ export class WindowCalculationEngine {
       additionalPanels.push(meshPanel);
 
       steps.push({
-        label: '2.5 Track Mosquito Mesh Shutter',
-        formula: `Mesh Panel Width = (W - ${meshWidthDed}) / 2 mm, Height = H - ${meshHeightDed} mm`,
-        calculation: `W: (${convertedWidthMM} - ${meshWidthDed}) / 2 = ${meshW} mm | H: ${convertedHeightMM} - ${meshHeightDed} = ${meshH} mm (1 Shutter)`,
+        label: is85mmDoor ? '2.5 Track 85mm Door Mosquito Mesh Shutter' : '2.5 Track Mosquito Mesh Shutter',
+        formula: meshFormula,
+        calculation: meshCalcStr,
         result: `${meshW} × ${meshH} mm`,
         note: 'High-durability stainless steel 304 insect barrier screen with nylon track rollers.'
       });
