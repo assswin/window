@@ -29,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
             <h1 className="text-sm sm:text-lg font-heading font-bold text-white tracking-tight leading-none flex items-center gap-2">
               <span>L.S. INTERIORS</span>
               <span className="text-xs font-normal text-slate-400 font-sans hidden md:inline border-l border-slate-700 pl-2">
-                {t('uPVC ஜன்னல் கால்குலேட்டர்', 'uPVC Window Calculator')}
+                {t('uPVC ஜன்னல்கள் மற்றும் கதவுகள்', 'uPVC WINDOWS & DOORS')}
               </span>
             </h1>
           </div>

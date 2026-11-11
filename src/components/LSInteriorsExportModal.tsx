@@ -395,25 +395,25 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold text-amber-950 bg-amber-200 border border-amber-300">
-                    Track (Orange)
+                    Track (Light Blue)
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold text-emerald-950 bg-emerald-200 border border-emerald-300">
-                    Single Window (Green)
+                    Single Window (Sky Blue)
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold text-teal-950 bg-teal-200 border border-teal-300">
-                    Double Window (Teal)
+                    Double Window (Ice Blue)
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold text-rose-950 bg-rose-200 border border-rose-300 font-black">
-                    Fixed Window (Rose Bold)
+                    Fixed Window (Navy Blue, Bold)
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold text-blue-950 bg-blue-200 border border-blue-300">
-                    Ventilator Normal (Sky Blue)
+                    Ventilator Normal (Deep Sky Blue)
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold text-indigo-950 bg-indigo-200 border border-indigo-300">
-                    Ventilator Fan Left (Lavender)
+                    Ventilator Fan Left (Blue)
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold text-pink-950 bg-pink-200 border border-pink-300">
-                    Ventilator Fan Right (Pink)
+                    Ventilator Fan Right (Navy Blue)
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 mt-1.5">

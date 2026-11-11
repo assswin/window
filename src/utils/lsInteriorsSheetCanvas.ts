@@ -204,63 +204,53 @@ export type LSColumnId =
   | 'meshCut';
 
 export const LS_COLOR_MAP: Record<LSColumnId, { pdf: [number, number, number]; canvas: string }> = {
-  sino: { pdf: [30, 41, 59], canvas: '#1e293b' },       // 0: Slate Navy
-  height: { pdf: [185, 28, 28], canvas: '#b91c1c' },   // 1: Crimson Red
-  x: { pdf: [100, 116, 139], canvas: '#64748b' },      // 2: Slate Gray
-  width: { pdf: [109, 40, 217], canvas: '#6d28d9' },   // 3: Royal Purple
-  model: { pdf: [180, 83, 9], canvas: '#b45309' },     // 4: Amber Brown
-  materialMM: { pdf: [180, 83, 9], canvas: '#b45309' }, // 4b: Amber Brown (Material mm)
-  outerFrame: { pdf: [29, 78, 216], canvas: '#1d4ed8' }, // 5: Deep Royal Blue
-  sashCut: { pdf: [4, 120, 87], canvas: '#047857' },    // 6: Forest Emerald
-  sashPcs: { pdf: [4, 120, 87], canvas: '#047857' },    // 6b: Forest Emerald (No. of Sash Pcs)
-  sashHPcs: { pdf: [4, 120, 87], canvas: '#047857' },   // 6c: Forest Emerald (Sash H Pcs)
-  sashWPcs: { pdf: [4, 120, 87], canvas: '#047857' },   // 6d: Forest Emerald (Sash W Pcs)
-  mullion: { pdf: [15, 118, 110], canvas: '#0f766e' },  // 7: Deep Pine Teal (Matches Double Window)
-  mullionPcs: { pdf: [15, 118, 110], canvas: '#0f766e' }, // 7b: Deep Pine Teal (Mullion No.Pcs)
-  interlock: { pdf: [194, 65, 12], canvas: '#c2410c' }, // 8: Russet Orange
-  mirrorCut: { pdf: [14, 116, 144], canvas: '#0e7490' }, // 9: Glass Deep Cyan
-  glassPcs: { pdf: [14, 116, 144], canvas: '#0e7490' },  // 9b: Glass Deep Cyan (Glass No.Pcs)
-  glassType: { pdf: [14, 116, 144], canvas: '#0e7490' }, // 9c: Glass Deep Cyan (Glass Type / Client Fill)
-  meshCut: { pdf: [190, 24, 93], canvas: '#be185d' }    // 10: Rose Magenta
+  sino: { pdf: [15, 23, 42], canvas: '#0f172a' },
+  height: { pdf: [2, 132, 199], canvas: '#0284c7' },
+  x: { pdf: [71, 85, 105], canvas: '#475569' },
+  width: { pdf: [3, 105, 161], canvas: '#0369a1' },
+  model: { pdf: [7, 89, 133], canvas: '#075985' },
+  materialMM: { pdf: [7, 89, 133], canvas: '#075985' },
+  outerFrame: { pdf: [2, 132, 199], canvas: '#0284c7' },
+  sashCut: { pdf: [3, 105, 161], canvas: '#0369a1' },
+  sashPcs: { pdf: [3, 105, 161], canvas: '#0369a1' },
+  sashHPcs: { pdf: [3, 105, 161], canvas: '#0369a1' },
+  sashWPcs: { pdf: [3, 105, 161], canvas: '#0369a1' },
+  mullion: { pdf: [12, 74, 110], canvas: '#0c4a6e' },
+  mullionPcs: { pdf: [12, 74, 110], canvas: '#0c4a6e' },
+  interlock: { pdf: [2, 132, 199], canvas: '#0284c7' },
+  mirrorCut: { pdf: [3, 105, 161], canvas: '#0369a1' },
+  glassPcs: { pdf: [3, 105, 161], canvas: '#0369a1' },
+  glassType: { pdf: [3, 105, 161], canvas: '#0369a1' },
+  meshCut: { pdf: [2, 132, 199], canvas: '#0284c7' }
 };
 
 /**
- * Unique distinct colors for each column in L.S. Interiors Order Sheet:
- * 0: Si.No.           - Slate Navy ([30, 41, 59] / #1e293b)
- * 1: Height           - Crimson Red ([185, 28, 28] / #b91c1c)
- * 2: X                - Slate Gray ([100, 116, 139] / #64748b)
- * 3: Width            - Royal Purple ([109, 40, 217] / #6d28d9)
- * 4: Model Name       - Amber Brown ([180, 83, 9] / #b45309)
- * 5: Outer Frame mm   - Deep Royal Blue ([29, 78, 216] / #1d4ed8)
- * 6: Sash Cut mm      - Forest Emerald ([4, 120, 87] / #047857)
- * 7: Mirror Cut mm    - Glass Deep Cyan ([14, 116, 144] / #0e7490)
- * 8: 2.5T Mesh mm     - Rose Magenta ([190, 24, 93] / #be185d)
- * 9: Interlock mm     - Russet Orange ([194, 65, 12] / #c2410c)
+ * Blue-tone heading colors for each column in the L.S. Interiors Order Sheet.
  */
 export const LS_COLUMN_COLORS_PDF: [number, number, number][] = [
-  [30, 41, 59],    // 0: Si.No.
-  [185, 28, 28],   // 1: Height
-  [100, 116, 139], // 2: X
-  [109, 40, 217],  // 3: Width
-  [180, 83, 9],    // 4: Model Name
-  [29, 78, 216],   // 5: Outer Frame mm
-  [4, 120, 87],    // 6: Sash Cut mm
-  [14, 116, 144],  // 7: Mirror Cut mm
-  [190, 24, 93],   // 8: 2.5T Mesh mm
-  [194, 65, 12]    // 9: Interlock mm
+  [15, 23, 42],
+  [2, 132, 199],
+  [71, 85, 105],
+  [3, 105, 161],
+  [7, 89, 133],
+  [2, 132, 199],
+  [3, 105, 161],
+  [3, 105, 161],
+  [2, 132, 199],
+  [2, 132, 199]
 ];
 
 export const LS_COLUMN_COLORS_CANVAS: string[] = [
-  '#1e293b', // 0: Si.No.
-  '#b91c1c', // 1: Height
-  '#64748b', // 2: X
-  '#6d28d9', // 3: Width
-  '#b45309', // 4: Model Name
-  '#1d4ed8', // 5: Outer Frame mm
-  '#047857', // 6: Sash Cut mm
-  '#0e7490', // 7: Mirror Cut mm
-  '#be185d', // 8: 2.5T Mesh mm
-  '#c2410c'  // 9: Interlock mm
+  '#0f172a',
+  '#0284c7',
+  '#475569',
+  '#0369a1',
+  '#075985',
+  '#0284c7',
+  '#0369a1',
+  '#0369a1',
+  '#0284c7',
+  '#0284c7'
 ];
 
 export interface LSModelColor {
@@ -276,49 +266,36 @@ export interface LSModelBgColor {
 }
 
 /**
- * Unique background tint colors for each window model type in L.S. Interiors Order Sheet:
- * - TRACK WINDOWS (2T, 2.5T, 3T Sliding): Warm Soft Orange tint ([254, 215, 170] / #fed7aa)
- * - SINGLE CASEMENT: Soft Mint Green tint ([187, 247, 208] / #bbf7d0)
- * - DOUBLE CASEMENT: Soft Teal tint ([153, 246, 228] / #99f6e4)
- * - FIXED WINDOW: Soft Rose Red tint ([254, 205, 211] / #fecdd3)
- * - VENTILATOR NORMAL: Soft Sky Blue tint ([191, 219, 254] / #bfdbfe)
- * - VENTILATOR FAN LEFT: Soft Lavender tint ([199, 210, 254] / #c7d2fe)
- * - VENTILATOR FAN RIGHT: Soft Pink tint ([251, 207, 232] / #fbcfe8)
+ * Subtle sky-blue row tints distinguish window models while preserving the brand palette.
  */
 export const LS_MODEL_BG_COLOR_MAP: Record<string, LSModelBgColor> = {
-  '2T SLIDING DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
-  '2.5T SLIDING DOOR (MESH)': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
-  '3T SLIDING DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
-  'SL/SL/DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
-  'SL/SL/DOOR/MESH': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
-  'SL/SL/MESH/DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
-  'SL/SL/SL/DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
-  'DOOR': { pdf: [254, 240, 138], canvas: '#fef08a', name: 'Sliding Door Sunny Gold' },
-  'TRACK': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
-  '2T SLIDING': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
-  '2.5T SLIDING (MESH)': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
-  '3T SLIDING': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
-  '4T SLIDING': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
-  'SLIDING WINDOW': { pdf: [254, 215, 170], canvas: '#fed7aa', name: 'Track Warm Orange' },
-  'FIXED WINDOW': { pdf: [254, 205, 211], canvas: '#fecdd3', name: 'Fixed Soft Rose' },
-  'SINGLE WINDOW': { pdf: [187, 247, 208], canvas: '#bbf7d0', name: 'Single Mint Green' },
-  'SINGLE CASEMENT': { pdf: [187, 247, 208], canvas: '#bbf7d0', name: 'Single Mint Green' },
-  'DOUBLE WINDOW': { pdf: [153, 246, 228], canvas: '#99f6e4', name: 'Double Soft Teal' },
-  'DOUBLE CASEMENT': { pdf: [153, 246, 228], canvas: '#99f6e4', name: 'Double Soft Teal' },
-  '3-OPEN WINDOW': { pdf: [153, 246, 228], canvas: '#99f6e4', name: 'Double Soft Teal' },
-  'ventilator/normal': { pdf: [191, 219, 254], canvas: '#bfdbfe', name: 'Ventilator Sky Blue' },
-  'ventilator with fans Left': { pdf: [199, 210, 254], canvas: '#c7d2fe', name: 'Fan Left Lavender' },
-  'ventilator with fans Right': { pdf: [251, 207, 232], canvas: '#fbcfe8', name: 'Fan Right Soft Pink' },
+  '2T SLIDING DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
+  '2.5T SLIDING DOOR (MESH)': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
+  '3T SLIDING DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
+  'SL/SL/DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
+  'SL/SL/DOOR/MESH': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
+  'SL/SL/MESH/DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
+  'SL/SL/SL/DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
+  'DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
+  'TRACK': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
+  '2T SLIDING': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
+  '2.5T SLIDING (MESH)': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
+  '3T SLIDING': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
+  '4T SLIDING': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
+  'SLIDING WINDOW': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
+  'FIXED WINDOW': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Fixed Ice Blue' },
+  'SINGLE WINDOW': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Single Light Blue' },
+  'SINGLE CASEMENT': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Single Light Blue' },
+  'DOUBLE WINDOW': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Double Ice Blue' },
+  'DOUBLE CASEMENT': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Double Ice Blue' },
+  '3-OPEN WINDOW': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Double Ice Blue' },
+  'ventilator/normal': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Ventilator Ice Blue' },
+  'ventilator with fans Left': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Fan Left Light Blue' },
+  'ventilator with fans Right': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Fan Right Ice Blue' },
 };
 
 /**
- * Returns the dedicated unique background tint color for any window model type.
- * Ensures:
- * - Track windows (2-track, 2.5-track, 3-track sliding): Track unique color (#fed7aa / [254, 215, 170])
- * - Single windows (single open casement): Single unique color (#bbf7d0 / [187, 247, 208])
- * - Double windows (double open casement): Double unique color (#99f6e4 / [153, 246, 228])
- * - Fixed windows: Fixed unique color (#fecdd3 / [254, 205, 211])
- * - Ventilators: Unique soft tint (Blue, Lavender, Pink)
+ * Returns the dedicated light blue background tint for a window model type.
  */
 export const getLSModelBgColor = (
   input: string | LSFlattenedRow | CalculationResult | undefined | null
@@ -433,32 +410,23 @@ export const getLSModelBgColor = (
 };
 
 /**
- * Unique distinct colors for each window model type in L.S. Interiors Order Sheet:
- * - 2T SLIDING: Vibrant Orange ([234, 88, 12] / #ea580c)
- * - 2.5T SLIDING (MESH): Vibrant Orange ([234, 88, 12] / #ea580c)
- * - 3T SLIDING: Amber Orange ([217, 119, 6] / #d97706)
- * - FIXED WINDOW: Crimson Dark Red ([185, 28, 28] / #b91c1c - bold thick letters)
- * - SINGLE CASEMENT: Vibrant Forest Emerald ([4, 120, 87] / #047857)
- * - DOUBLE CASEMENT: Deep Pine Teal ([15, 118, 110] / #0f766e)
- * - ventilator/normal: Royal Blue ([29, 78, 216] / #1d4ed8)
- * - ventilator with fans Left: Indigo Violet ([79, 70, 229] / #4f46e5)
- * - ventilator with fans Right: Rose Magenta ([190, 24, 93] / #be185d)
+ * Blue-toned text colors distinguish window models in the order sheet.
  */
 export const LS_MODEL_COLOR_MAP: Record<string, LSModelColor> = {
-  '2T SLIDING': { pdf: [234, 88, 12], canvas: '#ea580c', name: 'Vibrant Orange' },
-  '2.5T SLIDING (MESH)': { pdf: [234, 88, 12], canvas: '#ea580c', name: 'Vibrant Orange' },
-  '3T SLIDING': { pdf: [217, 119, 6], canvas: '#d97706', name: 'Amber Orange' },
-  '4T SLIDING': { pdf: [217, 119, 6], canvas: '#d97706', name: 'Amber Orange' },
-  'SLIDING WINDOW': { pdf: [234, 88, 12], canvas: '#ea580c', name: 'Vibrant Orange' },
-  'FIXED WINDOW': { pdf: [185, 28, 28], canvas: '#b91c1c', name: 'Crimson Red' },
-  'SINGLE WINDOW': { pdf: [4, 120, 87], canvas: '#047857', name: 'Forest Emerald' },
-  'SINGLE CASEMENT': { pdf: [4, 120, 87], canvas: '#047857', name: 'Forest Emerald' },
-  'DOUBLE WINDOW': { pdf: [15, 118, 110], canvas: '#0f766e', name: 'Deep Teal' },
-  'DOUBLE CASEMENT': { pdf: [15, 118, 110], canvas: '#0f766e', name: 'Deep Teal' },
-  '3-OPEN WINDOW': { pdf: [15, 118, 110], canvas: '#0f766e', name: 'Deep Teal' },
-  'ventilator/normal': { pdf: [29, 78, 216], canvas: '#1d4ed8', name: 'Royal Blue' },
-  'ventilator with fans Left': { pdf: [79, 70, 229], canvas: '#4f46e5', name: 'Indigo Violet' },
-  'ventilator with fans Right': { pdf: [190, 24, 93], canvas: '#be185d', name: 'Rose Magenta' },
+  '2T SLIDING': { pdf: [2, 132, 199], canvas: '#0284c7', name: 'Deep Sky Blue' },
+  '2.5T SLIDING (MESH)': { pdf: [2, 132, 199], canvas: '#0284c7', name: 'Deep Sky Blue' },
+  '3T SLIDING': { pdf: [3, 105, 161], canvas: '#0369a1', name: 'Blue' },
+  '4T SLIDING': { pdf: [3, 105, 161], canvas: '#0369a1', name: 'Blue' },
+  'SLIDING WINDOW': { pdf: [2, 132, 199], canvas: '#0284c7', name: 'Deep Sky Blue' },
+  'FIXED WINDOW': { pdf: [7, 89, 133], canvas: '#075985', name: 'Navy Blue' },
+  'SINGLE WINDOW': { pdf: [3, 105, 161], canvas: '#0369a1', name: 'Blue' },
+  'SINGLE CASEMENT': { pdf: [3, 105, 161], canvas: '#0369a1', name: 'Blue' },
+  'DOUBLE WINDOW': { pdf: [12, 74, 110], canvas: '#0c4a6e', name: 'Deep Navy' },
+  'DOUBLE CASEMENT': { pdf: [12, 74, 110], canvas: '#0c4a6e', name: 'Deep Navy' },
+  '3-OPEN WINDOW': { pdf: [12, 74, 110], canvas: '#0c4a6e', name: 'Deep Navy' },
+  'ventilator/normal': { pdf: [2, 132, 199], canvas: '#0284c7', name: 'Deep Sky Blue' },
+  'ventilator with fans Left': { pdf: [3, 105, 161], canvas: '#0369a1', name: 'Blue' },
+  'ventilator with fans Right': { pdf: [7, 89, 133], canvas: '#075985', name: 'Navy Blue' },
 };
 
 /**
@@ -468,7 +436,7 @@ export const getLSModelColor = (
   input: string | LSFlattenedRow | CalculationResult | undefined | null
 ): LSModelColor => {
   if (!input) {
-    return { pdf: [180, 83, 9], canvas: '#b45309', name: 'Amber Bronze' };
+    return { pdf: [7, 89, 133], canvas: '#075985', name: 'Navy Blue' };
   }
 
   let modelName = '';
@@ -560,7 +528,7 @@ export const getLSModelColor = (
     return LS_MODEL_COLOR_MAP['SLIDING WINDOW'];
   }
 
-  return { pdf: [180, 83, 9], canvas: '#b45309', name: 'Amber Bronze' };
+  return { pdf: [7, 89, 133], canvas: '#075985', name: 'Navy Blue' };
 };
 
 /**
@@ -1480,7 +1448,7 @@ export const renderLSInteriorsVectorPage = (
             if (row.modelName) {
               const isDoor = row.modelName.includes('DOOR');
               const modelColor = isDoor
-                ? ([190, 18, 60] as [number, number, number])
+                ? ([2, 132, 199] as [number, number, number])
                 : cellTextColorPdf;
               drawCellText(
                 cleanText(row.modelName),
@@ -2338,7 +2306,7 @@ export const generateLSInteriorsSheetCanvas = (
           case 'model':
             if (rowData.modelName) {
               const isDoor = rowData.modelName.includes('DOOR');
-              const modelColorCanvas = isDoor ? '#be123c' : cellTextColorCanvas;
+              const modelColorCanvas = isDoor ? '#0284c7' : cellTextColorCanvas;
               drawCanvasCellText(
                 rowData.modelName,
                 centerX,

@@ -1,16 +1,53 @@
 @import "tailwindcss";
 
+@theme {
+  --color-slate-50: #ffffff;
+  --color-slate-100: #f8fcff;
+  --color-slate-200: #334155;
+  --color-slate-300: #475569;
+  --color-slate-400: #64748b;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #e2e8f0;
+  --color-slate-850: #e0f2fe;
+  --color-slate-900: #f0f9ff;
+  --color-slate-950: #ffffff;
+  --color-blue-50: #f0f9ff;
+  --color-blue-100: #e0f2fe;
+  --color-blue-200: #bae6fd;
+  --color-blue-300: #7dd3fc;
+  --color-blue-400: #38bdf8;
+  --color-blue-500: #38bdf8;
+  --color-blue-600: #0284c7;
+  --color-blue-700: #0369a1;
+  --color-blue-800: #075985;
+  --color-blue-900: #0c4a6e;
+  --color-blue-950: #082f49;
+  --color-sky-50: #f0f9ff;
+  --color-sky-100: #e0f2fe;
+  --color-sky-200: #bae6fd;
+  --color-sky-300: #7dd3fc;
+  --color-sky-400: #38bdf8;
+  --color-sky-500: #38bdf8;
+  --color-sky-600: #0284c7;
+  --color-sky-700: #0369a1;
+  --color-sky-800: #075985;
+  --color-sky-900: #0c4a6e;
+  --color-sky-950: #082f49;
+}
+
 @layer base {
   html, body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background-color: #0b0f19;
-    color: #f8fafc;
+    background-color: #ffffff;
+    color: #0f172a;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
 
   ::selection {
-    background-color: #2563eb;
+    background-color: #bae6fd;
     color: #ffffff;
   }
 
@@ -33,6 +70,217 @@
     -moz-appearance: textfield;
     appearance: textfield;
   }
+
+  input,
+  select,
+  textarea {
+    color: #0f172a;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #64748b;
+  }
+}
+
+@layer utilities {
+  [class~="text-white"] {
+    color: #0f172a;
+  }
+
+  [class~="text-blue-100"],
+  [class~="text-blue-200"],
+  [class~="text-blue-300"],
+  [class~="text-blue-400"] {
+    color: #0369a1;
+  }
+
+  [class~="border-slate-700"],
+  [class~="border-slate-800"],
+  [class~="border-slate-900"] {
+    border-color: #e2e8f0;
+  }
+
+  [class~="bg-slate-800"],
+  [class~="bg-slate-850"] {
+    background-color: #e0f2fe;
+  }
+
+  [class~="bg-slate-900"] {
+    background-color: #f8fcff;
+  }
+
+  [class*="bg-blue-900"],
+  [class*="bg-blue-950"] {
+    background-color: #e0f2fe;
+  }
+
+  [class*="bg-emerald-950"],
+  [class*="bg-teal-950"],
+  [class*="bg-cyan-950"],
+  [class*="bg-indigo-950"],
+  [class*="bg-amber-950"],
+  [class*="bg-pink-950"],
+  [class*="bg-purple-950"],
+  [class*="bg-emerald-900"],
+  [class*="bg-teal-900"],
+  [class*="bg-cyan-900"],
+  [class*="bg-indigo-900"],
+  [class*="bg-amber-900"],
+  [class*="bg-pink-900"],
+  [class*="bg-purple-900"],
+  [class*="bg-emerald-800"],
+  [class*="bg-teal-800"],
+  [class*="bg-cyan-800"],
+  [class*="bg-indigo-800"],
+  [class*="bg-amber-800"],
+  [class*="bg-pink-800"],
+  [class*="bg-purple-800"],
+  [class*="bg-emerald-200"],
+  [class*="bg-teal-200"],
+  [class*="bg-cyan-200"],
+  [class*="bg-indigo-200"],
+  [class*="bg-amber-200"],
+  [class*="bg-pink-200"],
+  [class*="bg-purple-200"],
+  [class*="bg-emerald-100"],
+  [class*="bg-teal-100"],
+  [class*="bg-cyan-100"],
+  [class*="bg-indigo-100"],
+  [class*="bg-amber-100"],
+  [class*="bg-pink-100"],
+  [class*="bg-purple-100"],
+  [class*="bg-emerald-50"],
+  [class*="bg-teal-50"],
+  [class*="bg-cyan-50"],
+  [class*="bg-indigo-50"],
+  [class*="bg-amber-50"],
+  [class*="bg-pink-50"],
+  [class*="bg-purple-50"],
+  [class*="bg-rose-950"],
+  [class*="bg-rose-900"] {
+    background-color: #e0f2fe;
+  }
+
+  [class*="bg-emerald-600"],
+  [class*="bg-teal-600"],
+  [class*="bg-cyan-600"],
+  [class*="bg-indigo-600"],
+  [class*="bg-amber-600"],
+  [class*="bg-pink-600"],
+  [class*="bg-purple-600"],
+  [class*="bg-emerald-700"],
+  [class*="bg-teal-700"],
+  [class*="bg-cyan-700"],
+  [class*="bg-indigo-700"],
+  [class*="bg-amber-700"],
+  [class*="bg-pink-700"],
+  [class*="bg-purple-700"] {
+    background-color: #0284c7;
+  }
+
+  [class*="bg-emerald-400"],
+  [class*="bg-teal-400"],
+  [class*="bg-cyan-400"],
+  [class*="bg-indigo-400"],
+  [class*="bg-amber-400"],
+  [class*="bg-pink-400"],
+  [class*="bg-purple-400"],
+  [class*="bg-emerald-500"],
+  [class*="bg-teal-500"],
+  [class*="bg-cyan-500"],
+  [class*="bg-indigo-500"],
+  [class*="bg-amber-500"],
+  [class*="bg-pink-500"],
+  [class*="bg-purple-500"] {
+    background-color: #38bdf8;
+  }
+
+  [class*="bg-rose-600"],
+  [class*="bg-rose-700"] {
+    background-color: #0284c7;
+  }
+
+  [class*="bg-rose-400"],
+  [class*="bg-rose-500"] {
+    background-color: #38bdf8;
+  }
+
+  [class*="text-emerald-"],
+  [class*="text-teal-"],
+  [class*="text-cyan-"],
+  [class*="text-indigo-"],
+  [class*="text-amber-"],
+  [class*="text-pink-"],
+  [class*="text-purple-"] {
+    color: #0284c7;
+  }
+
+  [class*="border-emerald-"],
+  [class*="border-teal-"],
+  [class*="border-cyan-"],
+  [class*="border-indigo-"],
+  [class*="border-amber-"],
+  [class*="border-pink-"],
+  [class*="border-purple-"] {
+    border-color: #bae6fd;
+  }
+
+  [class*="border-rose-"] {
+    border-color: #bae6fd;
+  }
+
+  [class*="bg-blue-"][class~="text-white"] {
+    color: #ffffff;
+  }
+
+  [class*="bg-emerald-600"][class~="text-white"],
+  [class*="bg-teal-600"][class~="text-white"],
+  [class*="bg-cyan-600"][class~="text-white"],
+  [class*="bg-indigo-600"][class~="text-white"],
+  [class*="bg-amber-600"][class~="text-white"],
+  [class*="bg-pink-600"][class~="text-white"],
+  [class*="bg-purple-600"][class~="text-white"],
+  [class*="bg-emerald-700"][class~="text-white"],
+  [class*="bg-teal-700"][class~="text-white"],
+  [class*="bg-cyan-700"][class~="text-white"],
+  [class*="bg-indigo-700"][class~="text-white"],
+  [class*="bg-amber-700"][class~="text-white"],
+  [class*="bg-pink-700"][class~="text-white"],
+  [class*="bg-purple-700"][class~="text-white"] {
+    color: #ffffff;
+  }
+
+  [class*="bg-rose-600"][class~="text-white"],
+  [class*="bg-rose-700"][class~="text-white"] {
+    color: #ffffff;
+  }
+
+  [class*="hover:bg-emerald-"]:hover,
+  [class*="hover:bg-teal-"]:hover,
+  [class*="hover:bg-cyan-"]:hover,
+  [class*="hover:bg-indigo-"]:hover,
+  [class*="hover:bg-amber-"]:hover,
+  [class*="hover:bg-pink-"]:hover,
+  [class*="hover:bg-purple-"]:hover {
+    background-color: #0284c7;
+  }
+
+  [class*="hover:bg-rose-"]:hover {
+    background-color: #0284c7;
+  }
+
+  button[class*="bg-blue-"] .text-white,
+  a[class*="bg-blue-"] .text-white,
+  button[class*="bg-emerald-600"] .text-white,
+  button[class*="bg-teal-600"] .text-white,
+  button[class*="bg-cyan-600"] .text-white,
+  button[class*="bg-indigo-600"] .text-white,
+  button[class*="bg-amber-600"] .text-white,
+  button[class*="bg-pink-600"] .text-white,
+  button[class*="bg-purple-600"] .text-white {
+    color: #ffffff;
+  }
 }
 
 /* Hide scrollbar for clean mobile pill rows */
@@ -52,12 +300,12 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: #f8fcff;
 }
 ::-webkit-scrollbar-thumb {
-  background: #374151;
+  background: #bae6fd;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: #38bdf8;
 }
