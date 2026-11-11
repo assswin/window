@@ -1248,13 +1248,11 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                       {[
                         {
                           id: 'door_with_bottom' as CasementSubtype,
-                          label: t('பாட்டம் உண்டு (With Bottom)', 'With Bottom'),
-                          desc: 'H-63 × W-63'
+                          label: t('பாட்டம் உண்டு (With Bottom)', 'With Bottom')
                         },
                         {
                           id: 'door_without_bottom' as CasementSubtype,
-                          label: t('பாட்டம் இல்லை (Without Bottom)', 'Without Bottom'),
-                          desc: 'H-38 × W-63'
+                          label: t('பாட்டம் இல்லை (Without Bottom)', 'Without Bottom')
                         }
                       ].map((d) => (
                         <button
@@ -1269,7 +1267,6 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                           }
                         >
                           <div className="leading-tight">{d.label}</div>
-                          <div className="text-[10px] font-mono opacity-80 mt-0.5">{d.desc}</div>
                         </button>
                       ))}
                     </div>
