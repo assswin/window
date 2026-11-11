@@ -6,6 +6,10 @@ function run(cmd) {
   return execSync(cmd, { stdio: 'pipe' }).toString();
 }
 
+function normalizeNewlines(str) {
+  return str.replace(/\r\n/g, '\n');
+}
+
 console.log('🔄 Fetching latest updates from yuvaraj repo...');
 try {
   run('git fetch yuvaraj');
@@ -38,6 +42,27 @@ for (const remotePath of treeRaw) {
   if (hasSubfolder && !remotePath.startsWith('window-main/')) continue;
   const localRelative = hasSubfolder ? remotePath.slice(prefix.length) : remotePath;
 
+  // Don't overwrite package.json script entry if we only added sync:yuvaraj
+  if (localRelative === 'package.json') {
+    const localFullPath = path.resolve(__dirname, '..', localRelative);
+    const remoteStr = execSync(`git show yuvaraj/main:${remotePath}`).toString('utf-8');
+    const localStr = fs.readFileSync(localFullPath, 'utf-8');
+    try {
+      const remotePkg = JSON.parse(remoteStr);
+      const localPkg = JSON.parse(localStr);
+      // Compare dependencies and devDependencies
+      const depsChanged = JSON.stringify(remotePkg.dependencies) !== JSON.stringify(localPkg.dependencies) ||
+                          JSON.stringify(remotePkg.devDependencies) !== JSON.stringify(localPkg.devDependencies);
+      if (depsChanged) {
+        localPkg.dependencies = remotePkg.dependencies;
+        localPkg.devDependencies = remotePkg.devDependencies;
+        fs.writeFileSync(localFullPath, JSON.stringify(localPkg, null, 2) + '\n');
+        updatedFiles.push('package.json (dependencies updated)');
+      }
+    } catch (_) {}
+    continue;
+  }
+
   // Read remote blob
   const remoteBlob = execSync(`git show yuvaraj/main:${remotePath}`, { maxBuffer: 50 * 1024 * 1024 });
 
@@ -46,8 +71,18 @@ for (const remotePath of treeRaw) {
 
   if (fs.existsSync(localFullPath)) {
     const localContent = fs.readFileSync(localFullPath);
+    // Compare byte-for-byte or text-normalized
     if (Buffer.compare(localContent, remoteBlob) === 0) {
       isDifferent = false;
+    } else {
+      // Check if only line endings differ (CRLF vs LF)
+      try {
+        const localNorm = normalizeNewlines(localContent.toString('utf-8'));
+        const remoteNorm = normalizeNewlines(remoteBlob.toString('utf-8'));
+        if (localNorm === remoteNorm) {
+          isDifferent = false;
+        }
+      } catch (_) {}
     }
   }
 

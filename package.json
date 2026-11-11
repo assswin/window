@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync:yuvaraj": "node scripts/sync-yuvaraj.cjs"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
