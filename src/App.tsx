@@ -692,7 +692,7 @@ export const App: React.FC = () => {
                   'py-2 px-1 sm:px-2 rounded-xl text-center flex items-center justify-center space-x-1 sm:space-x-1.5 transition border cursor-pointer touch-manipulation ' +
                   (isActive
                     ? 'bg-blue-600 border-blue-500 text-white font-bold'
-                    : 'bg-slate-950 hover:bg-slate-850 border-slate-800 text-slate-300 hover:text-white')
+                    : 'bg-slate-950 hover:bg-sky-100 border-slate-800 text-slate-700 hover:text-sky-700 hover:border-sky-300')
                 }
               >
                 <Icon className={'w-3.5 h-3.5 flex-shrink-0 ' + (isActive ? 'text-white' : 'text-slate-400')} />
@@ -841,7 +841,7 @@ export const App: React.FC = () => {
                   'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-heading font-bold flex items-center space-x-1.5 whitespace-nowrap transition cursor-pointer ' +
                   (desktopView === 'cut'
                     ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-850')
+                    : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
                 }
               >
                 <Scissors className="w-3.5 h-3.5 flex-shrink-0" />
@@ -855,7 +855,7 @@ export const App: React.FC = () => {
                   'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-heading font-bold flex items-center space-x-1.5 whitespace-nowrap transition cursor-pointer ' +
                   (desktopView === 'cad'
                     ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-850')
+                    : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
                 }
               >
                 <Eye className="w-3.5 h-3.5 flex-shrink-0" />
@@ -869,7 +869,7 @@ export const App: React.FC = () => {
                   'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-heading font-bold flex items-center space-x-1.5 whitespace-nowrap transition cursor-pointer ' +
                   (desktopView === 'split'
                     ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-850')
+                    : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
                 }
               >
                 <SlidersHorizontal className="w-3.5 h-3.5 flex-shrink-0" />
@@ -1048,7 +1048,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               onClick={() => setUndoToast(null)}
-              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-200 transition cursor-pointer"
               title="Dismiss"
             >
               <X className="w-4 h-4" />

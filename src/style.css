@@ -281,6 +281,23 @@
   button[class*="bg-purple-600"] .text-white {
     color: #ffffff;
   }
+
+  /* Fix hover text contrast on light/slate backgrounds: prevent washed-out/invisible white text */
+  button[class*="hover:text-white"]:hover:not([class*="bg-blue-600"]):not([class*="bg-amber-600"]):not([class*="bg-emerald-600"]):not([class*="bg-teal-600"]):not([class*="bg-cyan-600"]):not([class*="bg-indigo-600"]):not([class*="bg-rose-600"]),
+  a[class*="hover:text-white"]:hover:not([class*="bg-blue-600"]):not([class*="bg-amber-600"]):not([class*="bg-emerald-600"]):not([class*="bg-teal-600"]):not([class*="bg-cyan-600"]):not([class*="bg-indigo-600"]):not([class*="bg-rose-600"]),
+  [class*="bg-slate-900"][class*="hover:text-white"]:hover,
+  [class*="bg-slate-950"][class*="hover:text-white"]:hover,
+  [class*="border-slate-800"][class*="hover:text-white"]:hover {
+    color: #0284c7 !important;
+    background-color: #e0f2fe !important;
+    border-color: #38bdf8 !important;
+  }
+
+  button[class*="hover:text-white"]:hover:not([class*="bg-blue-600"]):not([class*="bg-amber-600"]):not([class*="bg-emerald-600"]):not([class*="bg-teal-600"]):not([class*="bg-cyan-600"]):not([class*="bg-indigo-600"]):not([class*="bg-rose-600"]) *,
+  [class*="bg-slate-900"][class*="hover:text-white"]:hover *,
+  [class*="bg-slate-950"][class*="hover:text-white"]:hover * {
+    color: #0284c7 !important;
+  }
 }
 
 /* Hide scrollbar for clean mobile pill rows */

@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onOpenFormulaSettings}
               title={t('சூத்திர எண்களை மாற்ற (Formula Settings)', 'Customize Formula Settings')}
               aria-label="Customize Formula Numbers"
-              className="p-1.5 sm:p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-300 hover:text-white border border-slate-700 transition cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation"
+              className="p-1.5 sm:p-2 rounded-lg bg-slate-100 hover:bg-sky-100 text-sky-700 hover:text-sky-900 border border-slate-300 hover:border-sky-300 transition cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation"
             >
               <SlidersHorizontal className="w-4 h-4 text-blue-400" />
             </button>

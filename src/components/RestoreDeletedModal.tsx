@@ -185,7 +185,7 @@ export const RestoreDeletedModal: React.FC<RestoreDeletedModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-700 border border-slate-300 hover:border-sky-300 text-xs font-semibold transition cursor-pointer"
               >
                 {t('மூடு', 'Close')}
               </button>

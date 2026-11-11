@@ -39,7 +39,7 @@ export const LanguageSwitch: React.FC<LanguageSwitchProps> = ({
         className={`px-2 py-1 rounded-md text-xs font-bold transition-all duration-200 cursor-pointer touch-manipulation ${
           isEnglish
             ? 'bg-blue-600 text-white shadow-sm'
-            : 'text-slate-400 hover:text-white'
+            : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100'
         }`}
         title="Switch to English"
       >
@@ -53,7 +53,7 @@ export const LanguageSwitch: React.FC<LanguageSwitchProps> = ({
         className={`px-2 py-1 rounded-md text-xs font-bold transition-all duration-200 cursor-pointer touch-manipulation font-sans ${
           isTamil
             ? 'bg-blue-600 text-white shadow-sm'
-            : 'text-slate-400 hover:text-white'
+            : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100'
         }`}
         title="தமிழுக்கு மாற்றவும் (Switch to Tamil)"
       >

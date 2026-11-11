@@ -448,7 +448,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
               setActiveFractionChips({});
               onResetAll();
             }}
-            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs transition cursor-pointer active:scale-95 touch-manipulation"
+            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-700 border border-slate-300 hover:border-sky-300 text-xs transition cursor-pointer active:scale-95 touch-manipulation"
             title={t('இயல்புநிலைக்கு மீட்டமைக்க (Window 1)', 'Reset to default Window 1')}
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -490,7 +490,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                     'py-2 px-1 sm:px-2 rounded-lg text-center border transition cursor-pointer active:scale-95 touch-manipulation ' +
                     (isSelected
                       ? 'bg-blue-600 border-blue-400 text-white font-bold shadow-sm'
-                      : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:border-slate-700')
+                      : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                   }
                 >
                   <div className="text-xs font-bold leading-tight truncate">{u.label}</div>
@@ -602,9 +602,9 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
           <button
             type="button"
             onClick={onOpenFormulaSettings}
-            className="w-full py-2 px-3 rounded-lg bg-blue-950/60 hover:bg-blue-900/80 text-blue-300 hover:text-white border border-blue-800/70 text-xs font-bold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-95 touch-manipulation"
+            className="w-full py-2 px-3 rounded-lg bg-blue-50 hover:bg-sky-100 text-sky-700 hover:text-sky-900 border border-sky-200 text-xs font-bold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-95 touch-manipulation"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-blue-400" />
+            <SlidersHorizontal className="w-3.5 h-3.5 text-blue-500" />
             <span>{t('சூத்திர எண்களை மாற்ற (Customize Formula Numbers)', 'Customize Formula Numbers')}</span>
           </button>
         )}
@@ -630,7 +630,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
               'px-2.5 py-1 rounded transition cursor-pointer font-medium flex items-center space-x-1 ' +
               (viewMode === 'single'
                 ? 'bg-blue-600 text-white font-bold'
-                : 'text-slate-300 hover:text-white')
+                : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
             }
           >
             <span>{t('தனி', 'Single')}</span>
@@ -643,7 +643,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
               'px-2.5 py-1 rounded transition cursor-pointer font-medium ' +
               (viewMode === 'all'
                 ? 'bg-blue-600 text-white font-bold'
-                : 'text-slate-300 hover:text-white')
+                : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
             }
           >
             {t(`அனைத்தும் (${windows.length})`, `All (${windows.length})`)}
@@ -682,7 +682,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                 'py-1.5 px-2.5 rounded-lg text-center border transition flex-shrink-0 cursor-pointer touch-manipulation active:scale-95 ' +
                 (isSelected
                   ? 'bg-blue-600 border-blue-500 text-white font-bold'
-                  : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white')
+                  : 'bg-slate-950 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
               }
             >
               <div className="text-xs font-heading font-bold leading-tight" title={displayLabel}>
@@ -899,7 +899,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                         'py-1.5 px-1 rounded-lg border text-xs font-mono font-bold transition cursor-pointer touch-manipulation text-center ' +
                         (active
                           ? 'bg-blue-600 border-blue-500 text-white shadow-sm shadow-blue-500/30'
-                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 active:bg-slate-700')
+                          : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300 active:bg-sky-200')
                       }
                     >
                       {chip.label}
@@ -984,7 +984,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                         'py-1.5 px-1 rounded-lg border text-xs font-mono font-bold transition cursor-pointer touch-manipulation text-center ' +
                         (active
                           ? 'bg-blue-600 border-blue-500 text-white shadow-sm shadow-blue-500/30'
-                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 active:bg-slate-700')
+                          : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300 active:bg-sky-200')
                       }
                     >
                       {chip.label}
@@ -1027,7 +1027,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                       'py-2 px-1 sm:px-1.5 rounded-xl text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation flex flex-col items-center justify-center min-w-0 ' +
                       (activeWin.windowType === item.type
                         ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
-                        : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white')
+                        : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                     }
                   >
                     <span className="leading-tight text-xs font-semibold truncate max-w-full text-center">{item.label}</span>
@@ -1071,7 +1071,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                           'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
                           (activeWin.profileSeries !== '66mm' && activeWin.profileSeries !== '65mm' && activeWin.profileSeries !== '85mm'
                             ? 'bg-amber-600 border-amber-500 text-white shadow-sm'
-                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white')
+                            : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                         }
                       >
                         <div className="leading-tight text-[11px]">58 mm</div>
@@ -1093,7 +1093,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                           'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
                           ((activeWin.profileSeries === '66mm' || activeWin.profileSeries === '65mm')
                             ? 'bg-amber-600 border-amber-500 text-white shadow-sm'
-                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white')
+                            : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                         }
                       >
                         <div className="leading-tight text-[11px]">66 mm</div>
@@ -1115,7 +1115,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                           'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
                           (activeWin.profileSeries === '85mm'
                             ? 'bg-amber-600 border-amber-500 text-white shadow-sm ring-1 ring-amber-400'
-                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white')
+                            : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                         }
                       >
                         <div className="leading-tight text-[11px]">85 mm</div>
@@ -1142,7 +1142,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                             'py-2 px-1 rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation text-center ' +
                             ((activeWin.frameType === tItem.id || (tItem.id === '3.5-track' && activeWin.frameType === '3-track'))
                               ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
-                              : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white')
+                              : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                           }
                         >
                           <div className="leading-tight">{tItem.label}</div>
@@ -1164,7 +1164,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                             'py-2 px-1.5 rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation text-center ' +
                             ((activeWin.frameType === tItem.id || (tItem.id === '3.5-track' && activeWin.frameType === '3-track'))
                               ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
-                              : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white')
+                              : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                           }
                         >
                           <div className="leading-tight">{tItem.label}</div>
@@ -1188,7 +1188,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                             'py-2 px-1 rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation text-center ' +
                             ((activeWin.frameType === tItem.id || (tItem.id === '3.5-track' && activeWin.frameType === '3-track'))
                               ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
-                              : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white')
+                              : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                           }
                         >
                           <div className="leading-tight">{tItem.label}</div>
@@ -1213,7 +1213,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                         'py-2 px-1 text-center rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation ' +
                         (((activeWin.casementSubtype === c.id) || (!activeWin.casementSubtype && c.id === 'single'))
                           ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
-                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white')
+                          : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                       }
                     >
                       <div className="leading-tight">{c.label}</div>
@@ -1239,7 +1239,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                           'py-2 px-1 text-center rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation ' +
                           (((activeWin.ventilatorSubtype === v.id) || (!activeWin.ventilatorSubtype && v.id === 'normal'))
                             ? 'bg-blue-600 border-blue-500 text-white'
-                            : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white')
+                            : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                         }
                       >
                         {v.label}
@@ -1264,7 +1264,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                               'py-1.5 px-2 text-center rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation ' +
                               (((activeWin.ventilatorFanSide === side.id) || (!activeWin.ventilatorFanSide && side.id === 'left'))
                                 ? 'bg-emerald-600 border-emerald-500 text-white'
-                                : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white')
+                                : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                             }
                           >
                             {side.label}

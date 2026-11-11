@@ -291,7 +291,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 'px-2 py-1 rounded transition cursor-pointer flex items-center space-x-1 ' +
                 (cadTheme === 'white'
                   ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
-                  : 'text-slate-400 hover:text-white')
+                  : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
               }
               title="Architectural White CAD (Clean Paper White, like AutoCAD)"
             >
@@ -305,7 +305,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 'px-2 py-1 rounded transition cursor-pointer flex items-center space-x-1 ' +
                 (cadTheme === 'blueprint'
                   ? 'bg-blue-600 text-white font-bold shadow-xs'
-                  : 'text-slate-400 hover:text-white')
+                  : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
               }
               title="Blueprint Navy (Classic Dark CAD)"
             >
@@ -323,7 +323,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 'px-2 py-1 rounded transition cursor-pointer font-medium ' +
                 (viewMode === 'single'
                   ? 'bg-blue-600 text-white font-bold'
-                  : 'text-slate-300 hover:text-white')
+                  : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
               }
             >
               {t('தனி (Active)', 'Single')}
@@ -335,7 +335,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 'px-2 py-1 rounded transition cursor-pointer font-medium ' +
                 (viewMode === 'gallery'
                   ? 'bg-blue-600 text-white font-bold'
-                  : 'text-slate-300 hover:text-white')
+                  : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
               }
             >
               {t(`அனைத்தும் (${results.length})`, `All (${results.length})`)}
@@ -421,7 +421,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 onClick={() => setCadView('all_in_one')}
                 className={
                   'px-2 py-1 rounded transition cursor-pointer flex items-center space-x-1 ' +
-                  (cadView === 'all_in_one' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white')
+                  (cadView === 'all_in_one' ? 'bg-blue-600 text-white font-bold' : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
                 }
                 title="All-in-One Sheet: Elevation + Section A-A + Section B-B"
               >
@@ -433,7 +433,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 onClick={() => setCadView('elevation')}
                 className={
                   'px-2 py-1 rounded transition cursor-pointer flex items-center space-x-1 ' +
-                  (cadView === 'elevation' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white')
+                  (cadView === 'elevation' ? 'bg-blue-600 text-white font-bold' : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
                 }
                 title="Front Elevation View"
               >
@@ -445,7 +445,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 onClick={() => setCadView('section_a')}
                 className={
                   'px-2 py-1 rounded transition cursor-pointer flex items-center space-x-1 ' +
-                  (cadView === 'section_a' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white')
+                  (cadView === 'section_a' ? 'bg-blue-600 text-white font-bold' : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
                 }
                 title="Section A-A: Horizontal Plan Cross-Section"
               >
@@ -457,7 +457,7 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 onClick={() => setCadView('section_b')}
                 className={
                   'px-2 py-1 rounded transition cursor-pointer flex items-center space-x-1 ' +
-                  (cadView === 'section_b' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white')
+                  (cadView === 'section_b' ? 'bg-blue-600 text-white font-bold' : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
                 }
                 title="Section B-B: Vertical Cross-Section"
               >

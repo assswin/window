@@ -136,7 +136,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                       onSelectCalculation(item);
                       onClose();
                     }}
-                    className="text-xs font-semibold text-slate-300 hover:text-white flex items-center space-x-1 cursor-pointer"
+                    className="text-xs font-semibold text-sky-700 hover:text-sky-900 flex items-center space-x-1 cursor-pointer"
                   >
                     <span>Load</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -146,7 +146,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                     <button
                       onClick={() => exportLSInteriorsToPDF([item])}
                       title="L.S. Interiors Order Sheet PDF"
-                      className="p-1.5 rounded-lg bg-blue-900/50 text-blue-300 hover:text-white hover:bg-blue-800 border border-blue-700/60 transition cursor-pointer"
+                      className="p-1.5 rounded-lg bg-blue-100 text-sky-700 hover:text-sky-900 hover:bg-sky-200 border border-blue-200 transition cursor-pointer"
                     >
                       <FileSpreadsheet className="w-3.5 h-3.5" />
                     </button>

@@ -160,7 +160,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
               'px-2.5 py-1 rounded transition cursor-pointer font-medium ' +
               (viewMode === 'summary'
                 ? 'bg-blue-600 text-white font-bold'
-                : 'text-slate-300 hover:text-white')
+                : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
             }
           >
             {t('அட்டவணை', 'Table')}
@@ -172,7 +172,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
               'px-2.5 py-1 rounded transition cursor-pointer font-medium flex items-center space-x-1 ' +
               (viewMode === 'detail'
                 ? 'bg-blue-600 text-white font-bold'
-                : 'text-slate-300 hover:text-white')
+                : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
             }
           >
             <span>{t('விவரம்', 'Detail')}</span>
@@ -192,7 +192,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
             'py-1.5 px-2.5 rounded-lg text-center text-xs font-bold border transition flex-shrink-0 cursor-pointer ' +
             (viewMode === 'summary'
               ? 'bg-blue-600 border-blue-500 text-white font-bold'
-              : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white')
+              : 'bg-slate-950 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
           }
         >
           {t(`அனைத்தும் (${results.length})`, `All (${results.length})`)}
@@ -213,7 +213,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                 'py-1.5 px-2.5 rounded-lg text-center border transition flex-shrink-0 cursor-pointer ' +
                 (isSelected
                   ? 'bg-blue-600 border-blue-500 text-white font-bold'
-                  : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white')
+                  : 'bg-slate-950 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
               }
             >
               <span className="text-xs font-heading font-bold max-w-[90px] truncate inline-block align-middle" title={label}>

@@ -322,7 +322,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                   'py-1.5 px-3 rounded-lg text-xs font-medium whitespace-nowrap transition cursor-pointer flex items-center space-x-1.5 flex-shrink-0 ' +
                   (isSelected
                     ? 'bg-blue-600 text-white font-bold shadow-sm shadow-blue-500/20'
-                    : 'bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-800')
+                    : 'bg-slate-900 text-slate-700 hover:text-sky-700 hover:bg-sky-100 border border-slate-300 hover:border-sky-300')
                 }
               >
                 <span>{item.icon}</span>
@@ -879,7 +879,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 sm:flex-none px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition cursor-pointer text-center"
+              className="flex-1 sm:flex-none px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-700 border border-slate-300 hover:border-sky-300 text-xs font-medium transition cursor-pointer text-center"
             >
               {t('ரத்து (Cancel)', 'Cancel')}
             </button>
