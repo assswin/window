@@ -1177,6 +1177,19 @@ export const renderLSInteriorsVectorPage = (
     ];
   }
 
+  const modelColumnIndex = cols.findIndex((col) => col.id === 'model');
+  const materialColumnIndex = cols.findIndex((col) => col.id === 'materialMM');
+  const outerFrameColumnIndex = cols.findIndex((col) => col.id === 'outerFrame');
+  if (
+    modelColumnIndex >= 0 &&
+    materialColumnIndex === modelColumnIndex + 1 &&
+    outerFrameColumnIndex >= 0
+  ) {
+    const [modelColumn, materialColumn] = cols.splice(modelColumnIndex, 2);
+    const updatedOuterFrameIndex = cols.findIndex((col) => col.id === 'outerFrame');
+    cols.splice(updatedOuterFrameIndex + 1, 0, modelColumn, materialColumn);
+  }
+
   const colX: number[] = [marginX];
   for (let i = 0; i < cols.length; i++) {
     colX.push(colX[i] + cols[i].width);
@@ -1948,6 +1961,19 @@ export const generateLSInteriorsSheetCanvas = (
       { id: 'glassPcs', header: 'Glass Cut mm', subHeader: 'No.Pcs', width: 107, colorCanvas: LS_COLOR_MAP.glassPcs.canvas },
       { id: 'glassType', header: 'Glass Type', subHeader: 'Client Fill', width: 392, colorCanvas: LS_COLOR_MAP.glassType.canvas }
     ];
+  }
+
+  const modelColumnIndex = cols.findIndex((col) => col.id === 'model');
+  const materialColumnIndex = cols.findIndex((col) => col.id === 'materialMM');
+  const outerFrameColumnIndex = cols.findIndex((col) => col.id === 'outerFrame');
+  if (
+    modelColumnIndex >= 0 &&
+    materialColumnIndex === modelColumnIndex + 1 &&
+    outerFrameColumnIndex >= 0
+  ) {
+    const [modelColumn, materialColumn] = cols.splice(modelColumnIndex, 2);
+    const updatedOuterFrameIndex = cols.findIndex((col) => col.id === 'outerFrame');
+    cols.splice(updatedOuterFrameIndex + 1, 0, modelColumn, materialColumn);
   }
 
   const colX: number[] = [marginX];

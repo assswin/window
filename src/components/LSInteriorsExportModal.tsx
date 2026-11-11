@@ -349,11 +349,11 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
                 </li>
                 <li className="flex items-center space-x-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                  <span><strong>Model Name:</strong> {t('ஜன்னல் மாதிரி குறியீடு [SL/SL], [SL/SL/MESH], [OP], [FIXED]', 'Window Model Type Code [SL/SL], [SL/SL/MESH], [OP], [FIXED]')}</span>
+                  <span><strong>Outer Frame mm:</strong> {t('வெளி பிரேம் வெட்டு (Height X Width)', 'Outer Frame Cut (Height × Width)')}</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                  <span><strong>Outer Frame mm:</strong> {t('வெளி பிரேம் வெட்டு (Height X Width)', 'Outer Frame Cut (Height × Width)')}</span>
+                  <span><strong>Model Name:</strong> {t('ஜன்னல் மாதிரி குறியீடு [SL/SL], [SL/SL/MESH], [OP], [FIXED]', 'Window Model Type Code [SL/SL], [SL/SL/MESH], [OP], [FIXED]')}</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
