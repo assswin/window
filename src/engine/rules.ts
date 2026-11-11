@@ -1,7 +1,12 @@
 import { FrameType, WindowType, CasementSubtype, UPVCSeries, ProfileRule, SystemProfilePreset, AuditLogEntry } from './types';
 
 // Helper to create rule keys
-export const getRuleKey = (frameType: FrameType, windowType: WindowType, profileSeries?: UPVCSeries): string => {
+export const getRuleKey = (
+  frameType: FrameType,
+  windowType: WindowType,
+  profileSeries?: UPVCSeries,
+  casementSubtype?: CasementSubtype
+): string => {
   if (profileSeries === '85mm' && windowType === 'sliding') {
     if (frameType === '3-track' || frameType === '3.5-track') return '3-track_sliding_85mm';
     if (frameType === '2.5-track') return '2.5-track_sliding_85mm';
@@ -10,6 +15,13 @@ export const getRuleKey = (frameType: FrameType, windowType: WindowType, profile
   if (profileSeries === '65mm' && windowType === 'sliding') {
     if (frameType === '2-track') return '2-track_sliding_65mm';
     if (frameType === '3-track' || frameType === '3.5-track') return '3-track_sliding_65mm';
+  }
+  if (windowType === 'open') {
+    if (casementSubtype === 'door_without_bottom') return 'no-track_open_door_without_bottom';
+    if (casementSubtype === 'door_with_bottom' || profileSeries === '108mm') return 'no-track_open_door_with_bottom';
+    if (casementSubtype === 'triple') return 'no-track_open_triple';
+    if (casementSubtype === 'double') return 'no-track_open_double';
+    return 'no-track_open';
   }
   return `${frameType}_${windowType}`;
 };
@@ -271,6 +283,42 @@ export const WORKSHOP_REFERENCE_PRESET: SystemProfilePreset = {
       profileDepthMM: 50,
       sashProfileWidthMM: 55,
       glassGrooveDepthMM: 10
+    },
+    'no-track_open_door_with_bottom': {
+      id: 'no-track_open_door_with_bottom',
+      frameType: 'no-track',
+      windowType: 'open',
+      name: 'Single Open Door - With Bottom (H-63, W-63, 108mm Material)',
+      description: 'Single Open Door (With Bottom): Shutter Height H-63, Shutter Width W-63, Material 108mm, [OP/DOOR]',
+      heightDeductionMM: 63,
+      divisionFactor: 1,
+      widthDeductionMM: 63,
+      overlapMM: 0,
+      sideClearanceMM: 0,
+      mirrorHeightDeductionMM: 124,
+      mirrorWidthDeductionMM: 124,
+      mirrorDeductionReference: 'panel',
+      profileDepthMM: 108,
+      sashProfileWidthMM: 75,
+      glassGrooveDepthMM: 12
+    },
+    'no-track_open_door_without_bottom': {
+      id: 'no-track_open_door_without_bottom',
+      frameType: 'no-track',
+      windowType: 'open',
+      name: 'Single Open Door - Without Bottom (H-38, W-63, 108mm Material)',
+      description: 'Single Open Door (Without Bottom): Shutter Height H-38, Shutter Width W-63, Material 108mm, [OP/DOOR]',
+      heightDeductionMM: 38,
+      divisionFactor: 1,
+      widthDeductionMM: 63,
+      overlapMM: 0,
+      sideClearanceMM: 0,
+      mirrorHeightDeductionMM: 124,
+      mirrorWidthDeductionMM: 124,
+      mirrorDeductionReference: 'panel',
+      profileDepthMM: 108,
+      sashProfileWidthMM: 75,
+      glassGrooveDepthMM: 12
     },
     'no-track_fixed': {
       id: 'no-track_fixed',
@@ -554,6 +602,42 @@ export const JINDAL_STANDARD_PRESET: SystemProfilePreset = {
       profileDepthMM: 95,
       sashProfileWidthMM: 52,
       glassGrooveDepthMM: 10
+    },
+    'no-track_open_door_with_bottom': {
+      id: 'no-track_open_door_with_bottom',
+      frameType: 'no-track',
+      windowType: 'open',
+      name: 'Single Open Door - With Bottom (H-63, W-63, 108mm Material)',
+      description: 'Single Open Door (With Bottom): Shutter Height H-63, Shutter Width W-63, Material 108mm, [OP/DOOR]',
+      heightDeductionMM: 63,
+      divisionFactor: 1,
+      widthDeductionMM: 63,
+      overlapMM: 0,
+      sideClearanceMM: 0,
+      mirrorHeightDeductionMM: 124,
+      mirrorWidthDeductionMM: 124,
+      mirrorDeductionReference: 'panel',
+      profileDepthMM: 108,
+      sashProfileWidthMM: 75,
+      glassGrooveDepthMM: 12
+    },
+    'no-track_open_door_without_bottom': {
+      id: 'no-track_open_door_without_bottom',
+      frameType: 'no-track',
+      windowType: 'open',
+      name: 'Single Open Door - Without Bottom (H-38, W-63, 108mm Material)',
+      description: 'Single Open Door (Without Bottom): Shutter Height H-38, Shutter Width W-63, Material 108mm, [OP/DOOR]',
+      heightDeductionMM: 38,
+      divisionFactor: 1,
+      widthDeductionMM: 63,
+      overlapMM: 0,
+      sideClearanceMM: 0,
+      mirrorHeightDeductionMM: 124,
+      mirrorWidthDeductionMM: 124,
+      mirrorDeductionReference: 'panel',
+      profileDepthMM: 108,
+      sashProfileWidthMM: 75,
+      glassGrooveDepthMM: 12
     }
   }
 };
@@ -661,13 +745,25 @@ export class RulesEngineManager {
         key = getRuleKey(frameType, windowType);
       }
     } else {
-      key = windowType === 'open'
-        ? (casementSubtype === 'triple' ? 'no-track_open_triple' : casementSubtype === 'double' ? 'no-track_open_double' : 'no-track_open')
-        : `no-track_${windowType}`;
+      if (windowType === 'open') {
+        if (casementSubtype === 'door_without_bottom') {
+          key = 'no-track_open_door_without_bottom';
+        } else if (casementSubtype === 'door_with_bottom' || profileSeries === '108mm') {
+          key = 'no-track_open_door_with_bottom';
+        } else if (casementSubtype === 'triple') {
+          key = 'no-track_open_triple';
+        } else if (casementSubtype === 'double') {
+          key = 'no-track_open_double';
+        } else {
+          key = 'no-track_open';
+        }
+      } else {
+        key = `no-track_${windowType}`;
+      }
     }
     let rule = this.activeRules[key];
     if (!rule) {
-      key = getRuleKey(frameType, windowType, profileSeries);
+      key = getRuleKey(frameType, windowType, profileSeries, casementSubtype);
       rule = this.activeRules[key] || WORKSHOP_REFERENCE_PRESET.rules[key] || Object.values(WORKSHOP_REFERENCE_PRESET.rules)[0];
     }
     return rule;

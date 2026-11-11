@@ -32,9 +32,11 @@ const WINDOW_CONFIG_LIST: WindowConfigOption[] = [
   { key: '3-track_sliding', name: '3 Track Sliding (58mm)', tamilName: '3 டிராக் ஸ்லைடிங் (58mm)', category: 'sliding', icon: '🪟' },
   { key: '3-track_sliding_65mm', name: '3 Track Sliding (66mm)', tamilName: '3 டிராக் ஸ்லைடிங் (66mm)', category: 'sliding', icon: '🪟' },
   { key: '4-track_sliding', name: '4 Track Sliding', tamilName: '4 டிராக் ஸ்லைடிங்', category: 'sliding', icon: '🪟' },
-  { key: 'no-track_open', name: 'Single Window', tamilName: 'தனி திறக்கும் ஜன்னல் (1 Shutter)', category: 'open', icon: '🚪' },
-  { key: 'no-track_open_double', name: 'Double Window', tamilName: 'இரட்டை திறக்கும் ஜன்னல் (2 Shutter + Mullion)', category: 'open', icon: '🚪' },
-  { key: 'no-track_open_triple', name: '3-Open Window', tamilName: '3-திறக்கும் ஜன்னல் (3 Shutter + 2 Mullion)', category: 'open', icon: '🚪' },
+  { key: 'no-track_open', name: 'Single Window', tamilName: 'தனி திறக்கும் ஜன்னல் (1 Shutter)', category: 'open', icon: '🪟' },
+  { key: 'no-track_open_double', name: 'Double Window', tamilName: 'இரட்டை திறக்கும் ஜன்னல் (2 Shutter + Mullion)', category: 'open', icon: '🪟' },
+  { key: 'no-track_open_triple', name: '3-Open Window', tamilName: '3-திறக்கும் ஜன்னல் (3 Shutter + 2 Mullion)', category: 'open', icon: '🪟' },
+  { key: 'no-track_open_door_with_bottom', name: 'Open Door - With Bottom (108mm)', tamilName: 'திறக்கும் டோர் - பாட்டம் உண்டு (108mm)', category: 'open', icon: '🚪' },
+  { key: 'no-track_open_door_without_bottom', name: 'Open Door - Without Bottom (108mm)', tamilName: 'திறக்கும் டோர் - பாட்டம் இல்லை (108mm)', category: 'open', icon: '🚪' },
   { key: 'no-track_fixed', name: 'Fixed Window Direct Glazing', tamilName: 'நிலையான ஜன்னல் (Direct Glazing)', category: 'fixed', icon: '🖼️' },
   { key: 'no-track_ventilator', name: 'Ventilator Frame', tamilName: 'வென்டிலேட்டர் (நேரடி அங்குலம் → MM)', category: 'ventilator', icon: '💨' }
 ];
@@ -190,6 +192,12 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
     if (activeTabKey === 'no-track_open') {
       return `H-${currentRule.heightDeductionMM} | W-${currentRule.widthDeductionMM} | Glass -${currentRule.mirrorHeightDeductionMM}`;
     }
+    if (activeTabKey === 'no-track_open_door_with_bottom') {
+      return `H-${currentRule.heightDeductionMM} | W-${currentRule.widthDeductionMM} | Glass -${currentRule.mirrorHeightDeductionMM} | 108mm Door (With Bottom)`;
+    }
+    if (activeTabKey === 'no-track_open_door_without_bottom') {
+      return `H-${currentRule.heightDeductionMM} | W-${currentRule.widthDeductionMM} | Glass -${currentRule.mirrorHeightDeductionMM} | 108mm Door (Without Bottom)`;
+    }
     if (activeTabKey === 'no-track_open_double') {
       return `H-${currentRule.heightDeductionMM} | W/2-${currentRule.widthDeductionMM} | Mullion H-${currentRule.mullionDeductionMM ?? (currentRule.mullionSashDeductionMM ?? 6)} | Glass -${currentRule.mirrorHeightDeductionMM}`;
     }
@@ -231,7 +239,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
 
   const getShutterWidthFormulaBadge = () => {
     if (!currentRule) return '';
-    if (activeTabKey === 'no-track_open') {
+    if (activeTabKey === 'no-track_open' || activeTabKey === 'no-track_open_door_with_bottom' || activeTabKey === 'no-track_open_door_without_bottom') {
       return 'Shutter W = W - ' + currentRule.widthDeductionMM;
     }
     if (activeTabKey === '2-track_sliding_85mm' || activeTabKey === '2-track_sliding_65mm' || activeTabKey === '2.5-track_sliding') {
@@ -256,6 +264,35 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
       return 'Shutter W = (W / 4) + ' + (currentRule.widthAdditionMM ?? 11);
     }
     return 'Shutter W = (W / 2) - ' + currentRule.widthDeductionMM;
+  };
+
+  const getProfileDepthDescription = () => {
+    if (activeTabKey.includes('open_door')) {
+      return t('ஹெவி 108 மிமீ ஓபன் டோர் ப்ரொஃபைல் (108mm Heavy Open Door Profile)', '108mm Heavy Open Door Profile');
+    }
+    if (activeTabKey.includes('85mm')) {
+      return t('ஹெவி 85 மிமீ டோர் ப்ரொஃபைல் (85mm Heavy Sliding Door Profile)', '85mm Heavy Sliding Door Profile');
+    }
+    if (activeTabKey.includes('65mm')) {
+      return t('ஸ்லைடிங் விண்டோ மெட்டீரியல் தடிமன் (Material 65mm)', 'Sliding window material profile thickness (65mm)');
+    }
+    return t('ஸ்லைடிங் விண்டோ மெட்டீரியல் தடிமன் (Material 58mm)', 'Sliding window material profile thickness (58mm)');
+  };
+
+  const getProfileDepthBadge = () => {
+    if (activeTabKey.includes('open_door')) {
+      return '108 mm Material (Door)';
+    }
+    if (activeTabKey.includes('85mm')) {
+      return '85 mm Material';
+    }
+    if (activeTabKey.includes('65mm')) {
+      return '65 mm Material';
+    }
+    if (['2-track_sliding', '2.5-track_sliding', '3-track_sliding', '4-track_sliding'].includes(activeTabKey)) {
+      return '58 mm Material';
+    }
+    return `${currentRule?.profileDepthMM ?? 58} mm Material`;
   };
 
 
@@ -430,7 +467,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                         +
                       </button>
                     </div>
-                    <span className="text-xs font-bold text-slate-400">) / 2 mm</span>
+                    <span className="text-xs font-bold text-slate-400">mm</span>
                   </div>
                 </div>
               )}
@@ -456,7 +493,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
 
                   <div className="flex items-center space-x-2 pt-1">
                     <span className="text-sm font-mono text-slate-300 font-bold">
-                      {activeTabKey === 'no-track_open'
+                      {activeTabKey === 'no-track_open' || activeTabKey === 'no-track_open_door_with_bottom' || activeTabKey === 'no-track_open_door_without_bottom'
                         ? 'W −'
                         : (activeTabKey === '2.5-track_sliding_85mm'
                           ? '(W +'
@@ -555,28 +592,20 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                 activeTabKey === '2.5-track_sliding' ||
                 activeTabKey === '3-track_sliding' ||
                 activeTabKey === '3-track_sliding_65mm' ||
-                activeTabKey === '4-track_sliding') && (
+                activeTabKey === '4-track_sliding' ||
+                activeTabKey === 'no-track_open_door_with_bottom' ||
+                activeTabKey === 'no-track_open_door_without_bottom') && (
                 <div className="bg-slate-950/60 rounded-xl p-3.5 border border-slate-800 flex items-center justify-between">
                   <div>
                     <label className="text-xs font-bold text-slate-200 block">
                       {t('மெட்டீரியல் விவரக்குறிப்பு (Material Profile Depth):', 'Material Profile Depth:')}
                     </label>
                     <span className="text-[11px] text-slate-400">
-                      {activeTabKey.includes('85mm')
-                        ? t('ஹெவி 85 மிமீ டோர் ப்ரொஃபைல் (85mm Heavy Sliding Door Profile)', '85mm Heavy Sliding Door Profile')
-                        : (activeTabKey.includes('65mm')
-                          ? t('ஸ்லைடிங் விண்டோ மெட்டீரியல் தடிமன் (Material 65mm)', 'Sliding window material profile thickness (65mm)')
-                          : t('ஸ்லைடிங் விண்டோ மெட்டீரியல் தடிமன் (Material 58mm)', 'Sliding window material profile thickness (58mm)'))}
+                      {getProfileDepthDescription()}
                     </span>
                   </div>
                   <span className="text-xs font-mono font-bold text-amber-400 bg-amber-950/50 px-2.5 py-1 rounded border border-amber-900">
-                    {activeTabKey.includes('85mm')
-                      ? '85 mm Material'
-                      : (activeTabKey.includes('65mm')
-                        ? '65 mm Material'
-                        : (activeTabKey === '2-track_sliding' || activeTabKey === '2.5-track_sliding' || activeTabKey === '3-track_sliding' || activeTabKey === '4-track_sliding'
-                          ? '58 mm Material'
-                          : `${currentRule.profileDepthMM ?? 58} mm Material`))}
+                    {getProfileDepthBadge()}
                   </span>
                 </div>
               )}

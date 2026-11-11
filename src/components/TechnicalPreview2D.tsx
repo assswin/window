@@ -723,7 +723,7 @@ export const WindowBlueprintSVG: React.FC<{
   const isOpen = input.windowType === 'open';
   const isFixed = input.windowType === 'fixed';
   const isVentilator = input.windowType === 'ventilator';
-  const isDoor = input.profileSeries === '85mm';
+  const isDoor = input.profileSeries === '85mm' || input.profileSeries === '108mm' || input.casementSubtype === 'door_with_bottom' || input.casementSubtype === 'door_without_bottom';
   const isMeshWindow = isSliding && (input.frameType === '2.5-track' || (additionalPanels && additionalPanels.length > 0));
 
   const casementSubtype = input.casementSubtype || 'single';

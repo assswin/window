@@ -326,8 +326,8 @@ export const getLSModelBgColor = (
   const cleanModel = modelName.replace(/^W\d+[a-z]?\s*[•\-]\s*/i, '').trim();
   const upper = cleanModel.toUpperCase();
 
-  // 0. Door variations ([SL/SL/DOOR], DOOR)
-  if (upper.includes('DOOR') || upper.includes('SL/SL/DOOR')) {
+  // 0. Door variations ([SL/SL/DOOR], [OP/DOOR], DOOR)
+  if (upper.includes('DOOR') || upper.includes('SL/SL/DOOR') || upper.includes('OP/DOOR')) {
     return LS_MODEL_BG_COLOR_MAP['2T SLIDING DOOR'];
   }
 
@@ -635,7 +635,13 @@ export const getLSModelName = (r: CalculationResult, customSuffix?: string): str
       base = 'SLIDING WINDOW';
     }
   } else if (windowType === 'open') {
-    if (casementSubtype === 'triple') {
+    if (r.input.profileSeries === '108mm' || casementSubtype === 'door_with_bottom' || casementSubtype === 'door_without_bottom') {
+      if (casementSubtype === 'door_without_bottom') {
+        base = 'SINGLE OPEN DOOR (WITHOUT BOTTOM)';
+      } else {
+        base = 'SINGLE OPEN DOOR (WITH BOTTOM)';
+      }
+    } else if (casementSubtype === 'triple') {
       base = '3-OPEN WINDOW';
     } else if (casementSubtype === 'double') {
       base = 'DOUBLE WINDOW';
@@ -671,6 +677,7 @@ export const getLSModelShortForm = (
 ): string => {
   if (typeof input === 'string') {
     const clean = input.replace(/^W\d+[a-z]?\s*[•\-]\s*/i, '').trim().toUpperCase();
+    if (clean.includes('OP/DOOR') || (clean.includes('OPEN') && clean.includes('DOOR')) || clean.includes('108MM')) return '[OP/DOOR]';
     if (clean.includes('SL/SL/DOOR/MESH') || clean.includes('SL/SL/MESH/DOOR') || (clean.includes('DOOR') && clean.includes('MESH'))) return '[SL/SL/DOOR/MESH]';
     if (clean.includes('SL/SL/SL/DOOR') || (clean.includes('DOOR') && (clean.includes('3T') || clean.includes('3 TRACK') || clean.includes('3-TRACK')))) return '[SL/SL/SL/DOOR]';
     if (clean.includes('DOOR') || clean.includes('SL/SL/DOOR') || clean.includes('85MM')) return '[SL/SL/DOOR]';
@@ -708,6 +715,9 @@ export const getLSModelShortForm = (
   }
 
   if (windowType === 'open') {
+    if (winInput.profileSeries === '108mm' || casementSubtype === 'door_with_bottom' || casementSubtype === 'door_without_bottom') {
+      return '[OP/DOOR]';
+    }
     if (casementSubtype === 'triple') return '[OP/OP/OP]';
     if (casementSubtype === 'double') return '[OP/OP]';
     return '[OP]';
@@ -864,11 +874,12 @@ export const prepareLSRows = (
       }
     }
 
-    // Material mm: 66 mm for 66mm sliding windows, 58 mm for other sliding windows, '-' for others
+    // Material mm: 85 mm for 85mm door, 66 mm for 66mm sliding, 58 mm for standard sliding, 108 mm for 108mm open door, '-' for others
     const isSliding = r.input.windowType === 'sliding';
     const is85mmSliding = isSliding && (r.input.profileSeries === '85mm' || r.frame.profileDepthMM === 85);
     const is66mmSliding = !is85mmSliding && isSliding && (r.input.profileSeries === '66mm' || r.input.profileSeries === '65mm' || r.frame.profileDepthMM === 66 || r.frame.profileDepthMM === 65);
-    const materialMM = is85mmSliding ? '85 mm' : (is66mmSliding ? '66 mm' : (isSliding ? '58 mm' : '-'));
+    const isOpenDoor = r.input.windowType === 'open' && (r.input.profileSeries === '108mm' || r.frame.profileDepthMM === 108 || r.input.casementSubtype === 'door_with_bottom' || r.input.casementSubtype === 'door_without_bottom');
+    const materialMM = is85mmSliding ? '85 mm' : (is66mmSliding ? '66 mm' : (isSliding ? '58 mm' : (isOpenDoor ? '108 mm' : '-')));
 
     const isFixed = r.input.windowType === 'fixed';
     const modelShortForm = getLSModelShortForm(r);

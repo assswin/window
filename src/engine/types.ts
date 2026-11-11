@@ -3,10 +3,11 @@
 export type FrameType = '2-track' | '2.5-track' | '3.5-track' | '3-track' | '4-track' | 'no-track';
 export type WindowType = 'sliding' | 'open' | 'fixed' | 'ventilator';
 export type UnitType = 'inch' | 'cm' | 'mm';
-export type UPVCSeries = '58mm' | '60mm' | '65mm' | '66mm' | '80mm' | '85mm' | '88mm';
+export type UPVCSeries = '58mm' | '60mm' | '65mm' | '66mm' | '80mm' | '85mm' | '88mm' | '108mm';
 export type GlassType = '5mm_single' | '6mm_toughened' | 'double_glazed';
 
-export type CasementSubtype = 'single' | 'double' | 'triple';
+export type CasementSubtype = 'single' | 'double' | 'triple' | 'door_with_bottom' | 'door_without_bottom';
+export type OpenDoorCategory = 'with_bottom' | 'without_bottom';
 export type VentilatorSubtype = 'normal' | 'fan';
 export type VentilatorFanSide = 'left' | 'right';
 
@@ -20,7 +21,8 @@ export interface WindowInput {
   mirrorInch?: number | null; // optional manual override
   frameType: FrameType;
   windowType: WindowType;
-  casementSubtype?: CasementSubtype; // 'single' (1-shutter), 'double' (2-shutter with mullion), or 'triple' (3-shutter with 2 mullions)
+  casementSubtype?: CasementSubtype; // 'single', 'double', 'triple', 'door_with_bottom', or 'door_without_bottom'
+  openDoorCategory?: OpenDoorCategory; // 'with_bottom' or 'without_bottom' for 108mm open door
   ventilatorSubtype?: VentilatorSubtype; // 'normal' (standard louver) or 'fan' (exhaust fan provision)
   ventilatorFanSide?: VentilatorFanSide; // 'left' or 'right' exhaust fan placement
   unit: UnitType;

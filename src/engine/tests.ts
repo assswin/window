@@ -3006,6 +3006,147 @@ export class GoldenTestSuite {
       }
     });
 
+    // 83. SINGLE OPEN DOOR (108MM MATERIAL): Dedicated Formulas (With Bottom: H-63, W-63; Without Bottom: H-38, W-63, Material 108mm, [OP/DOOR])
+    const openDoorWithBottomInput: WindowInput = {
+      widthInch: 48,
+      heightInch: 84,
+      windowType: 'open',
+      casementSubtype: 'door_with_bottom',
+      profileSeries: '108mm',
+      openDoorCategory: 'with_bottom',
+      frameType: 'no-track',
+      unit: 'inch'
+    };
+
+    const openDoorWithoutBottomInput: WindowInput = {
+      widthInch: 48,
+      heightInch: 84,
+      windowType: 'open',
+      casementSubtype: 'door_without_bottom',
+      profileSeries: '108mm',
+      openDoorCategory: 'without_bottom',
+      frameType: 'no-track',
+      unit: 'inch'
+    };
+
+    const resDoorWithBottom = WindowCalculationEngine.calculate(openDoorWithBottomInput);
+    const resDoorWithoutBottom = WindowCalculationEngine.calculate(openDoorWithoutBottomInput);
+
+    // Frame mm: 48" -> 1219 mm W, 84" -> 2134 mm H
+    // With bottom: H - 63 = 2134 - 63 = 2071 mm, W - 63 = 1219 - 63 = 1156 mm
+    // Without bottom: H - 38 = 2134 - 38 = 2096 mm, W - 63 = 1219 - 63 = 1156 mm
+    const doorWithBottomBatch = prepareLSRows([
+      { ...resDoorWithBottom, id: 'W1', input: { ...openDoorWithBottomInput, windowLabel: 'W1' } }
+    ]);
+    const doorWithoutBottomBatch = prepareLSRows([
+      { ...resDoorWithoutBottom, id: 'W2', input: { ...openDoorWithoutBottomInput, windowLabel: 'W2' } }
+    ]);
+
+    const rowDoorWB = doorWithBottomBatch[0];
+    const rowDoorWOB = doorWithoutBottomBatch[0];
+
+    const shortFormWB = getLSModelShortForm(resDoorWithBottom);
+    const shortFormWOB = getLSModelShortForm(resDoorWithoutBottom);
+    const modelNameWB = getLSModelName(resDoorWithBottom);
+    const modelNameWOB = getLSModelName(resDoorWithoutBottom);
+    const bgWB = getLSModelBgColor(modelNameWB);
+    const bgWOB = getLSModelBgColor(modelNameWOB);
+
+    const passTest83 =
+      resDoorWithBottom.frame.profileDepthMM === 108 &&
+      resDoorWithBottom.panel.heightMM === 2071 &&
+      resDoorWithBottom.panel.widthMM === 1156 &&
+      resDoorWithBottom.panel.count === 1 &&
+      resDoorWithoutBottom.frame.profileDepthMM === 108 &&
+      resDoorWithoutBottom.panel.heightMM === 2096 &&
+      resDoorWithoutBottom.panel.widthMM === 1156 &&
+      resDoorWithoutBottom.panel.count === 1 &&
+      shortFormWB === '[OP/DOOR]' &&
+      shortFormWOB === '[OP/DOOR]' &&
+      rowDoorWB.materialMM === '108 mm' &&
+      rowDoorWOB.materialMM === '108 mm' &&
+      rowDoorWB.sashPcs === '4' &&
+      rowDoorWOB.sashPcs === '4';
+
+    results.push({
+      name: 'Single Open Door (108mm Material): Dedicated Formulas (With Bottom: H-63, W-63; Without Bottom: H-38, W-63, Material 108mm, [OP/DOOR])',
+      category: 'Rule Combination',
+      passed: passTest83,
+      input: {
+        withBottom: '48" x 84" Open Door (With Bottom)',
+        withoutBottom: '48" x 84" Open Door (Without Bottom)'
+      },
+      expected: {
+        withBottomSash: '2071 x 1156 mm',
+        withoutBottomSash: '2096 x 1156 mm',
+        materialMM: '108 mm',
+        shortForm: '[OP/DOOR]',
+        sashPcs: '4'
+      },
+      actual: {
+        withBottomSash: `${resDoorWithBottom.panel.heightMM} x ${resDoorWithBottom.panel.widthMM} mm`,
+        withoutBottomSash: `${resDoorWithoutBottom.panel.heightMM} x ${resDoorWithoutBottom.panel.widthMM} mm`,
+        materialMM: `${rowDoorWB.materialMM} / ${rowDoorWOB.materialMM}`,
+        shortForm: `${shortFormWB} / ${shortFormWOB}`,
+        sashPcs: `${rowDoorWB.sashPcs} / ${rowDoorWOB.sashPcs}`
+      }
+    });
+
+    // 84. 108MM SINGLE OPEN DOOR FORMULA CUSTOMIZATION: Customizable via RulesEngineManager
+    const origWBRule = RulesEngineManager.getRule('no-track', 'open', 'door_with_bottom', '108mm');
+    const origWOBRule = RulesEngineManager.getRule('no-track', 'open', 'door_without_bottom', '108mm');
+
+    // Customize formulas: With bottom H-65, W-65; Without bottom H-40, W-60
+    RulesEngineManager.updateRule('no-track_open_door_with_bottom', {
+      heightDeductionMM: 65,
+      widthDeductionMM: 65
+    }, 'User');
+
+    RulesEngineManager.updateRule('no-track_open_door_without_bottom', {
+      heightDeductionMM: 40,
+      widthDeductionMM: 60
+    }, 'User');
+
+    const resDoorWBCustom = WindowCalculationEngine.calculate(openDoorWithBottomInput);
+    const resDoorWOBCustom = WindowCalculationEngine.calculate(openDoorWithoutBottomInput);
+
+    // Custom With Bottom: 2134 - 65 = 2069 mm H, 1219 - 65 = 1154 mm W
+    // Custom Without Bottom: 2134 - 40 = 2094 mm H, 1219 - 60 = 1159 mm W
+    const passTest84 =
+      resDoorWBCustom.panel.heightMM === 2069 &&
+      resDoorWBCustom.panel.widthMM === 1154 &&
+      resDoorWOBCustom.panel.heightMM === 2094 &&
+      resDoorWOBCustom.panel.widthMM === 1159;
+
+    // Restore original rules
+    RulesEngineManager.updateRule('no-track_open_door_with_bottom', {
+      heightDeductionMM: origWBRule.heightDeductionMM,
+      widthDeductionMM: origWBRule.widthDeductionMM
+    }, 'User');
+
+    RulesEngineManager.updateRule('no-track_open_door_without_bottom', {
+      heightDeductionMM: origWOBRule.heightDeductionMM,
+      widthDeductionMM: origWOBRule.widthDeductionMM
+    }, 'User');
+
+    results.push({
+      name: '108mm Single Open Door Formula Customization: Editable (With Bottom H-63, W-63 & Without Bottom H-38, W-63) recalculates dynamically',
+      category: 'Rule Combination',
+      passed: passTest84,
+      input: {
+        customWithBottom: 'H-65, W-65',
+        customWithoutBottom: 'H-40, W-60'
+      },
+      expected: {
+        customWithBottomSash: '2069 x 1154 mm',
+        customWithoutBottomSash: '2094 x 1159 mm'
+      },
+      actual: {
+        customWithBottomSash: `${resDoorWBCustom.panel.heightMM} x ${resDoorWBCustom.panel.widthMM} mm`,
+        customWithoutBottomSash: `${resDoorWOBCustom.panel.heightMM} x ${resDoorWOBCustom.panel.widthMM} mm`
+      }
+    });
+
     const passedCount = results.filter(r => r.passed).length;
     return {
       passedCount,

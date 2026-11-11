@@ -472,7 +472,34 @@ export class WindowCalculationEngine {
       widthFormulaStr = `Direct Outer Frame Deduction: W - ${fixedGlassDedW} = ${convertedWidthMM} - ${fixedGlassDedW} = ${panelWidthMM} mm`;
       shutterType = 'Direct Outer Frame Glazing (No Sash)';
     } else if (input.windowType === 'open') {
-      if (input.casementSubtype === 'triple') {
+      const isOpenDoorWithoutBottom = input.casementSubtype === 'door_without_bottom';
+      const isOpenDoorWithBottom = input.casementSubtype === 'door_with_bottom' || (input.profileSeries === '108mm' && !isOpenDoorWithoutBottom && input.casementSubtype !== 'double' && input.casementSubtype !== 'triple');
+
+      if (isOpenDoorWithoutBottom) {
+        // Single Open Door (Without Bottom: H-38, W-63, 108mm material)
+        const wDed = rule.widthDeductionMM ?? 63;
+        const hDed = rule.heightDeductionMM ?? 38;
+        panelHeightMM = Math.max(10, convertedHeightMM - hDed);
+        panelWidthMM = Math.max(10, convertedWidthMM - wDed);
+        panelCount = 1;
+        mirrorDeductionMM = rule.mirrorHeightDeductionMM ?? 124;
+        formulaDesc = `Single Open Door (Without Bottom): H-${hDed} | W-${wDed} | -${mirrorDeductionMM} Glass | 108mm`;
+        heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
+        widthFormulaStr = `W - ${wDed} = ${convertedWidthMM} - ${wDed} = ${panelWidthMM} mm`;
+        shutterType = 'uPVC Single Open Door Sash (Without Bottom)';
+      } else if (isOpenDoorWithBottom) {
+        // Single Open Door (With Bottom: H-63, W-63, 108mm material)
+        const wDed = rule.widthDeductionMM ?? 63;
+        const hDed = rule.heightDeductionMM ?? 63;
+        panelHeightMM = Math.max(10, convertedHeightMM - hDed);
+        panelWidthMM = Math.max(10, convertedWidthMM - wDed);
+        panelCount = 1;
+        mirrorDeductionMM = rule.mirrorHeightDeductionMM ?? 124;
+        formulaDesc = `Single Open Door (With Bottom): H-${hDed} | W-${wDed} | -${mirrorDeductionMM} Glass | 108mm`;
+        heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
+        widthFormulaStr = `W - ${wDed} = ${convertedWidthMM} - ${wDed} = ${panelWidthMM} mm`;
+        shutterType = 'uPVC Single Open Door Sash (With Bottom)';
+      } else if (input.casementSubtype === 'triple') {
         // 3-Open casement window (H-64, W/3-40, Glass -125, Mullion H-6)
         const wDed = rule.widthDeductionMM ?? 40;
         const hDed = rule.heightDeductionMM ?? 64;

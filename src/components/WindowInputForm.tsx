@@ -1186,27 +1186,117 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                   )}
                 </div>
               ) : activeWin.windowType === 'open' ? (
-                <div className="grid grid-cols-3 gap-1.5">
-                  {[
-                    { id: 'single' as CasementSubtype, label: t('தனி ஜன்னல் (Single)', 'Single Window'), desc: t('மைய முல்லியன் இல்லை', 'No Center Mullion') },
-                    { id: 'double' as CasementSubtype, label: t('இரட்டை ஜன்னல் (Double)', 'Double Window'), desc: t('1 முல்லியன் (Mullion)', '1 Center Mullion') },
-                    { id: 'triple' as CasementSubtype, label: t('3-திறக்கும் ஜன்னல் (3-Open)', '3-Open Window'), desc: t('2 முல்லியன் (2 Mullions)', '2 Mullion Dividers') }
-                  ].map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => updateWindow(activeWindowIndex, { casementSubtype: c.id })}
-                      className={
-                        'py-2 px-1 text-center rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation ' +
-                        (((activeWin.casementSubtype === c.id) || (!activeWin.casementSubtype && c.id === 'single'))
-                          ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
-                          : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
-                      }
-                    >
-                      <div className="leading-tight">{c.label}</div>
-                      <div className="text-[10px] opacity-75 font-normal mt-0.5">{c.desc}</div>
-                    </button>
-                  ))}
+                <div className="space-y-2">
+                  {/* Category Selection: Open Window (Single, Double, 3-Open) vs Open Door (108mm With/Without Bottom) */}
+                  <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-300">
+                        {t('மெட்டீரியல் வகை (Material Series):', 'Material Series (Thickness):')}
+                      </span>
+                      <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-900/60">
+                        {activeWin.profileSeries === '108mm' || activeWin.casementSubtype === 'door_with_bottom' || activeWin.casementSubtype === 'door_without_bottom'
+                          ? '108 mm Material (Door)'
+                          : 'Standard (Window)'}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updates: Partial<WindowInput> = {
+                            profileSeries: '60mm',
+                            casementSubtype: (activeWin.casementSubtype === 'door_with_bottom' || activeWin.casementSubtype === 'door_without_bottom') ? 'single' : (activeWin.casementSubtype || 'single')
+                          };
+                          updateWindow(activeWindowIndex, updates);
+                        }}
+                        className={
+                          'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
+                          (activeWin.profileSeries !== '108mm' && activeWin.casementSubtype !== 'door_with_bottom' && activeWin.casementSubtype !== 'door_without_bottom'
+                            ? 'bg-amber-600 border-amber-500 text-white shadow-sm'
+                            : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
+                        }
+                      >
+                        <div className="leading-tight text-[11px]">{t('ஜன்னல் (Window)', 'Window')}</div>
+                        <div className="text-[9px] opacity-80 font-normal">{t('1, 2, 3 சஷ்', 'Single/Double/3-Open')}</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updates: Partial<WindowInput> = {
+                            profileSeries: '108mm',
+                            casementSubtype: (activeWin.casementSubtype === 'door_without_bottom') ? 'door_without_bottom' : 'door_with_bottom'
+                          };
+                          updateWindow(activeWindowIndex, updates);
+                        }}
+                        className={
+                          'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
+                          (activeWin.profileSeries === '108mm' || activeWin.casementSubtype === 'door_with_bottom' || activeWin.casementSubtype === 'door_without_bottom'
+                            ? 'bg-amber-600 border-amber-500 text-white shadow-sm ring-1 ring-amber-400'
+                            : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
+                        }
+                      >
+                        <div className="leading-tight text-[11px]">108 mm</div>
+                        <div className="text-[9px] opacity-80 font-normal">{t('டோர் (Open Door)', 'Door (Open Door)')}</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Subtype buttons */}
+                  {(activeWin.profileSeries === '108mm' || activeWin.casementSubtype === 'door_with_bottom' || activeWin.casementSubtype === 'door_without_bottom') ? (
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        {
+                          id: 'door_with_bottom' as CasementSubtype,
+                          label: t('பாட்டம் உண்டு (With Bottom)', 'With Bottom'),
+                          desc: 'H-63 × W-63'
+                        },
+                        {
+                          id: 'door_without_bottom' as CasementSubtype,
+                          label: t('பாட்டம் இல்லை (Without Bottom)', 'Without Bottom'),
+                          desc: 'H-38 × W-63'
+                        }
+                      ].map((d) => (
+                        <button
+                          key={d.id}
+                          type="button"
+                          onClick={() => updateWindow(activeWindowIndex, { casementSubtype: d.id, profileSeries: '108mm' })}
+                          className={
+                            'py-2 px-1 text-center rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation ' +
+                            (activeWin.casementSubtype === d.id || (!activeWin.casementSubtype && d.id === 'door_with_bottom')
+                              ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
+                              : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
+                          }
+                        >
+                          <div className="leading-tight">{d.label}</div>
+                          <div className="text-[10px] font-mono opacity-80 mt-0.5">{d.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[
+                        { id: 'single' as CasementSubtype, label: t('தனி ஜன்னல் (Single)', 'Single Window'), desc: t('மைய முல்லியன் இல்லை', 'No Center Mullion') },
+                        { id: 'double' as CasementSubtype, label: t('இரட்டை ஜன்னல் (Double)', 'Double Window'), desc: t('1 முல்லியன் (Mullion)', '1 Center Mullion') },
+                        { id: 'triple' as CasementSubtype, label: t('3-திறக்கும் ஜன்னல் (3-Open)', '3-Open Window'), desc: t('2 முல்லியன் (2 Mullions)', '2 Mullion Dividers') }
+                      ].map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => updateWindow(activeWindowIndex, { casementSubtype: c.id, profileSeries: '60mm' })}
+                          className={
+                            'py-2 px-1 text-center rounded-lg text-xs font-bold border transition cursor-pointer active:scale-95 touch-manipulation ' +
+                            (((activeWin.casementSubtype === c.id) || (!activeWin.casementSubtype && c.id === 'single'))
+                              ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
+                              : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
+                          }
+                        >
+                          <div className="leading-tight">{c.label}</div>
+                          <div className="text-[10px] opacity-75 font-normal mt-0.5">{c.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ) : activeWin.windowType === 'ventilator' ? (
                 <div className="space-y-2">

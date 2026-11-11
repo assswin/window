@@ -94,13 +94,20 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
     if (input.windowType === 'fixed') {
       return `Direct OU-${activeRule.mirrorHeightDeductionMM} glass`;
     }
-    if (input.casementSubtype === 'triple') {
-      const mullionDed = activeRule.mullionDeductionMM ?? (activeRule.mullionSashDeductionMM ?? 6);
-      return `H-${activeRule.heightDeductionMM} | W/3-${activeRule.widthDeductionMM} | M: H-${mullionDed} | -${activeRule.mirrorHeightDeductionMM}`;
-    }
-    if (input.casementSubtype === 'double') {
-      const mullionDed = activeRule.mullionDeductionMM ?? (activeRule.mullionSashDeductionMM ?? 6);
-      return `H-${activeRule.heightDeductionMM} | W/2-${activeRule.widthDeductionMM} | M: H-${mullionDed} | -${activeRule.mirrorHeightDeductionMM}`;
+    if (input.windowType === 'open') {
+      if (input.profileSeries === '108mm' || input.casementSubtype === 'door_with_bottom' || input.casementSubtype === 'door_without_bottom') {
+        const bottomDesc = input.casementSubtype === 'door_without_bottom' ? 'Without Bottom' : 'With Bottom';
+        return `H-${activeRule.heightDeductionMM} | W-${activeRule.widthDeductionMM} | -${activeRule.mirrorHeightDeductionMM} glass | 108mm Door (${bottomDesc})`;
+      }
+      if (input.casementSubtype === 'triple') {
+        const mullionDed = activeRule.mullionDeductionMM ?? (activeRule.mullionSashDeductionMM ?? 6);
+        return `H-${activeRule.heightDeductionMM} | W/3-${activeRule.widthDeductionMM} | M: H-${mullionDed} | -${activeRule.mirrorHeightDeductionMM}`;
+      }
+      if (input.casementSubtype === 'double') {
+        const mullionDed = activeRule.mullionDeductionMM ?? (activeRule.mullionSashDeductionMM ?? 6);
+        return `H-${activeRule.heightDeductionMM} | W/2-${activeRule.widthDeductionMM} | M: H-${mullionDed} | -${activeRule.mirrorHeightDeductionMM}`;
+      }
+      return `H-${activeRule.heightDeductionMM} | W-${activeRule.widthDeductionMM} | -${activeRule.mirrorHeightDeductionMM}`;
     }
     return `H-${activeRule.heightDeductionMM} | W-${activeRule.widthDeductionMM} | -${activeRule.mirrorHeightDeductionMM}`;
   };
@@ -329,7 +336,12 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                     badgeColorClass = 'bg-rose-950/80 text-rose-300 border-rose-800/80 font-black';
                     badgeText = 'FIXED (NO TRACK)';
                   } else if (currentResult.input.windowType === 'open') {
-                    if (currentResult.input.casementSubtype === 'triple') {
+                    if (currentResult.input.profileSeries === '108mm' || currentResult.input.casementSubtype === 'door_with_bottom' || currentResult.input.casementSubtype === 'door_without_bottom') {
+                      badgeColorClass = 'bg-amber-950/80 text-amber-300 border-amber-800/80 font-black';
+                      badgeText = currentResult.input.casementSubtype === 'door_without_bottom'
+                        ? 'SINGLE OPEN DOOR (WITHOUT BOTTOM • 108MM)'
+                        : 'SINGLE OPEN DOOR (WITH BOTTOM • 108MM)';
+                    } else if (currentResult.input.casementSubtype === 'triple') {
                       badgeColorClass = 'bg-teal-950/80 text-teal-300 border-teal-800/80';
                       badgeText = '3-OPEN WINDOW';
                     } else if (currentResult.input.casementSubtype === 'double') {
