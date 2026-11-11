@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CalculationResult } from '../engine/types';
 import { RulesEngineManager } from '../engine/rules';
 import { useLanguage } from '../context/LanguageContext';
+import { getLSModelShortForm } from '../utils/lsInteriorsSheetCanvas';
 import {
   FileSpreadsheet,
   Copy,
@@ -257,9 +258,14 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                   className="p-3 hover:bg-slate-900/70 transition cursor-pointer space-y-2"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-heading font-bold text-white">
-                      {getResultLabel(r, idx)}
-                    </span>
+                    <div className="flex items-center space-x-1.5 flex-wrap">
+                      <span className="text-xs font-heading font-bold text-white">
+                        {getResultLabel(r, idx)}
+                      </span>
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-900 text-sky-400 border border-slate-800">
+                        {getLSModelShortForm(r)}
+                      </span>
+                    </div>
                     <span className="text-xs font-mono font-bold text-emerald-400">
                       {r.convertedHeightMM + ' × ' + r.convertedWidthMM + ' mm'}
                     </span>
@@ -448,7 +454,9 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="text-slate-300 text-xs block font-sans">{t('சஷ் உயரம் (Height):', 'Sash Height:')}</span>
                     <span className="text-[11px] text-emerald-400 font-mono">
-                      {`H - ${activeRule.heightDeductionMM}`}
+                      {input.windowType === 'open' && (input.profileSeries === '108mm' || input.casementSubtype === 'door_with_bottom' || input.casementSubtype === 'door_without_bottom')
+                        ? (input.casementSubtype === 'door_without_bottom' ? `H - ${activeRule.heightDeductionMM} (Without Bottom)` : `H - ${activeRule.heightDeductionMM} (With Bottom)`)
+                        : `H - ${activeRule.heightDeductionMM}`}
                     </span>
                   </div>
                   <span className="text-lg font-bold text-emerald-400 block mt-0.5">{panel.heightMM + ' mm'}</span>

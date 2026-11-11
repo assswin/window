@@ -3061,15 +3061,15 @@ export class GoldenTestSuite {
       resDoorWithoutBottom.panel.heightMM === 2096 &&
       resDoorWithoutBottom.panel.widthMM === 1156 &&
       resDoorWithoutBottom.panel.count === 1 &&
-      shortFormWB === '[OP/DOOR]' &&
-      shortFormWOB === '[OP/DOOR]' &&
+      shortFormWB === '[OP/DOOR (WITH BOTTOM)]' &&
+      shortFormWOB === '[OP/DOOR (WITHOUT BOTTOM)]' &&
       rowDoorWB.materialMM === '108 mm' &&
       rowDoorWOB.materialMM === '108 mm' &&
       rowDoorWB.sashPcs === '4' &&
       rowDoorWOB.sashPcs === '4';
 
     results.push({
-      name: 'Single Open Door (108mm Material): Dedicated Formulas (With Bottom: H-63, W-63; Without Bottom: H-38, W-63, Material 108mm, [OP/DOOR])',
+      name: 'Single Open Door (108mm Material): Dedicated Formulas (With Bottom: H-63, W-63; Without Bottom: H-38, W-63, Material 108mm, [OP/DOOR (WITH BOTTOM)] / [OP/DOOR (WITHOUT BOTTOM)])',
       category: 'Rule Combination',
       passed: passTest83,
       input: {
@@ -3080,7 +3080,7 @@ export class GoldenTestSuite {
         withBottomSash: '2071 x 1156 mm',
         withoutBottomSash: '2096 x 1156 mm',
         materialMM: '108 mm',
-        shortForm: '[OP/DOOR]',
+        shortForm: '[OP/DOOR (WITH BOTTOM)] / [OP/DOOR (WITHOUT BOTTOM)]',
         sashPcs: '4'
       },
       actual: {

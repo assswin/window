@@ -677,7 +677,12 @@ export const getLSModelShortForm = (
 ): string => {
   if (typeof input === 'string') {
     const clean = input.replace(/^W\d+[a-z]?\s*[•\-]\s*/i, '').trim().toUpperCase();
-    if (clean.includes('OP/DOOR') || (clean.includes('OPEN') && clean.includes('DOOR')) || clean.includes('108MM')) return '[OP/DOOR]';
+    if (clean.includes('OP/DOOR') || (clean.includes('OPEN') && clean.includes('DOOR')) || clean.includes('108MM')) {
+      if (clean.includes('WITHOUT') || clean.includes('NO BOTTOM') || clean.includes('W/O') || clean.includes('WOB')) {
+        return '[OP/DOOR (WITHOUT BOTTOM)]';
+      }
+      return '[OP/DOOR (WITH BOTTOM)]';
+    }
     if (clean.includes('SL/SL/DOOR/MESH') || clean.includes('SL/SL/MESH/DOOR') || (clean.includes('DOOR') && clean.includes('MESH'))) return '[SL/SL/DOOR/MESH]';
     if (clean.includes('SL/SL/SL/DOOR') || (clean.includes('DOOR') && (clean.includes('3T') || clean.includes('3 TRACK') || clean.includes('3-TRACK')))) return '[SL/SL/SL/DOOR]';
     if (clean.includes('DOOR') || clean.includes('SL/SL/DOOR') || clean.includes('85MM')) return '[SL/SL/DOOR]';
@@ -715,8 +720,11 @@ export const getLSModelShortForm = (
   }
 
   if (windowType === 'open') {
-    if (winInput.profileSeries === '108mm' || casementSubtype === 'door_with_bottom' || casementSubtype === 'door_without_bottom') {
-      return '[OP/DOOR]';
+    if (winInput.profileSeries === '108mm' || casementSubtype === 'door_with_bottom' || casementSubtype === 'door_without_bottom' || winInput.openDoorCategory) {
+      if (casementSubtype === 'door_without_bottom' || winInput.openDoorCategory === 'without_bottom') {
+        return '[OP/DOOR (WITHOUT BOTTOM)]';
+      }
+      return '[OP/DOOR (WITH BOTTOM)]';
     }
     if (casementSubtype === 'triple') return '[OP/OP/OP]';
     if (casementSubtype === 'double') return '[OP/OP]';
@@ -1461,17 +1469,44 @@ export const renderLSInteriorsVectorPage = (
               const modelColor = isDoor
                 ? ([2, 132, 199] as [number, number, number])
                 : cellTextColorPdf;
-              drawCellText(
-                cleanText(row.modelName),
-                centerX,
-                centerY,
-                7.2,
-                availableW,
-                modelColor,
-                'center',
-                undefined,
-                isFixed || isDoor
-              );
+              if (row.modelName.includes('OP/DOOR') && (row.modelName.includes('WITH BOTTOM') || row.modelName.includes('WITHOUT BOTTOM'))) {
+                const isWithout = row.modelName.includes('WITHOUT');
+                const subText = isWithout ? 'WITHOUT BOTTOM' : 'WITH BOTTOM';
+                drawCellText(
+                  '[OP/DOOR]',
+                  centerX,
+                  centerY - 1.8,
+                  7.2,
+                  availableW,
+                  modelColor,
+                  'center',
+                  undefined,
+                  true
+                );
+                drawCellText(
+                  subText,
+                  centerX,
+                  centerY + 2.0,
+                  5.6,
+                  availableW,
+                  [15, 23, 42],
+                  'center',
+                  undefined,
+                  true
+                );
+              } else {
+                drawCellText(
+                  cleanText(row.modelName),
+                  centerX,
+                  centerY,
+                  7.2,
+                  availableW,
+                  modelColor,
+                  'center',
+                  undefined,
+                  isFixed || isDoor
+                );
+              }
             }
             break;
           case 'materialMM':
@@ -2318,18 +2353,47 @@ export const generateLSInteriorsSheetCanvas = (
             if (rowData.modelName) {
               const isDoor = rowData.modelName.includes('DOOR');
               const modelColorCanvas = isDoor ? '#0284c7' : cellTextColorCanvas;
-              drawCanvasCellText(
-                rowData.modelName,
-                centerX,
-                centerY,
-                22,
-                '"Plus Jakarta Sans", Arial, sans-serif',
-                availableW,
-                modelColorCanvas,
-                'center',
-                undefined,
-                isFixed || isDoor
-              );
+              if (rowData.modelName.includes('OP/DOOR') && (rowData.modelName.includes('WITH BOTTOM') || rowData.modelName.includes('WITHOUT BOTTOM'))) {
+                const isWithout = rowData.modelName.includes('WITHOUT');
+                const subText = isWithout ? 'WITHOUT BOTTOM' : 'WITH BOTTOM';
+                drawCanvasCellText(
+                  '[OP/DOOR]',
+                  centerX,
+                  centerY - 10,
+                  20,
+                  '"Plus Jakarta Sans", Arial, sans-serif',
+                  availableW,
+                  modelColorCanvas,
+                  'center',
+                  undefined,
+                  true
+                );
+                drawCanvasCellText(
+                  subText,
+                  centerX,
+                  centerY + 11,
+                  14,
+                  '"Plus Jakarta Sans", Arial, sans-serif',
+                  availableW,
+                  '#0f172a',
+                  'center',
+                  undefined,
+                  true
+                );
+              } else {
+                drawCanvasCellText(
+                  rowData.modelName,
+                  centerX,
+                  centerY,
+                  22,
+                  '"Plus Jakarta Sans", Arial, sans-serif',
+                  availableW,
+                  modelColorCanvas,
+                  'center',
+                  undefined,
+                  isFixed || isDoor
+                );
+              }
             }
             break;
           case 'materialMM':
