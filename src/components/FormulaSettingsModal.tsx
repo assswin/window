@@ -24,13 +24,13 @@ const STORAGE_KEY_LAST_USED_TAB = 'windowbuilder_last_used_formula_tab';
 
 const WINDOW_CONFIG_LIST: WindowConfigOption[] = [
   { key: '2-track_sliding', name: '2 Track Sliding (58mm)', tamilName: '2 டிராக் ஸ்லைடிங் (58mm)', category: 'sliding', icon: '🪟' },
-  { key: '2-track_sliding_65mm', name: '2 Track Sliding (65mm)', tamilName: '2 டிராக் ஸ்லைடிங் (65mm)', category: 'sliding', icon: '🪟' },
+  { key: '2-track_sliding_65mm', name: '2 Track Sliding (66mm)', tamilName: '2 டிராக் ஸ்லைடிங் (66mm)', category: 'sliding', icon: '🪟' },
   { key: '2-track_sliding_85mm', name: '2 Track Door (85mm)', tamilName: '2 டிராக் டோர் (85mm Door)', category: 'sliding', icon: '🚪' },
   { key: '2.5-track_sliding_85mm', name: '2.5 Track Door (85mm)', tamilName: '2.5 டிராக் டோர் (85mm Door Mesh)', category: 'sliding', icon: '🚪' },
   { key: '3-track_sliding_85mm', name: '3 Track Door (85mm)', tamilName: '3 டிராக் டோர் (85mm Door)', category: 'sliding', icon: '🚪' },
   { key: '2.5-track_sliding', name: '2.5 Track Sliding (Mesh)', tamilName: '2.5 டிராக் கொசுவலை', category: 'sliding', icon: '🦟' },
   { key: '3-track_sliding', name: '3 Track Sliding (58mm)', tamilName: '3 டிராக் ஸ்லைடிங் (58mm)', category: 'sliding', icon: '🪟' },
-  { key: '3-track_sliding_65mm', name: '3 Track Sliding (65mm)', tamilName: '3 டிராக் ஸ்லைடிங் (65mm)', category: 'sliding', icon: '🪟' },
+  { key: '3-track_sliding_65mm', name: '3 Track Sliding (66mm)', tamilName: '3 டிராக் ஸ்லைடிங் (66mm)', category: 'sliding', icon: '🪟' },
   { key: '4-track_sliding', name: '4 Track Sliding', tamilName: '4 டிராக் ஸ்லைடிங்', category: 'sliding', icon: '🪟' },
   { key: 'no-track_open', name: 'Single Window', tamilName: 'தனி திறக்கும் ஜன்னல் (1 Shutter)', category: 'open', icon: '🚪' },
   { key: 'no-track_open_double', name: 'Double Window', tamilName: 'இரட்டை திறக்கும் ஜன்னல் (2 Shutter + Mullion)', category: 'open', icon: '🚪' },
@@ -170,7 +170,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
       return `H-${currentRule.heightDeductionMM} | (W+${wAdd})/3 | Glass -${currentRule.mirrorHeightDeductionMM} | 85mm Door`;
     }
     if (activeTabKey === '2-track_sliding_65mm') {
-      return `H-${currentRule.heightDeductionMM} | (W-${currentRule.widthDeductionMM})/2 | Glass -${currentRule.mirrorHeightDeductionMM} | 65mm`;
+      return `H-${currentRule.heightDeductionMM} | (W-${currentRule.widthDeductionMM})/2 | Glass -${currentRule.mirrorHeightDeductionMM} | 66mm`;
     }
     if (activeTabKey === '2.5-track_sliding') {
       return `H-${currentRule.heightDeductionMM} | (W-${currentRule.widthDeductionMM})/2 | Mesh H-${currentRule.meshHeightDeductionMM ?? 10} | Mesh (W-${currentRule.meshWidthDeductionMM ?? 10})/2 | Glass -${currentRule.mirrorHeightDeductionMM} | 58mm`;
@@ -181,7 +181,7 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
     }
     if (activeTabKey === '3-track_sliding_65mm') {
       const wAdd = currentRule.widthAdditionMM ?? 48;
-      return `H-${currentRule.heightDeductionMM} | (W+${wAdd})/3 | Glass -${currentRule.mirrorHeightDeductionMM} | 65mm`;
+      return `H-${currentRule.heightDeductionMM} | (W+${wAdd})/3 | Glass -${currentRule.mirrorHeightDeductionMM} | 66mm`;
     }
     if (activeTabKey === '4-track_sliding') {
       const wAdd = currentRule.widthAdditionMM ?? 11;

@@ -1132,7 +1132,7 @@ export class GoldenTestSuite {
       }
     });
 
-    // 46. PDF & CANVAS WINDOW MODEL UNIQUE COLORS (SLIDING ORANGE SPECIFICATION)
+    // 46. PDF & CANVAS WINDOW MODEL UNIQUE COLORS (BLUE THEME SPECIFICATION)
     const color2T = getLSModelColor('2T SLIDING');
     const color2_5T = getLSModelColor('2.5T SLIDING (MESH)');
     const color3T = getLSModelColor('3T SLIDING');
@@ -1144,18 +1144,18 @@ export class GoldenTestSuite {
     const colorVentFanRight = getLSModelColor('ventilator with fans Right');
 
     const passUniqueColors =
-      color2T.canvas === '#ea580c' &&
-      color2_5T.canvas === '#ea580c' &&
-      color3T.canvas === '#d97706' &&
-      colorFixed.canvas === '#b91c1c' &&
-      colorSingleCasement.canvas === '#047857' &&
-      colorDoubleCasement.canvas === '#0f766e' &&
-      colorVentNormal.canvas === '#1d4ed8' &&
-      colorVentFanLeft.canvas === '#4f46e5' &&
-      colorVentFanRight.canvas === '#be185d';
+      color2T.canvas === '#0284c7' &&
+      color2_5T.canvas === '#0284c7' &&
+      color3T.canvas === '#0369a1' &&
+      colorFixed.canvas === '#075985' &&
+      colorSingleCasement.canvas === '#0369a1' &&
+      colorDoubleCasement.canvas === '#0c4a6e' &&
+      colorVentNormal.canvas === '#0284c7' &&
+      colorVentFanLeft.canvas === '#0369a1' &&
+      colorVentFanRight.canvas === '#075985';
 
     results.push({
-      name: 'PDF & Canvas Window Model Unique Colors: Sliding windows assigned Orange (#ea580c), Fixed Red, Casement Green, Ventilator Blue',
+      name: 'PDF & Canvas Window Model Unique Colors: Sliding windows assigned Deep Sky Blue (#0284c7), Fixed Navy, Casement Blue, Ventilator Sky Blue',
       category: 'Rule Combination',
       passed: passUniqueColors,
       input: {
@@ -1172,11 +1172,11 @@ export class GoldenTestSuite {
         ]
       },
       expected: {
-        color2T: 'Vibrant Orange',
-        color2_5T: 'Vibrant Orange',
-        colorFixed: 'Crimson Red',
-        colorSingleCasement: 'Forest Emerald',
-        colorVentNormal: 'Royal Blue'
+        color2T: 'Deep Sky Blue',
+        color2_5T: 'Deep Sky Blue',
+        colorFixed: 'Navy Blue',
+        colorSingleCasement: 'Blue',
+        colorVentNormal: 'Deep Sky Blue'
       },
       actual: {
         color2T: color2T.name,
@@ -1205,21 +1205,21 @@ export class GoldenTestSuite {
     };
     const slidingRowColor = getLSModelColor(row2_5TSliding);
     const passRowUniformColor =
-      slidingRowColor.canvas === '#ea580c' &&
-      slidingRowColor.pdf[0] === 234 &&
-      slidingRowColor.pdf[1] === 88 &&
-      slidingRowColor.pdf[2] === 12;
+      slidingRowColor.canvas === '#0284c7' &&
+      slidingRowColor.pdf[0] === 2 &&
+      slidingRowColor.pdf[1] === 132 &&
+      slidingRowColor.pdf[2] === 199;
 
     results.push({
-      name: 'Row-Level Color Uniformity: 2.5T Sliding row (both input value, output value, mirror value, mesh value) colored uniformly in Orange',
+      name: 'Row-Level Color Uniformity: 2.5T Sliding row (both input value, output value, mirror value, mesh value) colored uniformly in Blue',
       category: 'Handwritten Golden Case',
       passed: passRowUniformColor,
       input: row2_5TSliding,
-      expected: { canvas: '#ea580c', pdf: [234, 88, 12] },
+      expected: { canvas: '#0284c7', pdf: [2, 132, 199] },
       actual: { canvas: slidingRowColor.canvas, pdf: slidingRowColor.pdf }
     });
 
-    // 48. UNIQUE WINDOW MODEL ROW BACKGROUND COLORS (TRACK ORANGE, SINGLE GREEN, DOUBLE TEAL, FIXED ROSE)
+    // 48. UNIQUE WINDOW MODEL ROW BACKGROUND COLORS (TRACK LIGHT BLUE, ICE BLUE)
     const bg2T = getLSModelBgColor('2T SLIDING');
     const bg2_5T = getLSModelBgColor('2.5T SLIDING (MESH)');
     const bg3T = getLSModelBgColor('3T SLIDING');
@@ -1229,34 +1229,34 @@ export class GoldenTestSuite {
     const bgVentNormal = getLSModelBgColor('ventilator/normal');
 
     const passBgColors =
-      bg2T.canvas === '#fed7aa' &&
-      bg2_5T.canvas === '#fed7aa' &&
-      bg3T.canvas === '#fed7aa' &&
-      bgSingleCasement.canvas === '#bbf7d0' &&
-      bgDoubleCasement.canvas === '#99f6e4' &&
-      bgFixed.canvas === '#fecdd3' &&
-      bgVentNormal.canvas === '#bfdbfe';
+      bg2T.canvas === '#f0f9ff' &&
+      bg2_5T.canvas === '#f0f9ff' &&
+      bg3T.canvas === '#f0f9ff' &&
+      bgSingleCasement.canvas === '#f0f9ff' &&
+      bgDoubleCasement.canvas === '#e0f2fe' &&
+      bgFixed.canvas === '#e0f2fe' &&
+      bgVentNormal.canvas === '#e0f2fe';
 
     results.push({
-      name: 'Window Model Unique Row Background Colors: Track Orange (#fed7aa), Single Green (#bbf7d0), Double Teal (#99f6e4), Fixed Rose (#fecdd3), Ventilator Blue (#bfdbfe)',
+      name: 'Window Model Unique Row Background Colors: Track Light Blue (#f0f9ff), Double Ice Blue (#e0f2fe), Fixed Ice Blue (#e0f2fe), Ventilator Ice Blue (#e0f2fe)',
       category: 'Rule Combination',
       passed: passBgColors,
       input: {
         models: ['2T SLIDING', '2.5T SLIDING (MESH)', '3T SLIDING', 'SINGLE CASEMENT', 'DOUBLE CASEMENT', 'FIXED WINDOW', 'ventilator/normal']
       },
       expected: {
-        trackOrange: '#fed7aa',
-        singleGreen: '#bbf7d0',
-        doubleTeal: '#99f6e4',
-        fixedRose: '#fecdd3',
-        ventilatorBlue: '#bfdbfe'
+        trackBlue: '#f0f9ff',
+        singleBlue: '#f0f9ff',
+        doubleIceBlue: '#e0f2fe',
+        fixedIceBlue: '#e0f2fe',
+        ventilatorIceBlue: '#e0f2fe'
       },
       actual: {
-        trackOrange: bg2T.canvas,
-        singleGreen: bgSingleCasement.canvas,
-        doubleTeal: bgDoubleCasement.canvas,
-        fixedRose: bgFixed.canvas,
-        ventilatorBlue: bgVentNormal.canvas
+        trackBlue: bg2T.canvas,
+        singleBlue: bgSingleCasement.canvas,
+        doubleIceBlue: bgDoubleCasement.canvas,
+        fixedIceBlue: bgFixed.canvas,
+        ventilatorIceBlue: bgVentNormal.canvas
       }
     });
 
@@ -1268,18 +1268,18 @@ export class GoldenTestSuite {
       darkInkColor.pdf[0] === 15 &&
       darkInkColor.pdf[1] === 23 &&
       darkInkColor.pdf[2] === 42 &&
-      bg2T.canvas === '#fed7aa';
+      bg2T.canvas === '#f0f9ff';
 
     results.push({
       name: 'No Font Color Rule & Cell Row Background Fill: Font uses crisp neutral dark ink (#0f172a / [15, 23, 42]) while cell rows are filled with model background color',
       category: 'Handwritten Golden Case',
       passed: passNoFontColorRule,
       input: { textFont: 'dark ink', bgFill: 'model background tint' },
-      expected: { textCanvas: '#0f172a', textPdf: [15, 23, 42], trackRowBg: '#fed7aa' },
+      expected: { textCanvas: '#0f172a', textPdf: [15, 23, 42], trackRowBg: '#f0f9ff' },
       actual: { textCanvas: darkInkColor.canvas, textPdf: darkInkColor.pdf, trackRowBg: bg2T.canvas }
     });
 
-    // 50. SPECIFIC TYPE VERIFICATION: TRACK UNIQUE, SINGLE UNIQUE, DOUBLE UNIQUE, VENTILATOR FAN LEFT & FAN RIGHT UNIQUE
+    // 50. SPECIFIC TYPE VERIFICATION: TRACK LIGHT BLUE, ICE BLUE TINTS
     const bgTrack = getLSModelBgColor('track');
     const bgSingle = getLSModelBgColor('single');
     const bgDouble = getLSModelBgColor('double');
@@ -1287,36 +1287,32 @@ export class GoldenTestSuite {
     const bgVentFanRight = getLSModelBgColor('ventilator with fan right');
 
     const passUniqueModelTypes =
-      bgTrack.canvas === '#fed7aa' &&
-      bgSingle.canvas === '#bbf7d0' &&
-      bgDouble.canvas === '#99f6e4' &&
-      bgVentFanLeft.canvas === '#c7d2fe' &&
-      bgVentFanRight.canvas === '#fbcfe8' &&
-      // Assert every color is distinct from each other
-      new Set([bgTrack.canvas, bgSingle.canvas, bgDouble.canvas, bgVentFanLeft.canvas, bgVentFanRight.canvas]).size === 5;
+      bgTrack.canvas === '#f0f9ff' &&
+      bgSingle.canvas === '#f0f9ff' &&
+      bgDouble.canvas === '#e0f2fe' &&
+      bgVentFanLeft.canvas === '#f0f9ff' &&
+      bgVentFanRight.canvas === '#e0f2fe';
 
     results.push({
-      name: 'Specific Window Type Colors: Track (#fed7aa), Single (#bbf7d0), Double (#99f6e4), Ventilator Fan Left (#c7d2fe), Ventilator Fan Right (#fbcfe8) - 100% Unique',
+      name: 'Specific Window Type Colors: Track Light Blue (#f0f9ff) & Ice Blue (#e0f2fe) Blue Theme verified',
       category: 'Rule Combination',
       passed: passUniqueModelTypes,
       input: {
         models: ['track', 'single', 'double', 'ventilator with fan left', 'ventilator with fan right']
       },
       expected: {
-        track: '#fed7aa',
-        single: '#bbf7d0',
-        double: '#99f6e4',
-        ventFanLeft: '#c7d2fe',
-        ventFanRight: '#fbcfe8',
-        allUnique: true
+        track: '#f0f9ff',
+        single: '#f0f9ff',
+        double: '#e0f2fe',
+        ventFanLeft: '#f0f9ff',
+        ventFanRight: '#e0f2fe'
       },
       actual: {
         track: bgTrack.canvas,
         single: bgSingle.canvas,
         double: bgDouble.canvas,
         ventFanLeft: bgVentFanLeft.canvas,
-        ventFanRight: bgVentFanRight.canvas,
-        allUnique: new Set([bgTrack.canvas, bgSingle.canvas, bgDouble.canvas, bgVentFanLeft.canvas, bgVentFanRight.canvas]).size === 5
+        ventFanRight: bgVentFanRight.canvas
       }
     });
 
@@ -1346,8 +1342,8 @@ export class GoldenTestSuite {
       modelNameDouble === 'DOUBLE WINDOW' &&
       !modelNameSingle.includes('CASEMENT') &&
       !modelNameDouble.includes('CASEMENT') &&
-      getLSModelBgColor(modelNameSingle).canvas === '#bbf7d0' &&
-      getLSModelBgColor(modelNameDouble).canvas === '#99f6e4';
+      getLSModelBgColor(modelNameSingle).canvas === '#f0f9ff' &&
+      getLSModelBgColor(modelNameDouble).canvas === '#e0f2fe';
 
     results.push({
       name: 'PDF Order Sheet Model Names: "SINGLE WINDOW" and "DOUBLE WINDOW" (Casement terminology removed)',
@@ -1361,8 +1357,8 @@ export class GoldenTestSuite {
         singleModelName: 'SINGLE WINDOW',
         doubleModelName: 'DOUBLE WINDOW',
         hasCasement: false,
-        singleBg: '#bbf7d0',
-        doubleBg: '#99f6e4'
+        singleBg: '#f0f9ff',
+        doubleBg: '#e0f2fe'
       },
       actual: {
         singleModelName: modelNameSingle,
@@ -2187,15 +2183,15 @@ export class GoldenTestSuite {
       }
     });
 
-    // 67. 65MM 2-TRACK SLIDING WINDOW (H-94, (W-22)/2, Glass -112, Material 65mm)
+    // 67. 66MM 2-TRACK SLIDING WINDOW (H-94, (W-22)/2, Glass -112, Material 66mm)
     const t2Input65: WindowInput = {
-      windowLabel: '2T 65mm Sliding',
+      windowLabel: '2T 66mm Sliding',
       unit: 'inch',
       widthInch: 48,
       heightInch: 60,
       windowType: 'sliding',
       frameType: '2-track',
-      profileSeries: '65mm',
+      profileSeries: '66mm',
       quantity: 1
     };
     const res2T65 = WindowCalculationEngine.calculate(t2Input65);
@@ -2207,7 +2203,7 @@ export class GoldenTestSuite {
     // Interlock: 1430 - 5 = 1425 mm
     // Glass: 1430 - 112 = 1318 mm (H), 599 - 112 = 487 mm (W), 2 Pcs
     const passTest67 =
-      res2T65.frame.profileDepthMM === 65 &&
+      res2T65.frame.profileDepthMM === 66 &&
       res2T65.panel.heightMM === 1430 &&
       res2T65.panel.widthMM === 599 &&
       res2T65.panel.count === 2 &&
@@ -2216,22 +2212,22 @@ export class GoldenTestSuite {
       res2T65.mirror.widthMM === 487 &&
       res2T65.mirror.count === 2 &&
       row2T65.modelName === '[SL/SL]' &&
-      row2T65.materialMM === '65 mm' &&
+      row2T65.materialMM === '66 mm' &&
       row2T65.sashPcs === '8' &&
       row2T65.interlockMM === '1425 mm';
 
     results.push({
-      name: '65mm 2-Track Sliding Window: Dedicated Formula (H-94, (W-22)/2, Glass -112, Material 65mm, Interlock Sash H-5)',
+      name: '66mm 2-Track Sliding Window: Dedicated Formula (H-94, (W-22)/2, Glass -112, Material 66mm, Interlock Sash H-5)',
       category: 'Rule Combination',
       passed: passTest67,
-      input: { dimensions: '48" x 60"', series: '65mm', frameType: '2-track' },
+      input: { dimensions: '48" x 60"', series: '66mm', frameType: '2-track' },
       expected: {
-        material: 65,
+        material: 66,
         sash: '1430 x 599 mm (2 Pcs)',
         interlock: '1425 mm',
         glass: '1318 x 487 mm (2 Pcs)',
         model: '[SL/SL]',
-        materialMM: '65 mm',
+        materialMM: '66 mm',
         sashPcs: '8'
       },
       actual: {
@@ -2245,15 +2241,15 @@ export class GoldenTestSuite {
       }
     });
 
-    // 68. 65MM 3-TRACK SLIDING WINDOW (H-88, (W+48)/3, Glass -112, Material 65mm)
+    // 68. 66MM 3-TRACK SLIDING WINDOW (H-88, (W+48)/3, Glass -112, Material 66mm)
     const t3Input65: WindowInput = {
-      windowLabel: '3T 65mm Sliding',
+      windowLabel: '3T 66mm Sliding',
       unit: 'inch',
       widthInch: 72,
       heightInch: 60,
       windowType: 'sliding',
       frameType: '3-track',
-      profileSeries: '65mm',
+      profileSeries: '66mm',
       quantity: 1
     };
     const res3T65 = WindowCalculationEngine.calculate(t3Input65);
@@ -2265,7 +2261,7 @@ export class GoldenTestSuite {
     // Interlock: 1436 - 5 = 1431 mm
     // Glass: 1436 - 112 = 1324 mm (H), 626 - 112 = 514 mm (W), 3 Pcs
     const passTest68 =
-      res3T65.frame.profileDepthMM === 65 &&
+      res3T65.frame.profileDepthMM === 66 &&
       res3T65.panel.heightMM === 1436 &&
       res3T65.panel.widthMM === 626 &&
       res3T65.panel.count === 3 &&
@@ -2274,22 +2270,22 @@ export class GoldenTestSuite {
       res3T65.mirror.widthMM === 514 &&
       res3T65.mirror.count === 3 &&
       row3T65.modelName === '[SL/SL/SL]' &&
-      row3T65.materialMM === '65 mm' &&
+      row3T65.materialMM === '66 mm' &&
       row3T65.sashPcs === '12' &&
       row3T65.interlockMM === '1431 mm';
 
     results.push({
-      name: '65mm 3-Track Sliding Window: Dedicated Formula (H-88, (W+48)/3, Glass -112, Material 65mm, Interlock Sash H-5)',
+      name: '66mm 3-Track Sliding Window: Dedicated Formula (H-88, (W+48)/3, Glass -112, Material 66mm, Interlock Sash H-5)',
       category: 'Rule Combination',
       passed: passTest68,
-      input: { dimensions: '72" x 60"', series: '65mm', frameType: '3-track' },
+      input: { dimensions: '72" x 60"', series: '66mm', frameType: '3-track' },
       expected: {
-        material: 65,
+        material: 66,
         sash: '1436 x 626 mm (3 Pcs)',
         interlock: '1431 mm',
         glass: '1324 x 514 mm (3 Pcs)',
         model: '[SL/SL/SL]',
-        materialMM: '65 mm',
+        materialMM: '66 mm',
         sashPcs: '12'
       },
       actual: {
@@ -2303,11 +2299,11 @@ export class GoldenTestSuite {
       }
     });
 
-    // 69. 65MM FORMULA CUSTOMIZATION: Customizable via RulesEngineManager
-    const orig65Rule2T = RulesEngineManager.getRule('2-track', 'sliding', undefined, '65mm');
-    const orig65Rule3T = RulesEngineManager.getRule('3-track', 'sliding', undefined, '65mm');
+    // 69. 66MM FORMULA CUSTOMIZATION: Customizable via RulesEngineManager
+    const orig65Rule2T = RulesEngineManager.getRule('2-track', 'sliding', undefined, '66mm');
+    const orig65Rule3T = RulesEngineManager.getRule('3-track', 'sliding', undefined, '66mm');
 
-    // Customize 2T 65mm: H-90, W-26/2, Glass-110
+    // Customize 2T 66mm: H-90, W-26/2, Glass-110
     RulesEngineManager.updateRule('2-track_sliding_65mm', {
       heightDeductionMM: 90,
       widthDeductionMM: 26,
@@ -2315,7 +2311,7 @@ export class GoldenTestSuite {
       mirrorWidthDeductionMM: 110
     }, 'User');
 
-    // Customize 3T 65mm: H-86, W+51/3, Glass-115
+    // Customize 3T 66mm: H-86, W+51/3, Glass-115
     RulesEngineManager.updateRule('3-track_sliding_65mm', {
       heightDeductionMM: 86,
       widthAdditionMM: 51,
@@ -2352,7 +2348,7 @@ export class GoldenTestSuite {
     }, 'User');
 
     results.push({
-      name: '65mm Formula Customization: Both 2T (H-94, W-22/2) & 3T (H-88, W+48/3) fully customizable and recalculate dynamically',
+      name: '66mm Formula Customization: Both 2T (H-94, W-22/2) & 3T (H-88, W+48/3) fully customizable and recalculate dynamically',
       category: 'Rule Combination',
       passed: passTest69,
       input: { custom2T: 'H-90, W-26/2, Glass-110', custom3T: 'H-86, W+51/3, Glass-115' },
@@ -2366,7 +2362,7 @@ export class GoldenTestSuite {
       }
     });
 
-    // 70. MIXED BATCH OUTPUT PDF ORDER SHEET: 58mm vs 65mm Material mm Sub-Column Integrity
+    // 70. MIXED BATCH OUTPUT PDF ORDER SHEET: 58mm vs 66mm Material mm Sub-Column Integrity
     const res2T58 = WindowCalculationEngine.calculate({ unit: 'inch', widthInch: 48, heightInch: 60, windowType: 'sliding', frameType: '2-track', profileSeries: '58mm' });
     const res3T58 = WindowCalculationEngine.calculate({ unit: 'inch', widthInch: 72, heightInch: 60, windowType: 'sliding', frameType: '3-track', profileSeries: '58mm' });
     const resOpenSingle70 = WindowCalculationEngine.calculate({ unit: 'inch', widthInch: 30, heightInch: 40, windowType: 'open', frameType: 'no-track', casementSubtype: 'single' });
@@ -2374,21 +2370,21 @@ export class GoldenTestSuite {
     const mixedRows = prepareLSRows([res2T58, res2T65, res3T58, res3T65, resOpenSingle70]);
     const passTest70 =
       mixedRows[0].materialMM === '58 mm' && mixedRows[0].modelName === '[SL/SL]' &&
-      mixedRows[1].materialMM === '65 mm' && mixedRows[1].modelName === '[SL/SL]' &&
+      mixedRows[1].materialMM === '66 mm' && mixedRows[1].modelName === '[SL/SL]' &&
       mixedRows[2].materialMM === '58 mm' && mixedRows[2].modelName === '[SL/SL/SL]' &&
-      mixedRows[3].materialMM === '65 mm' && mixedRows[3].modelName === '[SL/SL/SL]' &&
+      mixedRows[3].materialMM === '66 mm' && mixedRows[3].modelName === '[SL/SL/SL]' &&
       mixedRows[4].materialMM === '-' && mixedRows[4].modelName === '[OP]';
 
     results.push({
-      name: 'Mixed Batch PDF Order Sheet: Displays "58 mm" for standard sliding, "65 mm" for 65mm sliding, and "-" for non-sliding windows',
+      name: 'Mixed Batch PDF Order Sheet: Displays "58 mm" for standard sliding, "66 mm" for 66mm sliding, and "-" for non-sliding windows',
       category: 'Rule Combination',
       passed: passTest70,
       input: { batchCount: mixedRows.length },
       expected: {
         r0: { material: '58 mm', model: '[SL/SL]' },
-        r1: { material: '65 mm', model: '[SL/SL]' },
+        r1: { material: '66 mm', model: '[SL/SL]' },
         r2: { material: '58 mm', model: '[SL/SL/SL]' },
-        r3: { material: '65 mm', model: '[SL/SL/SL]' },
+        r3: { material: '66 mm', model: '[SL/SL/SL]' },
         r4: { material: '-', model: '[OP]' }
       },
       actual: {
@@ -2436,7 +2432,7 @@ export class GoldenTestSuite {
       rowDoor85.sashHPcs === '4' &&
       rowDoor85.sashWPcs === '4' &&
       rowDoor85.interlockMM === '2035 mm' &&
-      doorBg.canvas === '#fef08a';
+      doorBg.canvas === '#e0f2fe';
 
     results.push({
       name: '85mm 2-Track Sliding Door: Dedicated Formula (H-94, (W-2)/2, Glass -152, Material 85mm, [SL/SL/DOOR] Unique Color)',
@@ -2453,7 +2449,7 @@ export class GoldenTestSuite {
         sashPcs: '8',
         sashHPcs: '4',
         sashWPcs: '4',
-        bg: '#fef08a'
+        bg: '#e0f2fe'
       },
       actual: {
         material: resDoor85.frame.profileDepthMM,
@@ -2511,25 +2507,25 @@ export class GoldenTestSuite {
       }
     });
 
-    // 73. MULTI-MATERIAL BATCH PDF ORDER SHEET: 58mm, 65mm, 85mm Door, Open Casement & Fixed Window
+    // 73. MULTI-MATERIAL BATCH PDF ORDER SHEET: 58mm, 66mm, 85mm Door, Open Casement & Fixed Window
     const resFixed73 = WindowCalculationEngine.calculate({ unit: 'inch', widthInch: 36, heightInch: 48, windowType: 'fixed', frameType: 'no-track' });
     const fullMixedBatch = prepareLSRows([res2T58, res2T65, resDoor85, resOpenSingle70, resFixed73]);
 
     const passTest73 =
       fullMixedBatch[0].materialMM === '58 mm' && fullMixedBatch[0].modelName === '[SL/SL]' &&
-      fullMixedBatch[1].materialMM === '65 mm' && fullMixedBatch[1].modelName === '[SL/SL]' &&
+      fullMixedBatch[1].materialMM === '66 mm' && fullMixedBatch[1].modelName === '[SL/SL]' &&
       fullMixedBatch[2].materialMM === '85 mm' && fullMixedBatch[2].modelName === '[SL/SL/DOOR]' &&
       fullMixedBatch[3].materialMM === '-' && fullMixedBatch[3].modelName === '[OP]' &&
       fullMixedBatch[4].materialMM === '-' && fullMixedBatch[4].modelName === '[FIXED]';
 
     results.push({
-      name: 'Multi-Material Batch PDF Order Sheet: Displays "58 mm", "65 mm", "85 mm" for doors, and "-" for non-sliding windows',
+      name: 'Multi-Material Batch PDF Order Sheet: Displays "58 mm", "66 mm", "85 mm" for doors, and "-" for non-sliding windows',
       category: 'Rule Combination',
       passed: passTest73,
       input: { batchCount: fullMixedBatch.length },
       expected: {
         r0: { material: '58 mm', model: '[SL/SL]' },
-        r1: { material: '65 mm', model: '[SL/SL]' },
+        r1: { material: '66 mm', model: '[SL/SL]' },
         r2: { material: '85 mm', model: '[SL/SL/DOOR]' },
         r3: { material: '-', model: '[OP]' },
         r4: { material: '-', model: '[FIXED]' }
@@ -2578,7 +2574,7 @@ export class GoldenTestSuite {
       rowDoor85_3T.sashHPcs === '6' &&
       rowDoor85_3T.sashWPcs === '6' &&
       rowDoor85_3T.interlockMM === '2041 mm' &&
-      door3TBg.canvas === '#fef08a';
+      door3TBg.canvas === '#e0f2fe';
 
     results.push({
       name: '85mm 3-Track Sliding Door: Dedicated Formula (H-88, (W+90)/3, Glass -152, Material 85mm, [SL/SL/SL/DOOR] Unique Bright Color)',
@@ -2595,7 +2591,7 @@ export class GoldenTestSuite {
         sashPcs: '12',
         sashHPcs: '6',
         sashWPcs: '6',
-        bg: '#fef08a'
+        bg: '#e0f2fe'
       },
       actual: {
         material: resDoor85_3T.frame.profileDepthMM,
@@ -2653,24 +2649,24 @@ export class GoldenTestSuite {
       }
     });
 
-    // 76. MULTI-DOOR PDF ORDER SHEET: Both 2T Door ([SL/SL/DOOR]) and 3T Door ([SL/SL/SL/DOOR]) formatted with 85mm material and Sunny Gold color
+    // 76. MULTI-DOOR PDF ORDER SHEET: Both 2T Door ([SL/SL/DOOR]) and 3T Door ([SL/SL/SL/DOOR]) formatted with 85mm material and Door Ice Blue color
     const multiDoorBatch = prepareLSRows([resDoor85, resDoor85_3T]);
     const passTest76 =
       multiDoorBatch[0].materialMM === '85 mm' &&
       multiDoorBatch[0].modelName === '[SL/SL/DOOR]' &&
-      getLSModelBgColor(multiDoorBatch[0]).canvas === '#fef08a' &&
+      getLSModelBgColor(multiDoorBatch[0]).canvas === '#e0f2fe' &&
       multiDoorBatch[1].materialMM === '85 mm' &&
       multiDoorBatch[1].modelName === '[SL/SL/SL/DOOR]' &&
-      getLSModelBgColor(multiDoorBatch[1]).canvas === '#fef08a';
+      getLSModelBgColor(multiDoorBatch[1]).canvas === '#e0f2fe';
 
     results.push({
-      name: 'Multi-Door PDF Order Sheet: Both [SL/SL/DOOR] and [SL/SL/SL/DOOR] formatted with 85 mm and Sunny Gold unique color',
+      name: 'Multi-Door PDF Order Sheet: Both [SL/SL/DOOR] and [SL/SL/SL/DOOR] formatted with 85 mm and Door Ice Blue color',
       category: 'Rule Combination',
       passed: passTest76,
       input: { doorsCount: multiDoorBatch.length },
       expected: {
-        door2T: { material: '85 mm', model: '[SL/SL/DOOR]', color: '#fef08a' },
-        door3T: { material: '85 mm', model: '[SL/SL/SL/DOOR]', color: '#fef08a' }
+        door2T: { material: '85 mm', model: '[SL/SL/DOOR]', color: '#e0f2fe' },
+        door3T: { material: '85 mm', model: '[SL/SL/SL/DOOR]', color: '#e0f2fe' }
       },
       actual: {
         door2T: { material: multiDoorBatch[0]?.materialMM, model: multiDoorBatch[0]?.modelName, color: getLSModelBgColor(multiDoorBatch[0]).canvas },
@@ -2935,7 +2931,7 @@ export class GoldenTestSuite {
       resDoor85_2_5T.additionalPanels[0].count === 1 &&
       rowDoor85_2_5T.modelName === '[SL/SL/DOOR/MESH]' &&
       rowDoor85_2_5T.materialMM === '85 mm' &&
-      door2_5TBg.canvas === '#fef08a';
+      door2_5TBg.canvas === '#e0f2fe';
 
     results.push({
       name: '85mm 2.5-Track Sliding Door: Dedicated Formula (H-82, (W+12)/2, Glass -152, Mesh Same H&W, Material 85mm, [SL/SL/DOOR/MESH])',
@@ -2950,7 +2946,7 @@ export class GoldenTestSuite {
         mesh: '2052 x 921 mm (1 Pc, Same H&W)',
         model: '[SL/SL/DOOR/MESH]',
         materialMM: '85 mm',
-        bg: '#fef08a'
+        bg: '#e0f2fe'
       },
       actual: {
         material: resDoor85_2_5T.frame.profileDepthMM,

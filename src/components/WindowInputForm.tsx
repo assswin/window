@@ -355,8 +355,8 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
           ? '3T DOOR (85MM)'
           : '2T DOOR (85MM)';
       }
-      if (activeWin.profileSeries === '65mm') {
-        return `${activeWin.frameType.toUpperCase().replace('-TRACK', 'T')} (65MM)`;
+      if (activeWin.profileSeries === '66mm' || activeWin.profileSeries === '65mm') {
+        return `${activeWin.frameType.toUpperCase().replace('-TRACK', 'T')} (66MM)`;
       }
       return activeWin.frameType.toUpperCase().replace('-TRACK', 'T');
     }
@@ -1053,14 +1053,14 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
 
               {activeWin.windowType === 'sliding' ? (
                 <div className="space-y-2">
-                  {/* Material Depth Selector: 58mm Standard vs 65mm Special vs 85mm Door */}
+                  {/* Material Depth Selector: 58mm Standard vs 66mm Special vs 85mm Door */}
                   <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-slate-300">
                         {t('மெட்டீரியல் வகை (Material Series):', 'Material Series (Thickness):')}
                       </span>
                       <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-900/60">
-                        {activeWin.profileSeries === '85mm' ? '85 mm Material (Door)' : (activeWin.profileSeries === '65mm' ? '65 mm Material' : '58 mm Material')}
+                        {activeWin.profileSeries === '85mm' ? '85 mm Material (Door)' : ((activeWin.profileSeries === '66mm' || activeWin.profileSeries === '65mm') ? '66 mm Material' : '58 mm Material')}
                       </span>
                     </div>
                     <div className="grid grid-cols-3 gap-1.5">
@@ -1069,7 +1069,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                         onClick={() => updateWindow(activeWindowIndex, { profileSeries: '58mm' })}
                         className={
                           'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
-                          (activeWin.profileSeries !== '65mm' && activeWin.profileSeries !== '85mm'
+                          (activeWin.profileSeries !== '66mm' && activeWin.profileSeries !== '65mm' && activeWin.profileSeries !== '85mm'
                             ? 'bg-amber-600 border-amber-500 text-white shadow-sm'
                             : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white')
                         }
@@ -1083,7 +1083,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          const updates: Partial<WindowInput> = { profileSeries: '65mm' };
+                          const updates: Partial<WindowInput> = { profileSeries: '66mm' };
                           if (activeWin.frameType === '2.5-track' || activeWin.frameType === '4-track') {
                             updates.frameType = '2-track';
                           }
@@ -1091,12 +1091,12 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                         }}
                         className={
                           'py-1.5 px-1.5 rounded-md text-xs font-bold border transition cursor-pointer active:scale-95 text-center ' +
-                          (activeWin.profileSeries === '65mm'
+                          ((activeWin.profileSeries === '66mm' || activeWin.profileSeries === '65mm')
                             ? 'bg-amber-600 border-amber-500 text-white shadow-sm'
                             : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white')
                         }
                       >
-                        <div className="leading-tight text-[11px]">65 mm</div>
+                        <div className="leading-tight text-[11px]">66 mm</div>
                         <div className="text-[9px] opacity-80 font-normal">
                           {t('ஹெவி 2T & 3T', 'Heavy 2T & 3T')}
                         </div>
@@ -1150,7 +1150,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                         </button>
                       ))}
                     </div>
-                  ) : activeWin.profileSeries === '65mm' ? (
+                  ) : (activeWin.profileSeries === '66mm' || activeWin.profileSeries === '65mm') ? (
                     <div className="grid grid-cols-2 gap-1.5">
                       {[
                         { id: '2-track' as FrameType, label: '2 Track', desc: t('2 சஷ் (2 Panels)', '2 Panels') },
@@ -1500,7 +1500,7 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                   <span>
                     {win.windowType === 'ventilator'
                       ? `VENTILATOR • ${win.ventilatorSubtype === 'fan' ? `FAN (${win.ventilatorFanSide === 'right' ? 'R' : 'LEFT'})` : 'NORMAL'}`
-                      : `${win.frameType.toUpperCase()} • ${win.windowType.toUpperCase()}${win.windowType === 'sliding' && win.profileSeries === '85mm' ? ((win.frameType === '3-track' || win.frameType === '3.5-track') ? ' • 85MM 3T DOOR' : ' • 85MM 2T DOOR') : (win.windowType === 'sliding' && win.profileSeries === '65mm' ? ' • 65MM' : '')}`}
+                      : `${win.frameType.toUpperCase()} • ${win.windowType.toUpperCase()}${win.windowType === 'sliding' && win.profileSeries === '85mm' ? ((win.frameType === '3-track' || win.frameType === '3.5-track') ? ' • 85MM 3T DOOR' : ' • 85MM 2T DOOR') : (win.windowType === 'sliding' && (win.profileSeries === '66mm' || win.profileSeries === '65mm') ? ' • 66MM' : '')}`}
                   </span>
                   <button
                     type="button"

@@ -82,8 +82,8 @@ export const WORKSHOP_REFERENCE_PRESET: SystemProfilePreset = {
       id: '2-track_sliding_65mm',
       frameType: '2-track',
       windowType: 'sliding',
-      name: '2 Track Sliding Window (65mm Material: H-94, W-22/2, Glass -112)',
-      description: 'Sliding 2-Track (65mm Series): Shutter Height H-94, Shutter Width (W-22)/2, Glass -112mm, Material 65mm',
+      name: '2 Track Sliding Window (66mm Material: H-94, W-22/2, Glass -112)',
+      description: 'Sliding 2-Track (66mm Series): Shutter Height H-94, Shutter Width (W-22)/2, Glass -112mm, Material 66mm',
       heightDeductionMM: 94,
       divisionFactor: 2,
       widthDeductionMM: 22,
@@ -92,7 +92,7 @@ export const WORKSHOP_REFERENCE_PRESET: SystemProfilePreset = {
       mirrorHeightDeductionMM: 112,
       mirrorWidthDeductionMM: 112,
       mirrorDeductionReference: 'panel',
-      profileDepthMM: 65,
+      profileDepthMM: 66,
       sashProfileWidthMM: 55,
       glassGrooveDepthMM: 10
     },
@@ -100,8 +100,8 @@ export const WORKSHOP_REFERENCE_PRESET: SystemProfilePreset = {
       id: '3-track_sliding_65mm',
       frameType: '3-track',
       windowType: 'sliding',
-      name: '3 Track Sliding Window (65mm Material: H-88, W+48/3, Glass -112)',
-      description: 'Sliding 3-Track (65mm Series): 3 Shutters Height H-88, Shutter Width (W+48)/3, Glass -112mm, Material 65mm',
+      name: '3 Track Sliding Window (66mm Material: H-88, W+48/3, Glass -112)',
+      description: 'Sliding 3-Track (66mm Series): 3 Shutters Height H-88, Shutter Width (W+48)/3, Glass -112mm, Material 66mm',
       heightDeductionMM: 88,
       divisionFactor: 3,
       widthDeductionMM: 0,
@@ -111,7 +111,7 @@ export const WORKSHOP_REFERENCE_PRESET: SystemProfilePreset = {
       mirrorHeightDeductionMM: 112,
       mirrorWidthDeductionMM: 112,
       mirrorDeductionReference: 'panel',
-      profileDepthMM: 65,
+      profileDepthMM: 66,
       sashProfileWidthMM: 55,
       glassGrooveDepthMM: 10
     },
@@ -653,7 +653,7 @@ export class RulesEngineManager {
         if (frameType === '3-track' || frameType === '3.5-track') key = '3-track_sliding_85mm';
         else if (frameType === '2.5-track') key = '2.5-track_sliding_85mm';
         else key = '2-track_sliding_85mm';
-      } else if (profileSeries === '65mm') {
+      } else if (profileSeries === '66mm' || profileSeries === '65mm') {
         if (frameType === '2-track') key = '2-track_sliding_65mm';
         else if (frameType === '3-track' || frameType === '3.5-track') key = '3-track_sliding_65mm';
         else key = getRuleKey(frameType, windowType);

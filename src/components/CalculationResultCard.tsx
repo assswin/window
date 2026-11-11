@@ -68,13 +68,13 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
         const wAdd = activeRule.widthAdditionMM ?? 90;
         return `H-${activeRule.heightDeductionMM} | (W+${wAdd})/3 | -${activeRule.mirrorHeightDeductionMM} glass | 85mm Door`;
       }
-      const is65mm = input.profileSeries === '65mm' || activeRule.profileDepthMM === 65;
-      if (is65mm && input.frameType === '2-track') {
-        return `H-${activeRule.heightDeductionMM} | (W-${activeRule.widthDeductionMM})/2 | -${activeRule.mirrorHeightDeductionMM} glass | 65mm`;
+      const is66mm = input.profileSeries === '66mm' || input.profileSeries === '65mm' || activeRule.profileDepthMM === 66 || activeRule.profileDepthMM === 65;
+      if (is66mm && input.frameType === '2-track') {
+        return `H-${activeRule.heightDeductionMM} | (W-${activeRule.widthDeductionMM})/2 | -${activeRule.mirrorHeightDeductionMM} glass | 66mm`;
       }
-      if (is65mm && (input.frameType === '3.5-track' || input.frameType === '3-track')) {
+      if (is66mm && (input.frameType === '3.5-track' || input.frameType === '3-track')) {
         const wAdd = activeRule.widthAdditionMM ?? 48;
-        return `H-${activeRule.heightDeductionMM} | (W+${wAdd})/3 | -${activeRule.mirrorHeightDeductionMM} glass | 65mm`;
+        return `H-${activeRule.heightDeductionMM} | (W+${wAdd})/3 | -${activeRule.mirrorHeightDeductionMM} glass | 66mm`;
       }
       if (input.frameType === '4-track') {
         const wAdd = activeRule.widthAdditionMM ?? 11;
@@ -452,14 +452,14 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                           : (input.frameType === '3.5-track' || input.frameType === '3-track'
                             ? (input.profileSeries === '85mm'
                               ? `(W + ${activeRule.widthAdditionMM ?? 90}) / 3`
-                              : (input.profileSeries === '65mm'
+                              : (input.profileSeries === '66mm' || input.profileSeries === '65mm'
                                 ? `(W + ${activeRule.widthAdditionMM ?? 48}) / 3`
                                 : `W/3 + ${activeRule.widthAdditionMM ?? 11}`))
                             : (input.frameType === '2.5-track'
                               ? (input.profileSeries === '85mm'
                                 ? `(W + ${activeRule.widthAdditionMM ?? 12}) / 2`
                                 : `(W - ${activeRule.widthDeductionMM}) / 2`)
-                              : (input.profileSeries === '85mm' || input.profileSeries === '65mm'
+                              : (input.profileSeries === '85mm' || input.profileSeries === '66mm' || input.profileSeries === '65mm'
                                 ? `(W - ${activeRule.widthDeductionMM}) / 2`
                                 : `W/2 - ${activeRule.widthDeductionMM}`))))
                         : (input.casementSubtype === 'triple'

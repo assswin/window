@@ -864,11 +864,11 @@ export const prepareLSRows = (
       }
     }
 
-    // Material mm: 65 mm for 65mm sliding windows, 58 mm for other sliding windows, '-' for others
+    // Material mm: 66 mm for 66mm sliding windows, 58 mm for other sliding windows, '-' for others
     const isSliding = r.input.windowType === 'sliding';
     const is85mmSliding = isSliding && (r.input.profileSeries === '85mm' || r.frame.profileDepthMM === 85);
-    const is65mmSliding = !is85mmSliding && isSliding && (r.input.profileSeries === '65mm' || r.frame.profileDepthMM === 65);
-    const materialMM = is85mmSliding ? '85 mm' : (is65mmSliding ? '65 mm' : (isSliding ? '58 mm' : '-'));
+    const is66mmSliding = !is85mmSliding && isSliding && (r.input.profileSeries === '66mm' || r.input.profileSeries === '65mm' || r.frame.profileDepthMM === 66 || r.frame.profileDepthMM === 65);
+    const materialMM = is85mmSliding ? '85 mm' : (is66mmSliding ? '66 mm' : (isSliding ? '58 mm' : '-'));
 
     const isFixed = r.input.windowType === 'fixed';
     const modelShortForm = getLSModelShortForm(r);
