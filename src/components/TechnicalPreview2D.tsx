@@ -715,7 +715,7 @@ export const WindowBlueprintSVG: React.FC<{
   };
 
   const svgW = 940;
-  const svgH = 630;
+  const svgH = 650;
   const uniqueId = `cad-${result.id || Math.random().toString(36).substring(2, 7)}`;
 
   // Window System Identification
@@ -734,9 +734,9 @@ export const WindowBlueprintSVG: React.FC<{
   // CALCULATE PROPORTIONS & GEOMETRY FOR ALL-IN-ONE LAYOUT
   // -------------------------------------------------------------
   const elevMaxW = isElevationOnly ? 720 : 470;
-  const elevMaxH = isElevationOnly ? 490 : 380;
+  const elevMaxH = isElevationOnly ? 460 : 335;
   const elevLeft = isElevationOnly ? 110 : 50;
-  const elevTop = isElevationOnly ? 70 : 65;
+  const elevTop = isElevationOnly ? 104 : 108;
 
   const aspect = convertedWidthMM / Math.max(1, convertedHeightMM);
   let elevW = elevMaxW;
@@ -787,8 +787,8 @@ export const WindowBlueprintSVG: React.FC<{
   // -------------------------------------------------------------
   const secBX = isSectionBOnly ? 320 : 570;
   const secBW = isSectionBOnly ? 300 : 310;
-  const secBY = isSectionBOnly ? 80 : actualElevY;
-  const secBH = isSectionBOnly ? 480 : elevH;
+  const secBY = isSectionBOnly ? 108 : actualElevY;
+  const secBH = isSectionBOnly ? 460 : elevH;
 
   const headProfileH = Math.max(26, frameThick * 2.2);
   const sillProfileH = Math.max(30, frameThick * 2.6);
@@ -801,8 +801,8 @@ export const WindowBlueprintSVG: React.FC<{
   // -------------------------------------------------------------
   const secAX = isSectionAOnly ? 60 : actualElevX;
   const secAW = isSectionAOnly ? 820 : elevW;
-  const secAY = isSectionAOnly ? 160 : actualElevY + elevH + 46;
-  const secAH = isSectionAOnly ? 300 : 80;
+  const secAY = isSectionAOnly ? 160 : actualElevY + elevH + 42;
+  const secAH = isSectionAOnly ? 300 : 74;
   const jambProfileW = Math.max(26, frameThick * 2.2);
   const midX = secAX + secAW / 2;
   const rightStileX = secAX + secAW - 8 - jambProfileW - 29;
@@ -908,16 +908,16 @@ export const WindowBlueprintSVG: React.FC<{
           x="16"
           y="16"
           width={svgW - 32}
-          height="34"
+          height="36"
           fill={c.titleBg}
           stroke={c.titleBorder}
           strokeWidth="0.8"
         />
         <text
           x="28"
-          y="31"
+          y="30"
           fill={c.lineDark}
-          fontSize="11"
+          fontSize="10.5"
           fontWeight="bold"
           fontFamily="monospace"
           letterSpacing="0.5"
@@ -926,9 +926,9 @@ export const WindowBlueprintSVG: React.FC<{
         </text>
         <text
           x="28"
-          y="43"
+          y="44"
           fill={c.steelFill}
-          fontSize="9.5"
+          fontSize="9.0"
           fontWeight="600"
         >
           {`${result.input.windowLabel || 'Window 1'} • ${getLSModelName(result)}  [${result.convertedHeightMM} × ${result.convertedWidthMM} mm]`}
@@ -937,9 +937,9 @@ export const WindowBlueprintSVG: React.FC<{
         {/* Top-Right Info in Title Block */}
         <text
           x={svgW - 28}
-          y="31"
+          y="30"
           fill={c.lineDark}
-          fontSize="9.5"
+          fontSize="9.0"
           fontWeight="bold"
           fontFamily="monospace"
           textAnchor="end"
@@ -948,9 +948,9 @@ export const WindowBlueprintSVG: React.FC<{
         </text>
         <text
           x={svgW - 28}
-          y="43"
+          y="44"
           fill={c.lineMedium}
-          fontSize="8.5"
+          fontSize="8.0"
           fontFamily="monospace"
           textAnchor="end"
         >
@@ -969,19 +969,19 @@ export const WindowBlueprintSVG: React.FC<{
       {/* ============================================================= */}
       {(isAllInOne || isElevationOnly) && (
         <g id="front-elevation-group">
-          {/* Subtitle label */}
+          {/* Subtitle label - cleanly positioned in dedicated tier above dimension line */}
           <text
             x={actualElevX + elevW / 2}
-            y={actualElevY - 26}
+            y={actualElevY - 42}
             fill={c.lineDark}
-            fontSize="10"
+            fontSize="9.5"
             fontWeight="bold"
             letterSpacing="0.8"
             textAnchor="middle"
           >
             {isTamil 
-              ? `முகப்பு வரைபடம் (FRONT ELEVATION - ${getLSModelName(result)})` 
-              : `FRONT ELEVATION - ${getLSModelName(result)} (OUTSIDE VIEW)`}
+              ? 'முகப்பு வரைபடம் (FRONT ELEVATION - OUTSIDE VIEW)' 
+              : 'FRONT ELEVATION (OUTSIDE VIEW)'}
           </text>
 
           {/* OVERALL WIDTH DIMENSION (TOP) */}
@@ -990,7 +990,7 @@ export const WindowBlueprintSVG: React.FC<{
               x1={actualElevX}
               y1={actualElevY - 4}
               x2={actualElevX}
-              y2={actualElevY - 18}
+              y2={actualElevY - 16}
               stroke={c.dimLine}
               strokeWidth="0.8"
               strokeDasharray="2 2"
@@ -999,16 +999,16 @@ export const WindowBlueprintSVG: React.FC<{
               x1={actualElevX + elevW}
               y1={actualElevY - 4}
               x2={actualElevX + elevW}
-              y2={actualElevY - 18}
+              y2={actualElevY - 16}
               stroke={c.dimLine}
               strokeWidth="0.8"
               strokeDasharray="2 2"
             />
             <line
               x1={actualElevX + 4}
-              y1={actualElevY - 13}
+              y1={actualElevY - 11}
               x2={actualElevX + elevW - 4}
-              y2={actualElevY - 13}
+              y2={actualElevY - 11}
               stroke={c.dimLine}
               strokeWidth="1"
               markerStart={`url(#${uniqueId}-dim-arrow)`}
@@ -1016,19 +1016,19 @@ export const WindowBlueprintSVG: React.FC<{
             />
             <rect
               x={actualElevX + elevW / 2 - 45}
-              y={actualElevY - 21}
+              y={actualElevY - 18}
               width="90"
-              height="15"
-              rx="2"
+              height="14"
+              rx="2.5"
               fill={c.dimBadgeBg}
               stroke={c.dimBadgeBorder}
               strokeWidth="0.6"
             />
             <text
               x={actualElevX + elevW / 2}
-              y={actualElevY - 10}
+              y={actualElevY - 8}
               fill={c.dimText}
-              fontSize="8.5"
+              fontSize="7.5"
               fontWeight="bold"
               fontFamily="monospace"
               textAnchor="middle"
@@ -1223,8 +1223,8 @@ export const WindowBlueprintSVG: React.FC<{
           ) : isOpen ? (
             /* B. OPEN CASEMENT WINDOW ELEVATION */
             <g id="elev-open-casement">
-              {casementSubtype === 'single' ? (
-                // B.1 SINGLE OPEN WINDOW
+              {(casementSubtype === 'single' || casementSubtype === 'door_with_bottom' || casementSubtype === 'door_without_bottom') ? (
+                // B.1 SINGLE OPEN WINDOW / DOOR
                 (() => {
                   const sashThick = Math.max(8, frameThick * 1.1);
                   const gX = innerElevX + sashThick;
@@ -1264,7 +1264,7 @@ export const WindowBlueprintSVG: React.FC<{
                       {/* Badge */}
                       <rect x={gX + gW / 2 - 45} y={gY + gH / 2 - 13} width="90" height="26" rx="3" fill={c.dimBadgeBg} stroke={c.dimBadgeBorder} strokeWidth="0.75" />
                       <text x={gX + gW / 2} y={gY + gH / 2 - 2} fill={c.steelFill} fontSize="7.5" fontWeight="bold" textAnchor="middle">
-                        CASEMENT SASH
+                        {isDoor ? 'OPEN DOOR SASH' : 'CASEMENT SASH'}
                       </text>
                       <text x={gX + gW / 2} y={gY + gH / 2 + 8} fill={c.lineDark} fontSize="7" fontFamily="monospace" textAnchor="middle">
                         {`${panel.heightMM} × ${panel.widthMM} mm`}
@@ -1567,9 +1567,10 @@ export const WindowBlueprintSVG: React.FC<{
           </g>
 
           <g id="cutting-plane-bb">
+            {/* Cut line B-B (Vertical) - starts below top circle and dimension badge */}
             <line
               x1={secLineBX}
-              y1={actualElevY - 18}
+              y1={actualElevY - 22}
               x2={secLineBX}
               y2={actualElevY + elevH + 18}
               stroke={c.sectionLine}
@@ -1579,15 +1580,15 @@ export const WindowBlueprintSVG: React.FC<{
             {/* Top Section B Indicator */}
             <line
               x1={secLineBX}
-              y1={actualElevY - 18}
+              y1={actualElevY - 30}
               x2={secLineBX + 14}
-              y2={actualElevY - 18}
+              y2={actualElevY - 30}
               stroke={c.sectionLine}
               strokeWidth="1.6"
               markerEnd={`url(#${uniqueId}-sec-arrow)`}
             />
-            <circle cx={secLineBX} cy={actualElevY - 26} r="7" fill={c.bg} stroke={c.sectionLine} strokeWidth="1" />
-            <text x={secLineBX} y={actualElevY - 23} fill={c.sectionText} fontSize="8.5" fontWeight="bold" textAnchor="middle">
+            <circle cx={secLineBX} cy={actualElevY - 30} r="6.5" fill={c.bg} stroke={c.sectionLine} strokeWidth="1" />
+            <text x={secLineBX} y={actualElevY - 27.5} fill={c.sectionText} fontSize="8" fontWeight="bold" textAnchor="middle">
               B
             </text>
 
@@ -1614,21 +1615,21 @@ export const WindowBlueprintSVG: React.FC<{
       {/* ============================================================= */}
       {(isAllInOne || isSectionBOnly) && (
         <g id="section-bb-group" transform={isSectionBOnly ? `translate(0, 0)` : ''}>
-          {/* Header Title */}
+          {/* Header Title - positioned in dedicated tier at y=66 */}
           <text
             x={secBX + secBW / 2}
-            y={secBY - 26}
+            y={actualElevY - 42}
             fill={c.lineDark}
-            fontSize="10"
+            fontSize="9.5"
             fontWeight="bold"
             letterSpacing="0.8"
             textAnchor="middle"
           >
-            {isTamil ? 'செக்ஷன் B-B (குறுக்குவெட்டுத் தோற்றம்)' : 'Section B-B'}
+            {isTamil ? 'செக்ஷன் B-B (குறுக்குவெட்டுத் தோற்றம்)' : 'SECTION B-B (VERTICAL SECTION)'}
           </text>
           <text
             x={secBX + secBW / 2}
-            y={secBY - 14}
+            y={actualElevY - 28}
             fill={c.lineLight}
             fontSize="7"
             textAnchor="middle"
