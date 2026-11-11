@@ -441,19 +441,6 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
             <PlusCircle className="w-3.5 h-3.5" />
             <span>{activeHasVariant ? `+ Add W${activeBaseNum}${nextVariantLetter}` : '+ Add'}</span>
           </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setActiveFractionChips({});
-              onResetAll();
-            }}
-            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-700 border border-slate-300 hover:border-sky-300 text-xs transition cursor-pointer active:scale-95 touch-manipulation"
-            title={t('இயல்புநிலைக்கு மீட்டமைக்க (Window 1)', 'Reset to default Window 1')}
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">{t('மீட்டமை', 'Reset')}</span>
-          </button>
         </div>
       </div>
 
