@@ -3065,10 +3065,16 @@ export class GoldenTestSuite {
       resDoorWithBottom.panel.heightMM === 2071 &&
       resDoorWithBottom.panel.widthMM === 1156 &&
       resDoorWithBottom.panel.count === 1 &&
+      resDoorWithBottom.mirror.count === 0 &&
       resDoorWithoutBottom.frame.profileDepthMM === 108 &&
       resDoorWithoutBottom.panel.heightMM === 2096 &&
       resDoorWithoutBottom.panel.widthMM === 1156 &&
       resDoorWithoutBottom.panel.count === 1 &&
+      resDoorWithoutBottom.mirror.count === 0 &&
+      rowDoorWB.mirrorCutMM === '-' &&
+      rowDoorWOB.mirrorCutMM === '-' &&
+      rowDoorWB.glassPcs === '-' &&
+      rowDoorWOB.glassPcs === '-' &&
       shortFormWB === '[OP/DOOR (WITH BOTTOM)]' &&
       shortFormWOB === '[OP/DOOR (WITHOUT BOTTOM)]' &&
       rowDoorWB.materialMM === '108 mm' &&
@@ -3227,25 +3233,25 @@ export class GoldenTestSuite {
       glassRows[0].glassType === '5mm Clear Float' &&
       glassRows[0].glassCutMM === `${resWin1.mirror.heightMM} H × ${resWin1.mirror.widthMM} W`;
 
-    // Row 1: Single Open Door With Bottom
+    // Row 1: Single Open Door With Bottom (No Glass Cut)
     const passRow1 =
       glassRows[1].siNo === '2' &&
       glassRows[1].windowLabel === 'W2' &&
       glassRows[1].modelName === '[OP/DOOR (WITH BOTTOM)]' &&
-      glassRows[1].hasGlass === true &&
-      glassRows[1].rawPcs === 1 &&
-      glassRows[1].glassPcs === '1' &&
-      glassRows[1].glassType === '6mm Toughened';
+      glassRows[1].hasGlass === false &&
+      glassRows[1].rawPcs === 0 &&
+      glassRows[1].glassPcs === '-' &&
+      glassRows[1].glassCutMM === '-';
 
-    // Row 2: Single Open Door Without Bottom
+    // Row 2: Single Open Door Without Bottom (No Glass Cut)
     const passRow2 =
       glassRows[2].siNo === '3' &&
       glassRows[2].windowLabel === 'W3' &&
       glassRows[2].modelName === '[OP/DOOR (WITHOUT BOTTOM)]' &&
-      glassRows[2].hasGlass === true &&
-      glassRows[2].rawPcs === 1 &&
-      glassRows[2].glassPcs === '1' &&
-      glassRows[2].glassType === '6mm Toughened';
+      glassRows[2].hasGlass === false &&
+      glassRows[2].rawPcs === 0 &&
+      glassRows[2].glassPcs === '-' &&
+      glassRows[2].glassCutMM === '-';
 
     // Row 3: Ventilator (No Glass)
     const passRow3 =
@@ -3260,7 +3266,7 @@ export class GoldenTestSuite {
     // Total statistics check
     const grandTotalPcs = glassRows.reduce((sum, r) => sum + r.rawPcs, 0);
     const grandTotalSqFt = glassRows.reduce((sum, r) => sum + r.rawSqFt, 0);
-    const passTotals = grandTotalPcs === 6 && grandTotalSqFt > 0;
+    const passTotals = grandTotalPcs === 4 && grandTotalSqFt > 0;
 
     const passTest85 = passRow0 && passRow1 && passRow2 && passRow3 && passTotals;
 
@@ -3273,7 +3279,7 @@ export class GoldenTestSuite {
       },
       expected: {
         totalRows: 4,
-        totalGlassPcs: 6,
+        totalGlassPcs: 4,
         w1GlassPcs: '4',
         w2Model: '[OP/DOOR (WITH BOTTOM)]',
         w3Model: '[OP/DOOR (WITHOUT BOTTOM)]',

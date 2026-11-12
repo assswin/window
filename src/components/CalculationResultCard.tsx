@@ -45,6 +45,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
 
   const currentResult = results[selectedIndex] || results[0];
   const { input, convertedWidthMM, convertedHeightMM, frame, panel, mirror } = currentResult;
+  const isSingleOpenDoor = input.windowType === 'open' && (input.profileSeries === '108mm' || input.casementSubtype === 'door_with_bottom' || input.casementSubtype === 'door_without_bottom');
 
   const activeRule = RulesEngineManager.getRule(
     input.frameType,
@@ -100,7 +101,7 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
     if (input.windowType === 'open') {
       if (input.profileSeries === '108mm' || input.casementSubtype === 'door_with_bottom' || input.casementSubtype === 'door_without_bottom') {
         const bottomDesc = input.casementSubtype === 'door_without_bottom' ? 'Without Bottom' : 'With Bottom';
-        return `H-${activeRule.heightDeductionMM} | W-${activeRule.widthDeductionMM} | -${activeRule.mirrorHeightDeductionMM} glass | Single Open Door (${bottomDesc})`;
+        return `H-${activeRule.heightDeductionMM} | W-${activeRule.widthDeductionMM} | Single Open Door (${bottomDesc})`;
       }
       if (input.casementSubtype === 'triple') {
         const mullionDed = activeRule.mullionDeductionMM ?? (activeRule.mullionSashDeductionMM ?? 6);
@@ -581,16 +582,20 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
                 )}
               </div>
               <span className="text-xs font-mono text-emerald-400 font-bold">
-                {input.windowType === 'ventilator'
+                {input.windowType === 'ventilator' || isSingleOpenDoor
                   ? t('கண்ணாடி இல்லை (-)', 'No Glass (-)')
                   : input.windowType === 'fixed'
                     ? `OU - ${activeRule.mirrorHeightDeductionMM} mm`
                     : `-${activeRule.mirrorHeightDeductionMM} mm`}
               </span>
             </div>
-            {input.windowType === 'ventilator' ? (
+            {input.windowType === 'ventilator' || isSingleOpenDoor ? (
               <div className="text-xs font-mono py-1 text-slate-400 flex items-center justify-between">
-                <span>{t('வென்டிலேட்டருக்கு கண்ணாடி வெட்டு தேவையில்லை', 'No glass cutting required for ventilator')}</span>
+                <span>
+                  {isSingleOpenDoor
+                    ? t('சிங்கிள் ஓபன் டோர்க்கு கண்ணாடி வெட்டு தேவையில்லை', 'No glass cutting required for single open door')
+                    : t('வென்டிலேட்டருக்கு கண்ணாடி வெட்டு தேவையில்லை', 'No glass cutting required for ventilator')}
+                </span>
                 <span className="text-emerald-400 font-bold">-</span>
               </div>
             ) : (

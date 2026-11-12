@@ -193,10 +193,10 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
       return `H-${currentRule.heightDeductionMM} | W-${currentRule.widthDeductionMM} | Glass -${currentRule.mirrorHeightDeductionMM}`;
     }
     if (activeTabKey === 'no-track_open_door_with_bottom') {
-      return `H-${currentRule.heightDeductionMM} | W-${currentRule.widthDeductionMM} | Glass -${currentRule.mirrorHeightDeductionMM} | 108mm Door (With Bottom)`;
+      return `H-${currentRule.heightDeductionMM} | W-${currentRule.widthDeductionMM} | 108mm Door (With Bottom)`;
     }
     if (activeTabKey === 'no-track_open_door_without_bottom') {
-      return `H-${currentRule.heightDeductionMM} | W-${currentRule.widthDeductionMM} | Glass -${currentRule.mirrorHeightDeductionMM} | 108mm Door (Without Bottom)`;
+      return `H-${currentRule.heightDeductionMM} | W-${currentRule.widthDeductionMM} | 108mm Door (Without Bottom)`;
     }
     if (activeTabKey === 'no-track_open_double') {
       return `H-${currentRule.heightDeductionMM} | W/2-${currentRule.widthDeductionMM} | Mullion H-${currentRule.mullionDeductionMM ?? (currentRule.mullionSashDeductionMM ?? 6)} | Glass -${currentRule.mirrorHeightDeductionMM}`;
@@ -611,7 +611,9 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
               )}
 
               {/* 3. GLASS / MIRROR DEDUCTION */}
-              {activeTabKey !== 'no-track_ventilator' && (
+              {activeTabKey !== 'no-track_ventilator' &&
+                activeTabKey !== 'no-track_open_door_with_bottom' &&
+                activeTabKey !== 'no-track_open_door_without_bottom' && (
                 <div className="bg-slate-950/60 rounded-xl p-3.5 border border-slate-800 space-y-2">
                   <div className="flex items-start sm:items-center justify-between gap-1.5 flex-wrap">
                     <div>
@@ -675,6 +677,19 @@ export const FormulaSettingsModal: React.FC<FormulaSettingsModalProps> = ({
                     </div>
                     <span className="text-xs font-bold text-slate-400">mm</span>
                   </div>
+                </div>
+              )}
+
+              {(activeTabKey === 'no-track_ventilator' ||
+                activeTabKey === 'no-track_open_door_with_bottom' ||
+                activeTabKey === 'no-track_open_door_without_bottom') && (
+                <div className="bg-slate-950/60 rounded-xl p-3.5 border border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+                  <span>
+                    {activeTabKey.includes('open_door')
+                      ? t('சிங்கிள் ஓபன் டோர்க்கு கண்ணாடி வெட்டு தேவையில்லை (கண்ணாடி கழிவு பார்முலா நீக்கப்பட்டுள்ளது)', 'No glass cutting required for Single Open Door (Glass formula removed)')
+                      : t('வென்டிலேட்டருக்கு கண்ணாடி வெட்டு தேவையில்லை', 'No glass cutting required for Ventilator')}
+                  </span>
+                  <span className="font-mono text-emerald-400 font-bold">-</span>
                 </div>
               )}
 

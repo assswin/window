@@ -476,26 +476,26 @@ export class WindowCalculationEngine {
       const isOpenDoorWithBottom = input.casementSubtype === 'door_with_bottom' || (input.profileSeries === '108mm' && !isOpenDoorWithoutBottom && input.casementSubtype !== 'double' && input.casementSubtype !== 'triple');
 
       if (isOpenDoorWithoutBottom) {
-        // Single Open Door (Without Bottom: H-38, W-63, 108mm material)
+        // Single Open Door (Without Bottom: H-38, W-63, 108mm material - No Glass/Mirror Cut)
         const wDed = rule.widthDeductionMM ?? 63;
         const hDed = rule.heightDeductionMM ?? 38;
         panelHeightMM = Math.max(10, convertedHeightMM - hDed);
         panelWidthMM = Math.max(10, convertedWidthMM - wDed);
         panelCount = 1;
-        mirrorDeductionMM = rule.mirrorHeightDeductionMM ?? 124;
-        formulaDesc = `Single Open Door (Without Bottom): H-${hDed} | W-${wDed} | -${mirrorDeductionMM} Glass | 108mm`;
+        mirrorDeductionMM = 0;
+        formulaDesc = `Single Open Door (Without Bottom): H-${hDed} | W-${wDed} | 108mm`;
         heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
         widthFormulaStr = `W - ${wDed} = ${convertedWidthMM} - ${wDed} = ${panelWidthMM} mm`;
         shutterType = 'uPVC Single Open Door Sash (Without Bottom)';
       } else if (isOpenDoorWithBottom) {
-        // Single Open Door (With Bottom: H-63, W-63, 108mm material)
+        // Single Open Door (With Bottom: H-63, W-63, 108mm material - No Glass/Mirror Cut)
         const wDed = rule.widthDeductionMM ?? 63;
         const hDed = rule.heightDeductionMM ?? 63;
         panelHeightMM = Math.max(10, convertedHeightMM - hDed);
         panelWidthMM = Math.max(10, convertedWidthMM - wDed);
         panelCount = 1;
-        mirrorDeductionMM = rule.mirrorHeightDeductionMM ?? 124;
-        formulaDesc = `Single Open Door (With Bottom): H-${hDed} | W-${wDed} | -${mirrorDeductionMM} Glass | 108mm`;
+        mirrorDeductionMM = 0;
+        formulaDesc = `Single Open Door (With Bottom): H-${hDed} | W-${wDed} | 108mm`;
         heightFormulaStr = `H - ${hDed} = ${convertedHeightMM} - ${hDed} = ${panelHeightMM} mm`;
         widthFormulaStr = `W - ${wDed} = ${convertedWidthMM} - ${wDed} = ${panelWidthMM} mm`;
         shutterType = 'uPVC Single Open Door Sash (With Bottom)';
@@ -764,18 +764,24 @@ export class WindowCalculationEngine {
     let mirrorWidthMM: number;
     let mirrorHeightMM: number;
     let mirrorNote = '';
-    const glassCount = input.windowType === 'fixed' ? 1 : (input.windowType === 'ventilator' ? 0 : panelCount);
+    const isOpenDoorWithoutBottom = input.casementSubtype === 'door_without_bottom';
+    const isOpenDoorWithBottom = input.casementSubtype === 'door_with_bottom' || (input.profileSeries === '108mm' && !isOpenDoorWithoutBottom && input.casementSubtype !== 'double' && input.casementSubtype !== 'triple');
+    const isSingleOpenDoor = input.windowType === 'open' && (isOpenDoorWithoutBottom || isOpenDoorWithBottom);
 
-    if (input.windowType === 'ventilator') {
+    const glassCount = input.windowType === 'fixed' ? 1 : (input.windowType === 'ventilator' || isSingleOpenDoor ? 0 : panelCount);
+
+    if (input.windowType === 'ventilator' || isSingleOpenDoor) {
       mirrorHeightMM = 0;
       mirrorWidthMM = 0;
-      mirrorNote = 'No glass cut required for ventilator frame.';
+      mirrorNote = isSingleOpenDoor
+        ? 'No glass cut required for single open door.'
+        : 'No glass cut required for ventilator frame.';
       steps.push({
-        label: 'Ventilator Glazing Schedule',
-        formula: 'Ventilator Frame (No Glass Cut)',
+        label: isSingleOpenDoor ? 'Door Glazing Schedule' : 'Ventilator Glazing Schedule',
+        formula: isSingleOpenDoor ? 'Single Open Door (No Glass Cut)' : 'Ventilator Frame (No Glass Cut)',
         calculation: '0 mm × 0 mm',
         result: '-',
-        note: 'No glass cut required per workshop standard.'
+        note: isSingleOpenDoor ? 'No glass cut required for single open door.' : 'No glass cut required per workshop standard.'
       });
     } else if (input.windowType === 'fixed') {
       const fixedGlassDedH = rule.mirrorHeightDeductionMM ?? 96;
