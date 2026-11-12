@@ -35,8 +35,8 @@ const WINDOW_CONFIG_LIST: WindowConfigOption[] = [
   { key: 'no-track_open', name: 'Single Window', tamilName: 'தனி திறக்கும் ஜன்னல் (1 Shutter)', category: 'open', icon: '🪟' },
   { key: 'no-track_open_double', name: 'Double Window', tamilName: 'இரட்டை திறக்கும் ஜன்னல் (2 Shutter + Mullion)', category: 'open', icon: '🪟' },
   { key: 'no-track_open_triple', name: '3-Open Window', tamilName: '3-திறக்கும் ஜன்னல் (3 Shutter + 2 Mullion)', category: 'open', icon: '🪟' },
-  { key: 'no-track_open_door_with_bottom', name: 'Open Door - With Bottom (108mm)', tamilName: 'திறக்கும் டோர் - பாட்டம் உண்டு (108mm)', category: 'open', icon: '🚪' },
-  { key: 'no-track_open_door_without_bottom', name: 'Open Door - Without Bottom (108mm)', tamilName: 'திறக்கும் டோர் - பாட்டம் இல்லை (108mm)', category: 'open', icon: '🚪' },
+  { key: 'no-track_open_door_with_bottom', name: 'Single Open Door - With Bottom', tamilName: 'சிங்கிள் ஓபன் டோர் - பாட்டம் உண்டு', category: 'open', icon: '🚪' },
+  { key: 'no-track_open_door_without_bottom', name: 'Single Open Door - Without Bottom', tamilName: 'சிங்கிள் ஓபன் டோர் - பாட்டம் இல்லை', category: 'open', icon: '🚪' },
   { key: 'no-track_fixed', name: 'Fixed Window Direct Glazing', tamilName: 'நிலையான ஜன்னல் (Direct Glazing)', category: 'fixed', icon: '🖼️' },
   { key: 'no-track_ventilator', name: 'Ventilator Frame', tamilName: 'வென்டிலேட்டர் (நேரடி அங்குலம் → MM)', category: 'ventilator', icon: '💨' }
 ];

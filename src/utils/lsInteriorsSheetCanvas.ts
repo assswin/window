@@ -359,12 +359,12 @@ export const DEFAULT_WINDOW_COLOR_CONFIGS: Record<WindowColorCategoryKey, Window
   },
   open_door: {
     key: 'open_door',
-    labelEn: 'Single Open Door (108mm)',
-    labelTa: 'திறப்பு கதவு (108mm)',
+    labelEn: 'Single Open Door',
+    labelTa: 'சிங்கிள் ஓபன் டோர்',
     shortCode: '[OP/DOOR]',
     defaultHex: '#fef3c7',
     defaultRgb: [254, 243, 199],
-    description: '108mm Door with / without bottom'
+    description: 'Single Open Door with / without bottom'
   },
   fixed: {
     key: 'fixed',

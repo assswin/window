@@ -1187,16 +1187,16 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                 </div>
               ) : activeWin.windowType === 'open' ? (
                 <div className="space-y-2">
-                  {/* Category Selection: Open Window (Single, Double, 3-Open) vs Open Door (108mm With/Without Bottom) */}
+                  {/* Category Selection: Open Window (Single, Double, 3-Open) vs Open Door (Single Open Door With/Without Bottom) */}
                   <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-slate-300">
-                        {t('மெட்டீரியல் வகை (Material Series):', 'Material Series (Thickness):')}
+                        {t('மாடல் தேர்வு (Model Selection):', 'Model Selection:')}
                       </span>
                       <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-900/60">
                         {activeWin.profileSeries === '108mm' || activeWin.casementSubtype === 'door_with_bottom' || activeWin.casementSubtype === 'door_without_bottom'
-                          ? '108 mm Material (Door)'
-                          : 'Standard (Window)'}
+                          ? t('சிங்கிள் ஓபன் டோர்', 'Single Open Door')
+                          : t('ஜன்னல் (Window)', 'Window (Casement)')}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-1.5">
@@ -1236,8 +1236,8 @@ export const WindowInputForm: React.FC<WindowInputFormProps> = ({
                             : 'bg-slate-900 border-slate-800 text-slate-700 hover:text-sky-700 hover:bg-sky-100 hover:border-sky-300')
                         }
                       >
-                        <div className="leading-tight text-[11px]">108 mm</div>
-                        <div className="text-[9px] opacity-80 font-normal">{t('டோர் (Open Door)', 'Door (Open Door)')}</div>
+                        <div className="leading-tight text-[11px]">{t('சிங்கிள் ஓபன் டோர்', 'Single Open Door')}</div>
+                        <div className="text-[9px] opacity-80 font-normal">{t('பாட்டம் உண்டு / இல்லை', 'With / Without Bottom')}</div>
                       </button>
                     </div>
                   </div>
