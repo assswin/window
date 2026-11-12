@@ -5,6 +5,7 @@ import {
   FileSpreadsheet,
   Calendar,
   User,
+  Phone,
   Eye,
   Sparkles,
   Layers,
@@ -47,6 +48,7 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
   const { t, isTamil } = useLanguage();
   const [sheetType, setSheetType] = useState<'full' | 'glass'>(initialSheetType);
   const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [date, setDate] = useState(() => new Date().toLocaleDateString('en-GB'));
   const [previewPage, setPreviewPage] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
@@ -128,6 +130,7 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
           results,
           {
             customerName,
+            customerPhone,
             date,
             customModelColors
           },
@@ -138,6 +141,7 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
           results,
           {
             customerName,
+            customerPhone,
             date,
             includeMeshColumn,
             includeInterlockColumn,
@@ -164,6 +168,7 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
     sheetType,
     results,
     customerName,
+    customerPhone,
     date,
     includeMeshColumn,
     includeInterlockColumn,
@@ -180,6 +185,7 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
     try {
       exportLSInteriorsToPDF(results, {
         customerName,
+        customerPhone,
         date,
         includeMeshColumn,
         includeInterlockColumn,
@@ -197,6 +203,7 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
     try {
       exportGlassOrderToPDF(results, {
         customerName,
+        customerPhone,
         date,
         customModelColors
       });
@@ -321,6 +328,27 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder={t('எ.கா. Sri Murugan Builders', 'e.g. Sri Murugan Builders')}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              />
+              <p className="text-[11px] text-slate-500 mt-1">
+                {t(
+                  'காலியாக விட்டால் தாளில் புள்ளியிடப்பட்ட வரியாக வரும் (....................)',
+                  'If left blank, rendered as dotted underline (....................)'
+                )}
+              </p>
+            </div>
+
+            {/* Customer Phone Number */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center space-x-1.5">
+                <Phone className="w-3.5 h-3.5 text-blue-400" />
+                <span>{t('வாடிக்கையாளர் போன் எண் (Customer Phone)', 'Customer Phone Number')}</span>
+              </label>
+              <input
+                type="tel"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder={t('எ.கா. +91 98765 43210', 'e.g. +91 98765 43210')}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               />
               <p className="text-[11px] text-slate-500 mt-1">

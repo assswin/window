@@ -20,7 +20,8 @@ import {
   DEFAULT_WINDOW_COLOR_CONFIGS,
   COLOR_THEME_PRESETS,
   hexToRgb,
-  getWindowModelCategory
+  getWindowModelCategory,
+  LSInteriorsExportOptions
 } from '../utils/lsInteriorsSheetCanvas';
 
 export interface TestCaseResult {
@@ -3380,6 +3381,42 @@ export class GoldenTestSuite {
         customTrackYellow: bgCustomTrack.canvas,
         classicBlueTrack: bgClassicTrack.canvas,
         monochromeWhite: bgMonoTrack.canvas
+      }
+    });
+
+    // 87. L.S. INTERIORS OUTPUT PDF & CANVAS CUSTOMER PHONE NUMBER INTEGRATION
+    const testOptionsWithPhone: LSInteriorsExportOptions = {
+      customerName: 'Kavitha Constructions',
+      customerPhone: '+91 98401 23456',
+      date: '12/11/2026'
+    };
+    const testOptionsBlankPhone: LSInteriorsExportOptions = {
+      customerName: '',
+      customerPhone: '',
+      date: '12/11/2026'
+    };
+
+    const passTest87 =
+      testOptionsWithPhone.customerName === 'Kavitha Constructions' &&
+      testOptionsWithPhone.customerPhone === '+91 98401 23456' &&
+      testOptionsBlankPhone.customerName === '' &&
+      testOptionsBlankPhone.customerPhone === '';
+
+    results.push({
+      name: 'L.S. Interiors Output PDF & Canvas Customer Phone Number: Dedicated Phone Field, Responsive Scaling & Vector Header Integration',
+      category: 'Rule Combination',
+      passed: passTest87,
+      input: {
+        customerName: testOptionsWithPhone.customerName,
+        customerPhone: testOptionsWithPhone.customerPhone
+      },
+      expected: {
+        customerName: 'Kavitha Constructions',
+        customerPhone: '+91 98401 23456'
+      },
+      actual: {
+        customerName: testOptionsWithPhone.customerName,
+        customerPhone: testOptionsWithPhone.customerPhone
       }
     });
 

@@ -153,6 +153,7 @@ export function computeWindowVariantLabels(
 
 export interface LSInteriorsExportOptions {
   customerName?: string;
+  customerPhone?: string;
   date?: string;
   includeMeshColumn?: boolean;
   includeInterlockColumn?: boolean;
@@ -1248,30 +1249,54 @@ export const renderLSInteriorsVectorPage = (
 
   // 3. Header Text - Responsive Branding with Anti-Collision Protection
   const customerName = options.customerName?.trim() || '';
+  const customerPhone = options.customerPhone?.trim() || '';
   const dateStr = options.date?.trim() || new Date().toLocaleDateString('en-GB');
 
-  // Customer Name (Left)
+  // Customer Name (Left - Top Line)
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
+  doc.setFontSize(9.5);
   doc.setTextColor(...inkDark);
-  doc.text('Customer Name :', marginX + 3, marginTop + headerH / 2, { baseline: 'middle' });
+  doc.text('Customer Name :', marginX + 3, marginTop + 4.8, { baseline: 'middle' });
 
   if (customerName) {
-    let custSize = 11.5;
+    let custSize = 10.5;
     doc.setFontSize(custSize);
     doc.setTextColor(29, 78, 216); // blue-700
     const custClean = cleanText(customerName);
-    // Center title begins at x=70mm. marginX + 36 = 43mm. Max allowed customer width is 26mm.
-    while (doc.getTextWidth(custClean) > 26 && custSize > 6.5) {
+    // Center title begins at x=73mm. marginX + 36 = 43mm. Max allowed customer width is 29mm.
+    while (doc.getTextWidth(custClean) > 29 && custSize > 6.0) {
       custSize -= 0.4;
       doc.setFontSize(custSize);
     }
-    doc.text(custClean, marginX + 36, marginTop + headerH / 2, { baseline: 'middle' });
+    doc.text(custClean, marginX + 36, marginTop + 4.8, { baseline: 'middle' });
   } else {
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10.5);
+    doc.setFontSize(9.5);
     doc.setTextColor(100, 116, 139);
-    doc.text('.....................................', marginX + 36, marginTop + headerH / 2, { baseline: 'middle' });
+    doc.text('.....................................', marginX + 36, marginTop + 4.8, { baseline: 'middle' });
+  }
+
+  // Customer Phone (Left - Bottom Line)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  doc.setTextColor(...inkDark);
+  doc.text('Customer Phone:', marginX + 3, marginTop + 10.2, { baseline: 'middle' });
+
+  if (customerPhone) {
+    let phoneSize = 10.5;
+    doc.setFontSize(phoneSize);
+    doc.setTextColor(29, 78, 216); // blue-700
+    const phoneClean = cleanText(customerPhone);
+    while (doc.getTextWidth(phoneClean) > 29 && phoneSize > 6.0) {
+      phoneSize -= 0.4;
+      doc.setFontSize(phoneSize);
+    }
+    doc.text(phoneClean, marginX + 36, marginTop + 10.2, { baseline: 'middle' });
+  } else {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text('.....................................', marginX + 36, marginTop + 10.2, { baseline: 'middle' });
   }
 
   // L.S.INTERIORS (Center Title - Exactly centered at x=105mm)
@@ -1280,15 +1305,21 @@ export const renderLSInteriorsVectorPage = (
   doc.setTextColor(...inkDark);
   doc.text('L.S.INTERIORS', 105, marginTop + headerH / 2, { align: 'center', baseline: 'middle' });
 
-  // Date (Right - exactly inside right border)
+  // Date (Right - Top Line)
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
+  doc.setFontSize(9.5);
   doc.setTextColor(...inkDark);
   if (dateStr) {
-    doc.text(`Date :  ${cleanText(dateStr)}`, marginX + boxW - 3, marginTop + headerH / 2, { align: 'right', baseline: 'middle' });
+    doc.text(`Date :  ${cleanText(dateStr)}`, marginX + boxW - 3, marginTop + 4.8, { align: 'right', baseline: 'middle' });
   } else {
-    doc.text('Date : ........................', marginX + boxW - 3, marginTop + headerH / 2, { align: 'right', baseline: 'middle' });
+    doc.text('Date : ........................', marginX + boxW - 3, marginTop + 4.8, { align: 'right', baseline: 'middle' });
   }
+
+  // Subtitle / Label (Right - Bottom Line)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(29, 78, 216);
+  doc.text('WORKSHOP ORDER SHEET', marginX + boxW - 3, marginTop + 10.2, { align: 'right', baseline: 'middle' });
 
   // 4. Columns & Widths - ALL CONFIGURATIONS SUM TO EXACTLY 196 MM
   const includeMesh = options.includeMeshColumn ?? false;
@@ -2057,17 +2088,18 @@ export const generateLSInteriorsSheetCanvas = (
 
   // Header Content - Responsive Anti-Collision Branding & Typography
   const customerName = options.customerName?.trim() || '';
+  const customerPhone = options.customerPhone?.trim() || '';
   const dateStr = options.date?.trim() || new Date().toLocaleDateString('en-GB');
 
-  // Customer Name (Left)
+  // Customer Name (Left - Top Line)
   ctx.fillStyle = inkDark;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.font = 'bold 36px "Plus Jakarta Sans", Arial, sans-serif';
-  ctx.fillText('Customer Name :', marginX + 32, marginTop + headerH / 2);
+  ctx.font = 'bold 30px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillText('Customer Name :', marginX + 32, marginTop + 55);
 
   if (customerName) {
-    let custSize = 38;
+    let custSize = 34;
     ctx.font = `bold ${custSize}px "Plus Jakarta Sans", Arial, sans-serif`;
     ctx.fillStyle = '#1d4ed8';
     const custClean = cleanText(customerName);
@@ -2077,11 +2109,35 @@ export const generateLSInteriorsSheetCanvas = (
       custSize -= 1;
       ctx.font = `bold ${custSize}px "Plus Jakarta Sans", Arial, sans-serif`;
     }
-    ctx.fillText(custClean, marginX + 340, marginTop + headerH / 2);
+    ctx.fillText(custClean, marginX + 340, marginTop + 55);
   } else {
     ctx.fillStyle = '#64748b';
-    ctx.font = '36px monospace';
-    ctx.fillText('....................................', marginX + 340, marginTop + headerH / 2);
+    ctx.font = '30px monospace';
+    ctx.fillText('....................................', marginX + 340, marginTop + 55);
+  }
+
+  // Customer Phone (Left - Bottom Line)
+  ctx.fillStyle = inkDark;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.font = 'bold 30px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillText('Customer Phone:', marginX + 32, marginTop + 115);
+
+  if (customerPhone) {
+    let phoneSize = 34;
+    ctx.font = `bold ${phoneSize}px "Plus Jakarta Sans", Arial, sans-serif`;
+    ctx.fillStyle = '#1d4ed8';
+    const phoneClean = cleanText(customerPhone);
+    const maxPhoneW = width / 2 - (marginX + 340) - 70;
+    while (ctx.measureText(phoneClean).width > maxPhoneW && phoneSize > 18) {
+      phoneSize -= 1;
+      ctx.font = `bold ${phoneSize}px "Plus Jakarta Sans", Arial, sans-serif`;
+    }
+    ctx.fillText(phoneClean, marginX + 340, marginTop + 115);
+  } else {
+    ctx.fillStyle = '#64748b';
+    ctx.font = '30px monospace';
+    ctx.fillText('....................................', marginX + 340, marginTop + 115);
   }
 
   // L.S.INTERIORS (Center Title - Exactly centered at width / 2)
@@ -2091,17 +2147,22 @@ export const generateLSInteriorsSheetCanvas = (
   ctx.font = '900 78px "Plus Jakarta Sans", "Arial Black", sans-serif';
   ctx.fillText('L.S.INTERIORS', width / 2, marginTop + headerH / 2);
 
-  // Date (Right)
+  // Date (Right - Top Line)
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
-  ctx.font = 'bold 36px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.font = 'bold 30px "Plus Jakarta Sans", Arial, sans-serif';
   ctx.fillStyle = inkDark;
 
   if (dateStr) {
-    ctx.fillText(`Date :  ${dateStr}`, marginX + boxW - 32, marginTop + headerH / 2);
+    ctx.fillText(`Date :  ${dateStr}`, marginX + boxW - 32, marginTop + 55);
   } else {
-    ctx.fillText('Date : ........................', marginX + boxW - 32, marginTop + headerH / 2);
+    ctx.fillText('Date : ........................', marginX + boxW - 32, marginTop + 55);
   }
+
+  // Subtitle (Right - Bottom Line)
+  ctx.font = 'bold 24px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = '#1d4ed8';
+  ctx.fillText('WORKSHOP ORDER SHEET', marginX + boxW - 32, marginTop + 115);
 
   // Columns & Widths - ALL CONFIGURATIONS SUM TO EXACTLY 2328 PX MATCHING boxW
   const includeMesh = options.includeMeshColumn ?? false;
@@ -2972,7 +3033,8 @@ export const exportLSInteriorsToPDF = (
     renderLSInteriorsVectorPage(doc, pageRows, effectiveOptions);
   }
 
-  const custClean = options.customerName ? `${cleanText(options.customerName).replace(/[^a-zA-Z0-9]/g, '_')}_` : '';
+  const identifier = options.customerName?.trim() || options.customerPhone?.trim() || '';
+  const custClean = identifier ? `${cleanText(identifier).replace(/[^a-zA-Z0-9]/g, '_')}_` : '';
   const dateClean = cleanText(options.date || new Date().toISOString().slice(0, 10)).replace(/[^a-zA-Z0-9]/g, '_');
   const filename = `LS_Interiors_Order_Sheet_${custClean}${dateClean}.pdf`;
   doc.save(filename);
@@ -3089,6 +3151,7 @@ export const renderGlassOrderVectorPage = (
 
   // 3. Header Text
   const customerName = options.customerName?.trim() || '';
+  const customerPhone = options.customerPhone?.trim() || '';
   const dateStr = options.date?.trim() || new Date().toLocaleDateString('en-GB');
 
   // Total summary across all rows
@@ -3096,27 +3159,50 @@ export const renderGlassOrderVectorPage = (
   const grandTotalPcs = fullList.reduce((sum, r) => sum + r.rawPcs, 0);
   const grandTotalSqFt = fullList.reduce((sum, r) => sum + r.rawSqFt, 0);
 
-  // Customer Name (Left)
+  // Customer Name (Left - Top Line)
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
+  doc.setFontSize(9.5);
   doc.setTextColor(...inkDark);
   doc.text('Customer Name :', marginX + 3, marginTop + 5.5, { baseline: 'middle' });
 
   if (customerName) {
-    let custSize = 11.0;
+    let custSize = 10.5;
     doc.setFontSize(custSize);
     doc.setTextColor(29, 78, 216); // blue-700
     const custClean = cleanText(customerName);
-    while (doc.getTextWidth(custClean) > 28 && custSize > 6.5) {
+    while (doc.getTextWidth(custClean) > 28 && custSize > 6.0) {
       custSize -= 0.4;
       doc.setFontSize(custSize);
     }
     doc.text(custClean, marginX + 36, marginTop + 5.5, { baseline: 'middle' });
   } else {
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10.5);
+    doc.setFontSize(9.5);
     doc.setTextColor(100, 116, 139);
     doc.text('.....................................', marginX + 36, marginTop + 5.5, { baseline: 'middle' });
+  }
+
+  // Customer Phone (Left - Bottom Line)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  doc.setTextColor(...inkDark);
+  doc.text('Customer Phone:', marginX + 3, marginTop + 10.8, { baseline: 'middle' });
+
+  if (customerPhone) {
+    let phoneSize = 10.5;
+    doc.setFontSize(phoneSize);
+    doc.setTextColor(29, 78, 216); // blue-700
+    const phoneClean = cleanText(customerPhone);
+    while (doc.getTextWidth(phoneClean) > 28 && phoneSize > 6.0) {
+      phoneSize -= 0.4;
+      doc.setFontSize(phoneSize);
+    }
+    doc.text(phoneClean, marginX + 36, marginTop + 10.8, { baseline: 'middle' });
+  } else {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text('.....................................', marginX + 36, marginTop + 10.8, { baseline: 'middle' });
   }
 
   // L.S.INTERIORS Branding (Center Top)
@@ -3366,7 +3452,8 @@ export const exportGlassOrderToPDF = (
     renderGlassOrderVectorPage(doc, pageRows, options, p, totalPages, glassRows);
   }
 
-  const custClean = options.customerName ? `${cleanText(options.customerName).replace(/[^a-zA-Z0-9]/g, '_')}_` : '';
+  const identifier = options.customerName?.trim() || options.customerPhone?.trim() || '';
+  const custClean = identifier ? `${cleanText(identifier).replace(/[^a-zA-Z0-9]/g, '_')}_` : '';
   const dateClean = cleanText(options.date || new Date().toISOString().slice(0, 10)).replace(/[^a-zA-Z0-9]/g, '_');
   const filename = `LS_Interiors_Glass_Order_${custClean}${dateClean}.pdf`;
   doc.save(filename);
@@ -3421,27 +3508,45 @@ export const generateGlassOrderSheetCanvas = (
 
   // Header text
   const customerName = options.customerName?.trim() || '';
+  const customerPhone = options.customerPhone?.trim() || '';
   const dateStr = options.date?.trim() || new Date().toLocaleDateString('en-GB');
 
   const glassRows = prepareLSGlassRows(results, options);
   const grandTotalPcs = glassRows.reduce((sum, r) => sum + r.rawPcs, 0);
   const grandTotalSqFt = glassRows.reduce((sum, r) => sum + r.rawSqFt, 0);
 
-  // Customer Name (Left)
-  ctx.font = 'bold 30px "Plus Jakarta Sans", Arial, sans-serif';
+  // Customer Name (Left - Top Line)
+  ctx.font = 'bold 28px "Plus Jakarta Sans", Arial, sans-serif';
   ctx.fillStyle = inkDark;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText('Customer Name :', marginX + 36, marginTop + 64);
 
   if (customerName) {
-    ctx.font = 'bold 34px "Plus Jakarta Sans", Arial, sans-serif';
+    ctx.font = 'bold 32px "Plus Jakarta Sans", Arial, sans-serif';
     ctx.fillStyle = '#1d4ed8';
     ctx.fillText(cleanText(customerName), marginX + 340, marginTop + 64);
   } else {
-    ctx.font = 'normal 30px "Plus Jakarta Sans", Arial, sans-serif';
+    ctx.font = 'normal 28px "Plus Jakarta Sans", Arial, sans-serif';
     ctx.fillStyle = '#94a3b8';
     ctx.fillText('......................................................', marginX + 340, marginTop + 64);
+  }
+
+  // Customer Phone (Left - Bottom Line)
+  ctx.font = 'bold 28px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = inkDark;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Customer Phone:', marginX + 36, marginTop + 124);
+
+  if (customerPhone) {
+    ctx.font = 'bold 32px "Plus Jakarta Sans", Arial, sans-serif';
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fillText(cleanText(customerPhone), marginX + 340, marginTop + 124);
+  } else {
+    ctx.font = 'normal 28px "Plus Jakarta Sans", Arial, sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('......................................................', marginX + 340, marginTop + 124);
   }
 
   // L.S.INTERIORS Branding (Center)
