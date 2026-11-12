@@ -19,8 +19,9 @@ import {
   Compass
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { ProfileCadDrawingViewer } from './ProfileCadDrawingViewer';
 
-export type CadViewMode = 'all_in_one' | 'elevation' | 'section_a' | 'section_b';
+export type CadViewMode = 'all_in_one' | 'elevation' | 'section_a' | 'section_b' | 'profile_drawing';
 export type CadTheme = 'white' | 'blueprint';
 
 interface TechnicalPreview2DProps {
@@ -314,6 +315,25 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
             </button>
           </div>
 
+          {/* Quick jump to 16 Profile Sections */}
+          <button
+            type="button"
+            onClick={() => {
+              setViewMode('single');
+              setCadView('profile_drawing');
+            }}
+            className={
+              'px-2.5 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer flex items-center space-x-1.5 ' +
+              (cadView === 'profile_drawing'
+                ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-sm'
+                : 'bg-slate-950 border-slate-800 text-amber-400 hover:bg-amber-950/40 hover:border-amber-500/40')
+            }
+            title={t('16 ப்ரொஃபைல் வரைபடங்கள் (GC-03 to GC-18)', '16 Profile CAD Sections (GC-03 to GC-18)')}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>{t('ப்ரொஃபைல் CAD', 'Profile CAD')}</span>
+          </button>
+
           {/* View mode toggle: Single vs Gallery */}
           <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[10px]">
             <button
@@ -464,19 +484,38 @@ export const TechnicalPreview2D: React.FC<TechnicalPreview2DProps> = ({
                 <SplitSquareVertical className="w-3 h-3" />
                 <span>Section B-B (Vertical)</span>
               </button>
+              <button
+                type="button"
+                onClick={() => setCadView('profile_drawing')}
+                className={
+                  'px-2 py-1 rounded transition cursor-pointer flex items-center space-x-1 ' +
+                  (cadView === 'profile_drawing' ? 'bg-amber-500 text-slate-950 font-bold shadow-xs' : 'text-slate-600 hover:text-sky-700 hover:bg-sky-100')
+                }
+                title="16 uPVC Profile Sections: Official 2D CAD Blueprint Drawing (GC-03 to GC-18)"
+              >
+                <Layers className="w-3 h-3" />
+                <span>{t('16 ப்ரொஃபைல் CAD வரைபடம்', '16 Profile CAD Sections')}</span>
+              </button>
             </div>
           </div>
 
-          {/* Blueprint SVG Card */}
-          <div className={'w-full overflow-hidden flex items-center justify-center rounded-xl border border-slate-800 p-2 sm:p-3 transition-colors ' + (cadTheme === 'white' ? 'bg-white shadow-inner' : 'bg-slate-950')}>
-            <WindowBlueprintSVG 
-              result={currentResult} 
-              svgRef={svgRef} 
-              activeCadView={cadView}
+          {/* Blueprint SVG Card or Profile CAD Drawing */}
+          {cadView === 'profile_drawing' ? (
+            <ProfileCadDrawingViewer
+              currentResult={currentResult}
               cadTheme={cadTheme}
-              isTamil={isTamil}
             />
-          </div>
+          ) : (
+            <div className={'w-full overflow-hidden flex items-center justify-center rounded-xl border border-slate-800 p-2 sm:p-3 transition-colors ' + (cadTheme === 'white' ? 'bg-white shadow-inner' : 'bg-slate-950')}>
+              <WindowBlueprintSVG 
+                result={currentResult} 
+                svgRef={svgRef} 
+                activeCadView={cadView}
+                cadTheme={cadTheme}
+                isTamil={isTamil}
+              />
+            </div>
+          )}
 
           {/* Summary Badges below drawing */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-mono text-slate-300">

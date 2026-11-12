@@ -23,6 +23,11 @@ import {
   getWindowModelCategory,
   LSInteriorsExportOptions
 } from '../utils/lsInteriorsSheetCanvas';
+import {
+  UPVC_16_PROFILES,
+  getMatchingProfilesForResult,
+  UPVC_PROFILE_CAD_IMAGE_DATA
+} from '../data/upvcProfilesData';
 
 export interface TestCaseResult {
   name: string;
@@ -3417,6 +3422,57 @@ export class GoldenTestSuite {
       actual: {
         customerName: testOptionsWithPhone.customerName,
         customerPhone: testOptionsWithPhone.customerPhone
+      }
+    });
+
+    // 88. 16 uPVC EXTRUSION PROFILES 2D CAD SECTIONS & SPECIFICATIONS CATALOG
+    const count16 = UPVC_16_PROFILES.length === 16;
+    const gc03 = UPVC_16_PROFILES.find(p => p.code === 'GC-03');
+    const gc06 = UPVC_16_PROFILES.find(p => p.code === 'GC-06');
+    const gc10 = UPVC_16_PROFILES.find(p => p.code === 'GC-10');
+    const gc11 = UPVC_16_PROFILES.find(p => p.code === 'GC-11');
+    const gc17 = UPVC_16_PROFILES.find(p => p.code === 'GC-17');
+    const gc18 = UPVC_16_PROFILES.find(p => p.code === 'GC-18');
+
+    const passSpecs =
+      gc03?.steelChamberMM === '33 × 18 mm' &&
+      gc03?.weightKgM === 1.098 &&
+      gc06?.name === 'SLIDING DOOR SASH' &&
+      gc06?.weightKgM === 1.250 &&
+      gc10?.name === 'SLIDING 2.5 TRACK FRAME' &&
+      gc11?.name === 'SLIDING 3 TRACK FRAME' &&
+      gc17?.name === 'OPENABLE FRAME' &&
+      gc18?.name === 'OPEN SASH';
+
+    const match2_5T = getMatchingProfilesForResult('sliding', '2.5-track');
+    const matchOpen = getMatchingProfilesForResult('open', 'none');
+    const hasMeshProfiles = match2_5T.some(p => p.code === 'GC-12') && match2_5T.some(p => p.code === 'GC-10');
+    const hasOpenProfiles = matchOpen.some(p => p.code === 'GC-17') && matchOpen.some(p => p.code === 'GC-18');
+
+    const passImageUri = typeof UPVC_PROFILE_CAD_IMAGE_DATA === 'string' && UPVC_PROFILE_CAD_IMAGE_DATA.startsWith('data:image/jpeg;base64,');
+
+    const passTest88 = count16 && passSpecs && hasMeshProfiles && hasOpenProfiles && passImageUri;
+
+    results.push({
+      name: '16 uPVC Extrusion Profiles 2D CAD Sections: Complete Catalog (GC-03 to GC-18), Steel Reinforcements, Weights & Window Matching',
+      category: 'Rule Combination',
+      passed: passTest88,
+      input: { profileCount: UPVC_16_PROFILES.length },
+      expected: {
+        totalProfiles: 16,
+        gc03Steel: '33 × 18 mm',
+        gc06DoorSashWeight: 1.250,
+        mesh2_5TMatches: true,
+        openWindowMatches: true,
+        imageDataLoaded: true
+      },
+      actual: {
+        totalProfiles: UPVC_16_PROFILES.length,
+        gc03Steel: gc03?.steelChamberMM,
+        gc06DoorSashWeight: gc06?.weightKgM,
+        mesh2_5TMatches: hasMeshProfiles,
+        openWindowMatches: hasOpenProfiles,
+        imageDataLoaded: passImageUri
       }
     });
 
