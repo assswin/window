@@ -15,7 +15,12 @@ import {
   LS_MODEL_COLOR_MAP,
   getLSModelBgColor,
   LS_MODEL_BG_COLOR_MAP,
-  computeWindowVariantLabels
+  computeWindowVariantLabels,
+  WindowColorCategoryKey,
+  DEFAULT_WINDOW_COLOR_CONFIGS,
+  COLOR_THEME_PRESETS,
+  hexToRgb,
+  getWindowModelCategory
 } from '../utils/lsInteriorsSheetCanvas';
 
 export interface TestCaseResult {
@@ -1221,7 +1226,7 @@ export class GoldenTestSuite {
       actual: { canvas: slidingRowColor.canvas, pdf: slidingRowColor.pdf }
     });
 
-    // 48. UNIQUE WINDOW MODEL ROW BACKGROUND COLORS (TRACK LIGHT BLUE, ICE BLUE)
+    // 48. UNIQUE WINDOW MODEL ROW BACKGROUND COLORS (TRACK SKY BLUE, MINT GREEN, LIME, LAVENDER, ROSE PINK)
     const bg2T = getLSModelBgColor('2T SLIDING');
     const bg2_5T = getLSModelBgColor('2.5T SLIDING (MESH)');
     const bg3T = getLSModelBgColor('3T SLIDING');
@@ -1231,34 +1236,34 @@ export class GoldenTestSuite {
     const bgVentNormal = getLSModelBgColor('ventilator/normal');
 
     const passBgColors =
-      bg2T.canvas === '#f0f9ff' &&
-      bg2_5T.canvas === '#f0f9ff' &&
-      bg3T.canvas === '#f0f9ff' &&
-      bgSingleCasement.canvas === '#f0f9ff' &&
-      bgDoubleCasement.canvas === '#e0f2fe' &&
-      bgFixed.canvas === '#e0f2fe' &&
-      bgVentNormal.canvas === '#e0f2fe';
+      bg2T.canvas === '#e0f2fe' &&
+      bg2_5T.canvas === '#e0f2fe' &&
+      bg3T.canvas === '#e0f2fe' &&
+      bgSingleCasement.canvas === '#dcfce7' &&
+      bgDoubleCasement.canvas === '#ecfccb' &&
+      bgFixed.canvas === '#f3e8ff' &&
+      bgVentNormal.canvas === '#ffe4e6';
 
     results.push({
-      name: 'Window Model Unique Row Background Colors: Track Light Blue (#f0f9ff), Double Ice Blue (#e0f2fe), Fixed Ice Blue (#e0f2fe), Ventilator Ice Blue (#e0f2fe)',
+      name: 'Window Model Unique Row Background Colors: Track Sky Blue (#e0f2fe), Single Mint (#dcfce7), Double Lime (#ecfccb), Fixed Lavender (#f3e8ff), Ventilator Rose (#ffe4e6)',
       category: 'Rule Combination',
       passed: passBgColors,
       input: {
         models: ['2T SLIDING', '2.5T SLIDING (MESH)', '3T SLIDING', 'SINGLE CASEMENT', 'DOUBLE CASEMENT', 'FIXED WINDOW', 'ventilator/normal']
       },
       expected: {
-        trackBlue: '#f0f9ff',
-        singleBlue: '#f0f9ff',
-        doubleIceBlue: '#e0f2fe',
-        fixedIceBlue: '#e0f2fe',
-        ventilatorIceBlue: '#e0f2fe'
+        trackBlue: '#e0f2fe',
+        singleMint: '#dcfce7',
+        doubleLime: '#ecfccb',
+        fixedLavender: '#f3e8ff',
+        ventilatorRose: '#ffe4e6'
       },
       actual: {
         trackBlue: bg2T.canvas,
-        singleBlue: bgSingleCasement.canvas,
-        doubleIceBlue: bgDoubleCasement.canvas,
-        fixedIceBlue: bgFixed.canvas,
-        ventilatorIceBlue: bgVentNormal.canvas
+        singleMint: bgSingleCasement.canvas,
+        doubleLime: bgDoubleCasement.canvas,
+        fixedLavender: bgFixed.canvas,
+        ventilatorRose: bgVentNormal.canvas
       }
     });
 
@@ -1270,18 +1275,18 @@ export class GoldenTestSuite {
       darkInkColor.pdf[0] === 15 &&
       darkInkColor.pdf[1] === 23 &&
       darkInkColor.pdf[2] === 42 &&
-      bg2T.canvas === '#f0f9ff';
+      bg2T.canvas === '#e0f2fe';
 
     results.push({
       name: 'No Font Color Rule & Cell Row Background Fill: Font uses crisp neutral dark ink (#0f172a / [15, 23, 42]) while cell rows are filled with model background color',
       category: 'Handwritten Golden Case',
       passed: passNoFontColorRule,
       input: { textFont: 'dark ink', bgFill: 'model background tint' },
-      expected: { textCanvas: '#0f172a', textPdf: [15, 23, 42], trackRowBg: '#f0f9ff' },
+      expected: { textCanvas: '#0f172a', textPdf: [15, 23, 42], trackRowBg: '#e0f2fe' },
       actual: { textCanvas: darkInkColor.canvas, textPdf: darkInkColor.pdf, trackRowBg: bg2T.canvas }
     });
 
-    // 50. SPECIFIC TYPE VERIFICATION: TRACK LIGHT BLUE, ICE BLUE TINTS
+    // 50. SPECIFIC TYPE VERIFICATION: UNIQUE COLORS FOR ALL MAJOR TYPES
     const bgTrack = getLSModelBgColor('track');
     const bgSingle = getLSModelBgColor('single');
     const bgDouble = getLSModelBgColor('double');
@@ -1289,25 +1294,25 @@ export class GoldenTestSuite {
     const bgVentFanRight = getLSModelBgColor('ventilator with fan right');
 
     const passUniqueModelTypes =
-      bgTrack.canvas === '#f0f9ff' &&
-      bgSingle.canvas === '#f0f9ff' &&
-      bgDouble.canvas === '#e0f2fe' &&
-      bgVentFanLeft.canvas === '#f0f9ff' &&
-      bgVentFanRight.canvas === '#e0f2fe';
+      bgTrack.canvas === '#e0f2fe' &&
+      bgSingle.canvas === '#dcfce7' &&
+      bgDouble.canvas === '#ecfccb' &&
+      bgVentFanLeft.canvas === '#ffedd5' &&
+      bgVentFanRight.canvas === '#e0e7ff';
 
     results.push({
-      name: 'Specific Window Type Colors: Track Light Blue (#f0f9ff) & Ice Blue (#e0f2fe) Blue Theme verified',
+      name: 'Specific Window Type Colors: Track Sky Blue (#e0f2fe), Single Mint (#dcfce7), Double Lime (#ecfccb), Fan Left Apricot (#ffedd5), Fan Right Periwinkle (#e0e7ff)',
       category: 'Rule Combination',
       passed: passUniqueModelTypes,
       input: {
         models: ['track', 'single', 'double', 'ventilator with fan left', 'ventilator with fan right']
       },
       expected: {
-        track: '#f0f9ff',
-        single: '#f0f9ff',
-        double: '#e0f2fe',
-        ventFanLeft: '#f0f9ff',
-        ventFanRight: '#e0f2fe'
+        track: '#e0f2fe',
+        single: '#dcfce7',
+        double: '#ecfccb',
+        ventFanLeft: '#ffedd5',
+        ventFanRight: '#e0e7ff'
       },
       actual: {
         track: bgTrack.canvas,
@@ -1344,8 +1349,8 @@ export class GoldenTestSuite {
       modelNameDouble === 'DOUBLE WINDOW' &&
       !modelNameSingle.includes('CASEMENT') &&
       !modelNameDouble.includes('CASEMENT') &&
-      getLSModelBgColor(modelNameSingle).canvas === '#f0f9ff' &&
-      getLSModelBgColor(modelNameDouble).canvas === '#e0f2fe';
+      getLSModelBgColor(modelNameSingle).canvas === '#dcfce7' &&
+      getLSModelBgColor(modelNameDouble).canvas === '#ecfccb';
 
     results.push({
       name: 'PDF Order Sheet Model Names: "SINGLE WINDOW" and "DOUBLE WINDOW" (Casement terminology removed)',
@@ -1359,8 +1364,8 @@ export class GoldenTestSuite {
         singleModelName: 'SINGLE WINDOW',
         doubleModelName: 'DOUBLE WINDOW',
         hasCasement: false,
-        singleBg: '#f0f9ff',
-        doubleBg: '#e0f2fe'
+        singleBg: '#dcfce7',
+        doubleBg: '#ecfccb'
       },
       actual: {
         singleModelName: modelNameSingle,
@@ -2434,7 +2439,7 @@ export class GoldenTestSuite {
       rowDoor85.sashHPcs === '4' &&
       rowDoor85.sashWPcs === '4' &&
       rowDoor85.interlockMM === '2035 mm' &&
-      doorBg.canvas === '#e0f2fe';
+      doorBg.canvas === '#ccfbf1';
 
     results.push({
       name: '85mm 2-Track Sliding Door: Dedicated Formula (H-94, (W-2)/2, Glass -152, Material 85mm, [SL/SL/DOOR] Unique Color)',
@@ -2451,7 +2456,7 @@ export class GoldenTestSuite {
         sashPcs: '8',
         sashHPcs: '4',
         sashWPcs: '4',
-        bg: '#e0f2fe'
+        bg: '#ccfbf1'
       },
       actual: {
         material: resDoor85.frame.profileDepthMM,
@@ -2576,7 +2581,7 @@ export class GoldenTestSuite {
       rowDoor85_3T.sashHPcs === '6' &&
       rowDoor85_3T.sashWPcs === '6' &&
       rowDoor85_3T.interlockMM === '2041 mm' &&
-      door3TBg.canvas === '#e0f2fe';
+      door3TBg.canvas === '#ccfbf1';
 
     results.push({
       name: '85mm 3-Track Sliding Door: Dedicated Formula (H-88, (W+90)/3, Glass -152, Material 85mm, [SL/SL/SL/DOOR] Unique Bright Color)',
@@ -2593,7 +2598,7 @@ export class GoldenTestSuite {
         sashPcs: '12',
         sashHPcs: '6',
         sashWPcs: '6',
-        bg: '#e0f2fe'
+        bg: '#ccfbf1'
       },
       actual: {
         material: resDoor85_3T.frame.profileDepthMM,
@@ -2651,24 +2656,24 @@ export class GoldenTestSuite {
       }
     });
 
-    // 76. MULTI-DOOR PDF ORDER SHEET: Both 2T Door ([SL/SL/DOOR]) and 3T Door ([SL/SL/SL/DOOR]) formatted with 85mm material and Door Ice Blue color
+    // 76. MULTI-DOOR PDF ORDER SHEET: Both 2T Door ([SL/SL/DOOR]) and 3T Door ([SL/SL/SL/DOOR]) formatted with 85mm material and Door Ice Teal color
     const multiDoorBatch = prepareLSRows([resDoor85, resDoor85_3T]);
     const passTest76 =
       multiDoorBatch[0].materialMM === '85 mm' &&
       multiDoorBatch[0].modelName === '[SL/SL/DOOR]' &&
-      getLSModelBgColor(multiDoorBatch[0]).canvas === '#e0f2fe' &&
+      getLSModelBgColor(multiDoorBatch[0]).canvas === '#ccfbf1' &&
       multiDoorBatch[1].materialMM === '85 mm' &&
       multiDoorBatch[1].modelName === '[SL/SL/SL/DOOR]' &&
-      getLSModelBgColor(multiDoorBatch[1]).canvas === '#e0f2fe';
+      getLSModelBgColor(multiDoorBatch[1]).canvas === '#ccfbf1';
 
     results.push({
-      name: 'Multi-Door PDF Order Sheet: Both [SL/SL/DOOR] and [SL/SL/SL/DOOR] formatted with 85 mm and Door Ice Blue color',
+      name: 'Multi-Door PDF Order Sheet: Both [SL/SL/DOOR] and [SL/SL/SL/DOOR] formatted with 85 mm and Door Ice Teal color',
       category: 'Rule Combination',
       passed: passTest76,
       input: { doorsCount: multiDoorBatch.length },
       expected: {
-        door2T: { material: '85 mm', model: '[SL/SL/DOOR]', color: '#e0f2fe' },
-        door3T: { material: '85 mm', model: '[SL/SL/SL/DOOR]', color: '#e0f2fe' }
+        door2T: { material: '85 mm', model: '[SL/SL/DOOR]', color: '#ccfbf1' },
+        door3T: { material: '85 mm', model: '[SL/SL/SL/DOOR]', color: '#ccfbf1' }
       },
       actual: {
         door2T: { material: multiDoorBatch[0]?.materialMM, model: multiDoorBatch[0]?.modelName, color: getLSModelBgColor(multiDoorBatch[0]).canvas },
@@ -2933,7 +2938,7 @@ export class GoldenTestSuite {
       resDoor85_2_5T.additionalPanels[0].count === 1 &&
       rowDoor85_2_5T.modelName === '[SL/SL/DOOR/MESH]' &&
       rowDoor85_2_5T.materialMM === '85 mm' &&
-      door2_5TBg.canvas === '#e0f2fe';
+      door2_5TBg.canvas === '#ccfbf1';
 
     results.push({
       name: '85mm 2.5-Track Sliding Door: Dedicated Formula (H-82, (W+12)/2, Glass -152, Mesh Same H&W, Material 85mm, [SL/SL/DOOR/MESH])',
@@ -2945,10 +2950,10 @@ export class GoldenTestSuite {
         sash: '2052 x 921 mm (2 Pcs)',
         interlock: '2047 mm',
         glass: '1900 x 769 mm (2 Pcs)',
-        mesh: '2052 x 921 mm (1 Pc, Same H&W)',
+        mesh: '2052 x 921 mm (1 Pc)',
         model: '[SL/SL/DOOR/MESH]',
         materialMM: '85 mm',
-        bg: '#e0f2fe'
+        bg: '#ccfbf1'
       },
       actual: {
         material: resDoor85_2_5T.frame.profileDepthMM,
@@ -3280,6 +3285,101 @@ export class GoldenTestSuite {
         w2Model: glassRows[1]?.modelName,
         w3Model: glassRows[2]?.modelName,
         ventilatorGlassCut: glassRows[3]?.glassCutMM
+      }
+    });
+
+    // 86. OUTPUT PDF & CANVAS MODEL ROW COLOR CUSTOMIZATION: UNIQUE DEFAULTS, PALETTE OVERRIDES, THEME PRESETS & LOCALSTORAGE
+    // 1. All 10 categories have distinct unique pastel colors
+    const catTrack = getLSModelBgColor('2T SLIDING');
+    const catDoor = getLSModelBgColor('2T SLIDING DOOR');
+    const catSingle = getLSModelBgColor('SINGLE WINDOW');
+    const catDouble = getLSModelBgColor('DOUBLE WINDOW');
+    const catTriple = getLSModelBgColor('3-OPEN WINDOW');
+    const catOpenDoor = getLSModelBgColor('[OP/DOOR (WITH BOTTOM)]');
+    const catFixed = getLSModelBgColor('FIXED WINDOW');
+    const catVent = getLSModelBgColor('ventilator/normal');
+    const catVentL = getLSModelBgColor('ventilator with fans Left');
+    const catVentR = getLSModelBgColor('ventilator with fans Right');
+
+    const passUniqueDefaults =
+      catTrack.canvas === '#e0f2fe' &&
+      catDoor.canvas === '#ccfbf1' &&
+      catSingle.canvas === '#dcfce7' &&
+      catDouble.canvas === '#ecfccb' &&
+      catTriple.canvas === '#d1fae5' &&
+      catOpenDoor.canvas === '#fef3c7' &&
+      catFixed.canvas === '#f3e8ff' &&
+      catVent.canvas === '#ffe4e6' &&
+      catVentL.canvas === '#ffedd5' &&
+      catVentR.canvas === '#e0e7ff';
+
+    // 2. Custom color overrides: passing customModelColors overrides background dynamically
+    const customPalette: Partial<Record<WindowColorCategoryKey, string>> = {
+      track: '#fef08a',       // yellow
+      fixed: '#fbcfe8',       // pink
+      open_door: '#fed7aa'    // peach
+    };
+
+    const bgCustomTrack = getLSModelBgColor('2T SLIDING', customPalette);
+    const bgCustomFixed = getLSModelBgColor('FIXED WINDOW', customPalette);
+    const bgCustomOpenDoor = getLSModelBgColor('[OP/DOOR (WITH BOTTOM)]', customPalette);
+    // Unoverridden category falls back to default
+    const bgCustomSingle = getLSModelBgColor('SINGLE WINDOW', customPalette);
+
+    const passCustomOverrides =
+      bgCustomTrack.canvas === '#fef08a' &&
+      bgCustomTrack.pdf[0] === 254 &&
+      bgCustomTrack.pdf[1] === 240 &&
+      bgCustomTrack.pdf[2] === 138 &&
+      bgCustomFixed.canvas === '#fbcfe8' &&
+      bgCustomOpenDoor.canvas === '#fed7aa' &&
+      bgCustomSingle.canvas === '#dcfce7';
+
+    // 3. Preset Themes (Classic Blue & Clean White)
+    const classicBluePreset = COLOR_THEME_PRESETS.classic_blue.colors;
+    const bgClassicTrack = getLSModelBgColor('2T SLIDING', classicBluePreset);
+    const bgClassicDouble = getLSModelBgColor('DOUBLE WINDOW', classicBluePreset);
+
+    const monochromePreset = COLOR_THEME_PRESETS.monochrome.colors;
+    const bgMonoTrack = getLSModelBgColor('2T SLIDING', monochromePreset);
+    const bgMonoFixed = getLSModelBgColor('FIXED WINDOW', monochromePreset);
+
+    const passPresets =
+      bgClassicTrack.canvas === '#f0f9ff' &&
+      bgClassicDouble.canvas === '#e0f2fe' &&
+      bgMonoTrack.canvas === '#ffffff' &&
+      bgMonoFixed.canvas === '#ffffff';
+
+    // 4. Hex to RGB helper conversion check
+    const rgbSky = hexToRgb('#e0f2fe');
+    const rgbShortHex = hexToRgb('#fff');
+    const passHexToRgb =
+      rgbSky[0] === 224 && rgbSky[1] === 242 && rgbSky[2] === 254 &&
+      rgbShortHex[0] === 255 && rgbShortHex[1] === 255 && rgbShortHex[2] === 255;
+
+    const passTest86 = passUniqueDefaults && passCustomOverrides && passPresets && passHexToRgb;
+
+    results.push({
+      name: 'Output PDF & Canvas Window Model Row Color Customization: Unique Defaults, Custom Palette Overrides, Theme Presets & LocalStorage',
+      category: 'Rule Combination',
+      passed: passTest86,
+      input: {
+        customPalette,
+        presets: ['unique', 'classic_blue', 'monochrome']
+      },
+      expected: {
+        trackDefault: '#e0f2fe',
+        openDoorDefault: '#fef3c7',
+        customTrackYellow: '#fef08a',
+        classicBlueTrack: '#f0f9ff',
+        monochromeWhite: '#ffffff'
+      },
+      actual: {
+        trackDefault: catTrack.canvas,
+        openDoorDefault: catOpenDoor.canvas,
+        customTrackYellow: bgCustomTrack.canvas,
+        classicBlueTrack: bgClassicTrack.canvas,
+        monochromeWhite: bgMonoTrack.canvas
       }
     });
 

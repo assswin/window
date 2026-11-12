@@ -158,6 +158,7 @@ export interface LSInteriorsExportOptions {
   includeInterlockColumn?: boolean;
   includeMullionColumn?: boolean;
   mullionDeductionMM?: number; // Customizable deduction from Sash Height (default: 6 mm)
+  customModelColors?: Partial<Record<WindowColorCategoryKey, string>>;
 }
 
 export interface LSFlattenedRow {
@@ -266,43 +267,275 @@ export interface LSModelBgColor {
 }
 
 /**
- * Subtle sky-blue row tints distinguish window models while preserving the brand palette.
+ * 10 Canonical Window Model Categories for Unique Row Coloring and Customization
  */
-export const LS_MODEL_BG_COLOR_MAP: Record<string, LSModelBgColor> = {
-  '2T SLIDING DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
-  '2.5T SLIDING DOOR (MESH)': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
-  '3T SLIDING DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
-  'SL/SL/DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
-  'SL/SL/DOOR/MESH': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
-  'SL/SL/MESH/DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
-  'SL/SL/SL/DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
-  'DOOR': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Door Ice Blue' },
-  'TRACK': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
-  '2T SLIDING': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
-  '2.5T SLIDING (MESH)': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
-  '3T SLIDING': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
-  '4T SLIDING': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
-  'SLIDING WINDOW': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Track Light Blue' },
-  'FIXED WINDOW': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Fixed Ice Blue' },
-  'SINGLE WINDOW': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Single Light Blue' },
-  'SINGLE CASEMENT': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Single Light Blue' },
-  'DOUBLE WINDOW': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Double Ice Blue' },
-  'DOUBLE CASEMENT': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Double Ice Blue' },
-  '3-OPEN WINDOW': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Double Ice Blue' },
-  'ventilator/normal': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Ventilator Ice Blue' },
-  'ventilator with fans Left': { pdf: [240, 249, 255], canvas: '#f0f9ff', name: 'Fan Left Light Blue' },
-  'ventilator with fans Right': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Fan Right Ice Blue' },
+export type WindowColorCategoryKey =
+  | 'track'               // 2T, 2.5T, 3T, 4T Sliding Windows (58mm, 66mm)
+  | 'sliding_door'        // 85mm Sliding Doors ([SL/SL/DOOR], [SL/SL/SL/DOOR], [SL/SL/DOOR/MESH])
+  | 'single_open'         // Single Open Casement Window ([OP])
+  | 'double_open'         // Double Open Casement Window ([OP/OP])
+  | 'triple_open'         // 3-Open Casement Window ([OP/OP/OP])
+  | 'open_door'           // 108mm Single Open Door ([OP/DOOR (WITH BOTTOM)], [OP/DOOR (WITHOUT BOTTOM)])
+  | 'fixed'               // Fixed Window Direct Glazing ([FIXED])
+  | 'ventilator_normal'   // Ventilator Normal ([VENT])
+  | 'ventilator_fan_left' // Ventilator Fan Left ([VENT (FAN L)])
+  | 'ventilator_fan_right'; // Ventilator Fan Right ([VENT (FAN R)])
+
+export interface WindowColorConfig {
+  key: WindowColorCategoryKey;
+  labelEn: string;
+  labelTa: string;
+  shortCode: string;
+  defaultHex: string;
+  defaultRgb: [number, number, number];
+  description: string;
+}
+
+export const STORAGE_KEY_WINDOW_COLORS = 'window_builder_custom_model_colors';
+
+/**
+ * Converts a 3 or 6 digit hex color code to an [r, g, b] tuple (0-255)
+ */
+export function hexToRgb(hex: string): [number, number, number] {
+  if (!hex || typeof hex !== 'string') return [224, 242, 254];
+  let clean = hex.replace('#', '').trim();
+  if (clean.length === 3) {
+    clean = clean.split('').map((c) => c + c).join('');
+  }
+  const num = parseInt(clean, 16);
+  if (isNaN(num)) return [224, 242, 254];
+  return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+}
+
+/**
+ * 10 Distinct Unique Pastel Default Colors for Each Window Type.
+ * Tested for high-contrast (>12:1) readability with dark black ink (#0f172a).
+ */
+export const DEFAULT_WINDOW_COLOR_CONFIGS: Record<WindowColorCategoryKey, WindowColorConfig> = {
+  track: {
+    key: 'track',
+    labelEn: 'Sliding Windows (Track)',
+    labelTa: 'ஸ்லைடிங் ஜன்னல்கள்',
+    shortCode: '[SL/SL]',
+    defaultHex: '#e0f2fe',
+    defaultRgb: [224, 242, 254],
+    description: '2T, 2.5T, 3T, 4T (58mm & 66mm)'
+  },
+  sliding_door: {
+    key: 'sliding_door',
+    labelEn: 'Sliding Doors (85mm)',
+    labelTa: 'ஸ்லைடிங் கதவுகள் (85mm)',
+    shortCode: '[SL/DOOR]',
+    defaultHex: '#ccfbf1',
+    defaultRgb: [204, 251, 241],
+    description: '85mm Heavy Doors (2T, 2.5T, 3T)'
+  },
+  single_open: {
+    key: 'single_open',
+    labelEn: 'Single Open Window',
+    labelTa: 'தனி திறப்பு ஜன்னல்',
+    shortCode: '[OP]',
+    defaultHex: '#dcfce7',
+    defaultRgb: [220, 252, 231],
+    description: 'Single Open Casement Window (58mm)'
+  },
+  double_open: {
+    key: 'double_open',
+    labelEn: 'Double Open Window',
+    labelTa: 'இரட்டை திறப்பு ஜன்னல்',
+    shortCode: '[OP/OP]',
+    defaultHex: '#ecfccb',
+    defaultRgb: [236, 252, 203],
+    description: 'Double Open Casement Window with Mullion'
+  },
+  triple_open: {
+    key: 'triple_open',
+    labelEn: '3-Open Window',
+    labelTa: '3-திறப்பு ஜன்னல்',
+    shortCode: '[OP/OP/OP]',
+    defaultHex: '#d1fae5',
+    defaultRgb: [209, 250, 229],
+    description: '3-Open Window with 2 Mullions'
+  },
+  open_door: {
+    key: 'open_door',
+    labelEn: 'Single Open Door (108mm)',
+    labelTa: 'திறப்பு கதவு (108mm)',
+    shortCode: '[OP/DOOR]',
+    defaultHex: '#fef3c7',
+    defaultRgb: [254, 243, 199],
+    description: '108mm Door with / without bottom'
+  },
+  fixed: {
+    key: 'fixed',
+    labelEn: 'Fixed Window',
+    labelTa: 'நிலையான ஜன்னல்',
+    shortCode: '[FIXED]',
+    defaultHex: '#f3e8ff',
+    defaultRgb: [243, 232, 255],
+    description: 'Fixed Window Direct Glazing'
+  },
+  ventilator_normal: {
+    key: 'ventilator_normal',
+    labelEn: 'Ventilator (Normal)',
+    labelTa: 'வென்டிலேட்டர் (Normal)',
+    shortCode: '[VENT]',
+    defaultHex: '#ffe4e6',
+    defaultRgb: [255, 228, 230],
+    description: 'Louvered Ventilator without fan'
+  },
+  ventilator_fan_left: {
+    key: 'ventilator_fan_left',
+    labelEn: 'Ventilator (Fan Left)',
+    labelTa: 'வென்டிலேட்டர் (Fan Left)',
+    shortCode: '[VENT (L)]',
+    defaultHex: '#ffedd5',
+    defaultRgb: [255, 237, 213],
+    description: 'Ventilator with Fan on Left'
+  },
+  ventilator_fan_right: {
+    key: 'ventilator_fan_right',
+    labelEn: 'Ventilator (Fan Right)',
+    labelTa: 'வென்டிலேட்டர் (Fan Right)',
+    shortCode: '[VENT (R)]',
+    defaultHex: '#e0e7ff',
+    defaultRgb: [224, 231, 255],
+    description: 'Ventilator with Fan on Right'
+  }
 };
 
 /**
- * Returns the dedicated light blue background tint for a window model type.
+ * Curated palette of high-legibility pastel swatches for quick color customization
  */
-export const getLSModelBgColor = (
-  input: string | LSFlattenedRow | CalculationResult | undefined | null
-): LSModelBgColor => {
-  if (!input) {
-    return { pdf: [255, 255, 255], canvas: '#ffffff', name: 'Clean White' };
+export const PASTEL_COLOR_PALETTE = [
+  { name: 'Sky Blue', hex: '#e0f2fe' },
+  { name: 'Ice Teal', hex: '#ccfbf1' },
+  { name: 'Mint Green', hex: '#dcfce7' },
+  { name: 'Light Lime', hex: '#ecfccb' },
+  { name: 'Soft Emerald', hex: '#d1fae5' },
+  { name: 'Warm Amber', hex: '#fef3c7' },
+  { name: 'Soft Lavender', hex: '#f3e8ff' },
+  { name: 'Rose Pink', hex: '#ffe4e6' },
+  { name: 'Apricot Peach', hex: '#ffedd5' },
+  { name: 'Periwinkle Blue', hex: '#e0e7ff' },
+  { name: 'Light Slate', hex: '#f1f5f9' },
+  { name: 'Clean White', hex: '#ffffff' }
+];
+
+/**
+ * 1-Click Preset Themes for quick styling
+ */
+export const COLOR_THEME_PRESETS: Record<
+  string,
+  { id: string; nameEn: string; nameTa: string; colors: Record<WindowColorCategoryKey, string> }
+> = {
+  unique: {
+    id: 'unique',
+    nameEn: 'Unique Colors (Default)',
+    nameTa: 'தனித்தனி வண்ணங்கள்',
+    colors: {
+      track: '#e0f2fe',
+      sliding_door: '#ccfbf1',
+      single_open: '#dcfce7',
+      double_open: '#ecfccb',
+      triple_open: '#d1fae5',
+      open_door: '#fef3c7',
+      fixed: '#f3e8ff',
+      ventilator_normal: '#ffe4e6',
+      ventilator_fan_left: '#ffedd5',
+      ventilator_fan_right: '#e0e7ff'
+    }
+  },
+  classic_blue: {
+    id: 'classic_blue',
+    nameEn: 'Classic Blue Theme',
+    nameTa: 'நீல வண்ணம்',
+    colors: {
+      track: '#f0f9ff',
+      sliding_door: '#e0f2fe',
+      single_open: '#f0f9ff',
+      double_open: '#e0f2fe',
+      triple_open: '#e0f2fe',
+      open_door: '#e0f2fe',
+      fixed: '#e0f2fe',
+      ventilator_normal: '#e0f2fe',
+      ventilator_fan_left: '#f0f9ff',
+      ventilator_fan_right: '#e0f2fe'
+    }
+  },
+  monochrome: {
+    id: 'monochrome',
+    nameEn: 'Clean White / Minimal',
+    nameTa: 'வெள்ளை',
+    colors: {
+      track: '#ffffff',
+      sliding_door: '#ffffff',
+      single_open: '#ffffff',
+      double_open: '#ffffff',
+      triple_open: '#ffffff',
+      open_door: '#ffffff',
+      fixed: '#ffffff',
+      ventilator_normal: '#ffffff',
+      ventilator_fan_left: '#ffffff',
+      ventilator_fan_right: '#ffffff'
+    }
   }
+};
+
+/**
+ * Retrieves stored custom model colors from localStorage with fallback to default unique colors
+ */
+export const getCustomModelColors = (): Record<WindowColorCategoryKey, string> => {
+  const defaults: Record<WindowColorCategoryKey, string> = {
+    track: DEFAULT_WINDOW_COLOR_CONFIGS.track.defaultHex,
+    sliding_door: DEFAULT_WINDOW_COLOR_CONFIGS.sliding_door.defaultHex,
+    single_open: DEFAULT_WINDOW_COLOR_CONFIGS.single_open.defaultHex,
+    double_open: DEFAULT_WINDOW_COLOR_CONFIGS.double_open.defaultHex,
+    triple_open: DEFAULT_WINDOW_COLOR_CONFIGS.triple_open.defaultHex,
+    open_door: DEFAULT_WINDOW_COLOR_CONFIGS.open_door.defaultHex,
+    fixed: DEFAULT_WINDOW_COLOR_CONFIGS.fixed.defaultHex,
+    ventilator_normal: DEFAULT_WINDOW_COLOR_CONFIGS.ventilator_normal.defaultHex,
+    ventilator_fan_left: DEFAULT_WINDOW_COLOR_CONFIGS.ventilator_fan_left.defaultHex,
+    ventilator_fan_right: DEFAULT_WINDOW_COLOR_CONFIGS.ventilator_fan_right.defaultHex
+  };
+
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return defaults;
+  }
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_WINDOW_COLORS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === 'object' && parsed !== null) {
+        return { ...defaults, ...parsed };
+      }
+    }
+  } catch (_) {}
+
+  return defaults;
+};
+
+/**
+ * Saves customized model colors to localStorage
+ */
+export const saveCustomModelColors = (colors: Partial<Record<WindowColorCategoryKey, string>>): void => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const current = getCustomModelColors();
+      const updated = { ...current, ...colors };
+      localStorage.setItem(STORAGE_KEY_WINDOW_COLORS, JSON.stringify(updated));
+    } catch (_) {}
+  }
+};
+
+/**
+ * Maps any window model name, row, or calculation result to its canonical color category
+ */
+export const getWindowModelCategory = (
+  input: string | LSFlattenedRow | CalculationResult | undefined | null
+): WindowColorCategoryKey => {
+  if (!input) return 'track';
 
   let modelName = '';
   if (typeof input === 'string') {
@@ -314,24 +547,35 @@ export const getLSModelBgColor = (
     if (res.input.windowType === 'ventilator') {
       if (res.input.ventilatorSubtype === 'fan') {
         return res.input.ventilatorFanSide === 'right'
-          ? LS_MODEL_BG_COLOR_MAP['ventilator with fans Right']
-          : LS_MODEL_BG_COLOR_MAP['ventilator with fans Left'];
+          ? 'ventilator_fan_right'
+          : 'ventilator_fan_left';
       }
-      return LS_MODEL_BG_COLOR_MAP['ventilator/normal'];
+      return 'ventilator_normal';
     }
     modelName = getLSModelName(res).trim();
   }
 
-  // Strip prefix like "W1a • " or "W2 • " if present
   const cleanModel = modelName.replace(/^W\d+[a-z]?\s*[•\-]\s*/i, '').trim();
   const upper = cleanModel.toUpperCase();
 
-  // 0. Door variations ([SL/SL/DOOR], [OP/DOOR], DOOR)
-  if (upper.includes('DOOR') || upper.includes('SL/SL/DOOR') || upper.includes('OP/DOOR')) {
-    return LS_MODEL_BG_COLOR_MAP['2T SLIDING DOOR'];
+  // 1. Single Open Door (108mm)
+  if (upper.includes('OP/DOOR') || upper.includes('OPEN DOOR')) {
+    return 'open_door';
   }
 
-  // 1. Ventilator variations (Fan Left vs Fan Right vs Normal)
+  // 2. Sliding Door (85mm)
+  if (
+    upper.includes('SL/SL/DOOR') ||
+    upper.includes('SL/SL/SL/DOOR') ||
+    upper.includes('SL/SL/DOOR/MESH') ||
+    upper.includes('SL/SL/MESH/DOOR') ||
+    upper.includes('SLIDING DOOR') ||
+    upper.endsWith('DOOR')
+  ) {
+    return 'sliding_door';
+  }
+
+  // 3. Ventilators
   if (upper.includes('VENT') || upper.includes('FAN')) {
     if (
       upper.includes('RIGHT') ||
@@ -343,7 +587,7 @@ export const getLSModelBgColor = (
       upper.includes('(RIGHT)') ||
       upper.includes('FAN R]')
     ) {
-      return LS_MODEL_BG_COLOR_MAP['ventilator with fans Right'];
+      return 'ventilator_fan_right';
     }
     if (
       upper.includes('LEFT') ||
@@ -355,58 +599,111 @@ export const getLSModelBgColor = (
       upper.includes('(LEFT)') ||
       upper.includes('FAN L]')
     ) {
-      return LS_MODEL_BG_COLOR_MAP['ventilator with fans Left'];
+      return 'ventilator_fan_left';
     }
-    return LS_MODEL_BG_COLOR_MAP['ventilator/normal'];
+    return 'ventilator_normal';
   }
 
-  // 2. Fixed Window
+  // 4. Fixed Window
   if (upper.includes('FIXED')) {
-    return LS_MODEL_BG_COLOR_MAP['FIXED WINDOW'];
+    return 'fixed';
   }
 
-  // 3. Double & 3-Open Window variations (Open window with mullion: [OP/OP], [OP/OP/OP], DOUBLE, 3-OPEN, TRIPLE)
-  if (
-    upper.includes('OP/OP') ||
-    upper.includes('DOUBLE') ||
-    upper.includes('3-OPEN') ||
-    upper.includes('TRIPLE')
-  ) {
-    return LS_MODEL_BG_COLOR_MAP['DOUBLE WINDOW'];
+  // 5. 3-Open Casement Window
+  if (upper.includes('OP/OP/OP') || upper.includes('3-OPEN') || upper.includes('TRIPLE')) {
+    return 'triple_open';
   }
 
-  // 4. Single Window variations (Single open window: [OP], SINGLE, CASEMENT, OPEN)
+  // 6. Double Open Casement Window
+  if (upper.includes('OP/OP') || upper.includes('DOUBLE')) {
+    return 'double_open';
+  }
+
+  // 7. Single Open Casement Window
   if (
     upper.includes('[OP]') ||
     upper === 'OP' ||
     upper.includes('SINGLE') ||
-    upper.includes('CASEMENT') ||
-    (upper.includes('OPEN') && !upper.includes('3-OPEN'))
+    (upper.includes('OPEN') && !upper.includes('DOOR'))
   ) {
-    return LS_MODEL_BG_COLOR_MAP['SINGLE WINDOW'];
+    return 'single_open';
   }
 
-  // 5. Track / Sliding variations (2T, 2.5T, 3T, 4T, Sliding, [SL/SL], [SL/SL/MESH], [SL/SL/SL/SL])
-  if (
-    upper.includes('SL/') ||
-    upper.includes('[SL') ||
-    upper.includes('TRACK') ||
-    upper.startsWith('2.5T') ||
-    upper.includes('2.5T') ||
-    upper.includes('MESH') ||
-    upper.startsWith('3T') ||
-    upper.includes('3T') ||
-    upper.includes('3.5T') ||
-    upper.startsWith('4T') ||
-    upper.includes('4T') ||
-    upper.startsWith('2T') ||
-    upper.includes('2T') ||
-    upper.includes('SLIDING')
-  ) {
-    return LS_MODEL_BG_COLOR_MAP['TRACK'];
+  // 8. Track / Sliding variations (2T, 2.5T, 3T, 4T)
+  return 'track';
+};
+
+/**
+ * Legacy lookup map preserved for direct access, now populated with unique distinct colors.
+ */
+export const LS_MODEL_BG_COLOR_MAP: Record<string, LSModelBgColor> = {
+  '2T SLIDING DOOR': { pdf: [204, 251, 241], canvas: '#ccfbf1', name: 'Door Ice Teal' },
+  '2.5T SLIDING DOOR (MESH)': { pdf: [204, 251, 241], canvas: '#ccfbf1', name: 'Door Ice Teal' },
+  '3T SLIDING DOOR': { pdf: [204, 251, 241], canvas: '#ccfbf1', name: 'Door Ice Teal' },
+  'SL/SL/DOOR': { pdf: [204, 251, 241], canvas: '#ccfbf1', name: 'Door Ice Teal' },
+  'SL/SL/DOOR/MESH': { pdf: [204, 251, 241], canvas: '#ccfbf1', name: 'Door Ice Teal' },
+  'SL/SL/MESH/DOOR': { pdf: [204, 251, 241], canvas: '#ccfbf1', name: 'Door Ice Teal' },
+  'SL/SL/SL/DOOR': { pdf: [204, 251, 241], canvas: '#ccfbf1', name: 'Door Ice Teal' },
+  'DOOR': { pdf: [204, 251, 241], canvas: '#ccfbf1', name: 'Door Ice Teal' },
+  'TRACK': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Track Sky Blue' },
+  '2T SLIDING': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Track Sky Blue' },
+  '2.5T SLIDING (MESH)': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Track Sky Blue' },
+  '3T SLIDING': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Track Sky Blue' },
+  '4T SLIDING': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Track Sky Blue' },
+  'SLIDING WINDOW': { pdf: [224, 242, 254], canvas: '#e0f2fe', name: 'Track Sky Blue' },
+  'FIXED WINDOW': { pdf: [243, 232, 255], canvas: '#f3e8ff', name: 'Fixed Lavender' },
+  'SINGLE WINDOW': { pdf: [220, 252, 231], canvas: '#dcfce7', name: 'Single Mint Green' },
+  'SINGLE CASEMENT': { pdf: [220, 252, 231], canvas: '#dcfce7', name: 'Single Mint Green' },
+  'DOUBLE WINDOW': { pdf: [236, 252, 203], canvas: '#ecfccb', name: 'Double Light Lime' },
+  'DOUBLE CASEMENT': { pdf: [236, 252, 203], canvas: '#ecfccb', name: 'Double Light Lime' },
+  '3-OPEN WINDOW': { pdf: [209, 250, 229], canvas: '#d1fae5', name: '3-Open Emerald' },
+  'ventilator/normal': { pdf: [255, 228, 230], canvas: '#ffe4e6', name: 'Ventilator Rose Pink' },
+  'ventilator with fans Left': { pdf: [255, 237, 213], canvas: '#ffedd5', name: 'Fan Left Apricot' },
+  'ventilator with fans Right': { pdf: [224, 231, 255], canvas: '#e0e7ff', name: 'Fan Right Periwinkle' },
+};
+
+/**
+ * Returns the dedicated unique background tint for a window model type,
+ * supporting customized color palettes and user overrides.
+ */
+export const getLSModelBgColor = (
+  input: string | LSFlattenedRow | CalculationResult | undefined | null,
+  customColors?: Partial<Record<WindowColorCategoryKey, string>>
+): LSModelBgColor => {
+  if (!input) {
+    return { pdf: [255, 255, 255], canvas: '#ffffff', name: 'Clean White' };
   }
 
-  return LS_MODEL_BG_COLOR_MAP['TRACK'];
+  const category = getWindowModelCategory(input);
+  const config = DEFAULT_WINDOW_COLOR_CONFIGS[category];
+
+  // 1. Argument override
+  let hex = customColors?.[category];
+
+  // 2. LocalStorage override
+  if (!hex && typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_WINDOW_COLORS);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed[category] === 'string') {
+          hex = parsed[category];
+        }
+      }
+    } catch (_) {}
+  }
+
+  // 3. Default unique color
+  if (!hex) {
+    hex = config ? config.defaultHex : '#e0f2fe';
+  }
+
+  const rgb = hexToRgb(hex);
+  return {
+    pdf: rgb,
+    canvas: hex,
+    name: config ? config.labelEn : 'Window Model'
+  };
 };
 
 /**
@@ -1418,7 +1715,7 @@ export const renderLSInteriorsVectorPage = (
     const isFixed = Boolean(row && (row.isFixed ?? (row.windowType === 'fixed' || row.modelName?.toUpperCase().includes('FIXED'))));
 
     if (row) {
-      const bg = getLSModelBgColor(row);
+      const bg = getLSModelBgColor(row, options.customModelColors);
       doc.setFillColor(...bg.pdf);
       doc.rect(marginX, rowTopY, boxW, rowH, 'F');
     }
@@ -2272,7 +2569,7 @@ export const generateLSInteriorsSheetCanvas = (
 
     // Fill Row / Cell Background with Window Type's Unique Color
     if (rowData) {
-      const bg = getLSModelBgColor(rowData);
+      const bg = getLSModelBgColor(rowData, options.customModelColors);
       ctx.fillStyle = bg.canvas;
       ctx.fillRect(marginX, rowTopY, boxW, rowH);
     }
@@ -2950,7 +3247,7 @@ export const renderGlassOrderVectorPage = (
     const row = pageRows[r];
 
     if (row) {
-      const bg = getLSModelBgColor(row.modelName);
+      const bg = getLSModelBgColor(row.modelName, options.customModelColors);
       doc.setFillColor(bg.pdf[0], bg.pdf[1], bg.pdf[2]);
       doc.rect(marginX, rowTopY, boxW, rowH, 'F');
     }
@@ -3260,7 +3557,7 @@ export const generateGlassOrderSheetCanvas = (
     const row = pageRows[r];
 
     if (row) {
-      const bg = getLSModelBgColor(row.modelName);
+      const bg = getLSModelBgColor(row.modelName, options.customModelColors);
       ctx.fillStyle = bg.canvas;
       ctx.fillRect(marginX, rowTopY, boxW, rowH);
     }

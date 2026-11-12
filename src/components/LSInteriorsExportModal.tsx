@@ -8,7 +8,9 @@ import {
   Eye,
   Sparkles,
   Layers,
-  FileText
+  FileText,
+  Palette,
+  RotateCcw
 } from 'lucide-react';
 import { CalculationResult } from '../engine/types';
 import {
@@ -19,7 +21,13 @@ import {
   prepareLSGlassRows,
   has2_5TrackInResults,
   hasSlidingInResults,
-  hasDoubleWindowInResults
+  hasDoubleWindowInResults,
+  WindowColorCategoryKey,
+  DEFAULT_WINDOW_COLOR_CONFIGS,
+  COLOR_THEME_PRESETS,
+  PASTEL_COLOR_PALETTE,
+  getCustomModelColors,
+  saveCustomModelColors
 } from '../utils/lsInteriorsSheetCanvas';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -36,18 +44,42 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
   results,
   initialSheetType = 'full'
 }) => {
-  const { t } = useLanguage();
+  const { t, isTamil } = useLanguage();
   const [sheetType, setSheetType] = useState<'full' | 'glass'>(initialSheetType);
   const [customerName, setCustomerName] = useState('');
   const [date, setDate] = useState(() => new Date().toLocaleDateString('en-GB'));
   const [previewPage, setPreviewPage] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
+  const [customModelColors, setCustomModelColors] = useState<Record<WindowColorCategoryKey, string>>(() => getCustomModelColors());
+  const [isColorCustomizerOpen, setIsColorCustomizerOpen] = useState(false);
+  const [activeColorCategory, setActiveColorCategory] = useState<WindowColorCategoryKey>('track');
 
   useEffect(() => {
-    if (isOpen && initialSheetType) {
-      setSheetType(initialSheetType);
+    if (isOpen) {
+      if (initialSheetType) {
+        setSheetType(initialSheetType);
+      }
+      setCustomModelColors(getCustomModelColors());
     }
   }, [isOpen, initialSheetType]);
+
+  const handleColorChange = (catKey: WindowColorCategoryKey, hex: string) => {
+    const updated = { ...customModelColors, [catKey]: hex };
+    setCustomModelColors(updated);
+    saveCustomModelColors(updated);
+  };
+
+  const handleApplyPreset = (presetId: 'unique' | 'classic_blue' | 'monochrome') => {
+    const preset = COLOR_THEME_PRESETS[presetId];
+    if (preset) {
+      setCustomModelColors(preset.colors);
+      saveCustomModelColors(preset.colors);
+    }
+  };
+
+  const handleResetColors = () => {
+    handleApplyPreset('unique');
+  };
 
   // Logical detection: Check if any window in current batch is 2.5-track or has mesh
   const has2_5Track = has2_5TrackInResults(results);
@@ -87,7 +119,7 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Render canvas preview whenever inputs or sheetType change
+  // Render canvas preview whenever inputs, colors, or sheetType change
   useEffect(() => {
     if (!isOpen || !previewContainerRef.current) return;
 
@@ -96,7 +128,8 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
           results,
           {
             customerName,
-            date
+            date,
+            customModelColors
           },
           previewPage,
           28
@@ -109,7 +142,8 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
             includeMeshColumn,
             includeInterlockColumn,
             includeMullionColumn,
-            mullionDeductionMM
+            mullionDeductionMM,
+            customModelColors
           },
           previewPage,
           28
@@ -135,7 +169,8 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
     includeInterlockColumn,
     includeMullionColumn,
     mullionDeductionMM,
-    previewPage
+    previewPage,
+    customModelColors
   ]);
 
   if (!isOpen) return null;
@@ -149,7 +184,8 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
         includeMeshColumn,
         includeInterlockColumn,
         includeMullionColumn,
-        mullionDeductionMM
+        mullionDeductionMM,
+        customModelColors
       });
     } finally {
       setTimeout(() => setIsExporting(false), 500);
@@ -161,7 +197,8 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
     try {
       exportGlassOrderToPDF(results, {
         customerName,
-        date
+        date,
+        customModelColors
       });
     } finally {
       setTimeout(() => setIsExporting(false), 500);
@@ -173,6 +210,9 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
   const totalGlassPcs = glassRows.reduce((sum, r) => sum + r.rawPcs, 0);
   const totalGlassSqFt = glassRows.reduce((sum, r) => sum + r.rawSqFt, 0);
   const totalWindowsWithGlass = glassRows.filter((r) => r.hasGlass).length;
+
+  const activeConfig = DEFAULT_WINDOW_COLOR_CONFIGS[activeColorCategory] || DEFAULT_WINDOW_COLOR_CONFIGS.track;
+  const activeHex = customModelColors[activeColorCategory] || activeConfig.defaultHex;
 
   return (
     <div
@@ -558,46 +598,154 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
                       </li>
                     )}
                   </ul>
-
-                  {/* Model Unique Row Background Colors Legend */}
-                  <div className="pt-2 border-t border-slate-800/80">
-                    <span className="text-[11px] font-bold text-slate-300 block mb-1.5 flex items-center space-x-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{t('வரிசை பின்னணி வண்ணங்கள் (Cell Row Background Colors):', 'Row Background Colors by Model:')}</span>
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold text-amber-950 bg-amber-200 border border-amber-300">
-                        Track (Light Blue)
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold text-emerald-950 bg-emerald-200 border border-emerald-300">
-                        Single Window (Sky Blue)
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold text-teal-950 bg-teal-200 border border-teal-300">
-                        Double Window (Ice Blue)
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold text-rose-950 bg-rose-200 border border-rose-300 font-black">
-                        Fixed Window (Navy Blue, Bold)
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold text-blue-950 bg-blue-200 border border-blue-300">
-                        Ventilator Normal (Deep Sky Blue)
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold text-indigo-950 bg-indigo-200 border border-indigo-300">
-                        Ventilator Fan Left (Blue)
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold text-pink-950 bg-pink-200 border border-pink-300">
-                        Ventilator Fan Right (Navy Blue)
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 mt-1.5">
-                      {t(
-                        '✓ எழுத்து நிறம் இல்லை (No Font Color): அனைத்து எண்களும் கறுப்பு மையிலும் (#0f172a), மாதிரிக்கு ஏற்ப பின்னணி வண்ணத்திலும் தோன்றும்.',
-                        '✓ High-contrast black ink (#0f172a) with distinct pastel row backgrounds per window type.'
-                      )}
-                    </p>
-                  </div>
                 </div>
               </div>
             )}
+
+            {/* ROW BACKGROUND COLOR CUSTOMIZATION CARD (Visible for both Full Sheet & Glass Sheet) */}
+            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Palette className="w-4 h-4 text-amber-400" />
+                  <span className="text-xs font-bold text-white">
+                    {t('வரிசை பின்னணி வண்ணங்கள் (Window Row Colors):', 'Window Row Background Colors:')}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsColorCustomizerOpen(!isColorCustomizerOpen)}
+                  className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/40 transition active:scale-95 flex items-center space-x-1 cursor-pointer"
+                >
+                  <span>{isColorCustomizerOpen ? t('மறைக்க', 'Hide') : t('தனிப்பயனாக்கு', 'Customize')}</span>
+                  <span>{isColorCustomizerOpen ? '▲' : '▼'}</span>
+                </button>
+              </div>
+
+              {/* Quick Color Swatches Bar */}
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {(Object.keys(DEFAULT_WINDOW_COLOR_CONFIGS) as WindowColorCategoryKey[]).map((catKey) => {
+                  const cfg = DEFAULT_WINDOW_COLOR_CONFIGS[catKey];
+                  const currentColor = customModelColors[catKey] || cfg.defaultHex;
+                  const isSelected = activeColorCategory === catKey && isColorCustomizerOpen;
+                  return (
+                    <button
+                      key={catKey}
+                      type="button"
+                      onClick={() => {
+                        setActiveColorCategory(catKey);
+                        setIsColorCustomizerOpen(true);
+                      }}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold border transition flex items-center space-x-1 cursor-pointer ${
+                        isSelected
+                          ? 'ring-2 ring-blue-400 scale-105 shadow-md'
+                          : 'hover:scale-102'
+                      }`}
+                      style={{
+                        backgroundColor: currentColor,
+                        borderColor: currentColor === '#ffffff' ? '#94a3b8' : currentColor,
+                        color: '#0f172a'
+                      }}
+                      title={cfg.description}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-900/60 inline-block" />
+                      <span>{cfg.shortCode}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Expandable Customizer Box */}
+              {isColorCustomizerOpen && (
+                <div className="pt-2 border-t border-slate-800/80 space-y-3 animate-fade-in">
+                  {/* 1-Click Preset Theme Buttons */}
+                  <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                    <span className="text-slate-400 mr-1">{t('தீம்கள்:', 'Presets:')}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('unique')}
+                      className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold transition active:scale-95 cursor-pointer"
+                    >
+                      🌈 {t('தனித்தனி (Unique)', 'Unique Colors')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('classic_blue')}
+                      className="px-2 py-0.5 rounded bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 font-bold transition active:scale-95 cursor-pointer"
+                    >
+                      🌊 {t('நீலம் (Blue Theme)', 'Blue Theme')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('monochrome')}
+                      className="px-2 py-0.5 rounded bg-slate-700/60 hover:bg-slate-700 text-slate-200 border border-slate-600 font-bold transition active:scale-95 cursor-pointer"
+                    >
+                      ⚪ {t('வெள்ளை (Minimal)', 'Clean White')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResetColors}
+                      className="px-2 py-0.5 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold transition active:scale-95 ml-auto cursor-pointer flex items-center space-x-1"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>{t('மீட்டமை', 'Reset')}</span>
+                    </button>
+                  </div>
+
+                  {/* Selected Window Type Detail & Color Picker */}
+                  <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-xs font-bold text-white flex items-center space-x-1.5">
+                          <span>{isTamil ? activeConfig.labelTa : activeConfig.labelEn}</span>
+                          <span className="text-[10px] px-1 rounded bg-slate-800 text-slate-300 font-mono">
+                            {activeConfig.shortCode}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-400">{activeConfig.description}</div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div
+                          className="w-7 h-7 rounded-lg border-2 border-white/20 shadow-sm transition"
+                          style={{ backgroundColor: activeHex }}
+                        />
+                        {/* Native HTML5 Color Input */}
+                        <input
+                          type="color"
+                          value={activeHex}
+                          onChange={(e) => handleColorChange(activeColorCategory, e.target.value)}
+                          className="w-7 h-7 rounded cursor-pointer border-0 p-0 bg-transparent"
+                          title={t('விருப்ப வண்ணம் தேர்வு செய்க', 'Pick custom color')}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Pastel Swatches */}
+                    <div>
+                      <div className="text-[10px] text-slate-400 mb-1 flex items-center justify-between">
+                        <span>{t('விரைவு வண்ணங்கள் (Pastel Palette):', 'Recommended Pastel Colors:')}</span>
+                        <span className="font-mono text-[10px] text-slate-300">{activeHex}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {PASTEL_COLOR_PALETTE.map((pal) => (
+                          <button
+                            key={pal.hex}
+                            type="button"
+                            onClick={() => handleColorChange(activeColorCategory, pal.hex)}
+                            className={`w-5 h-5 rounded-md border transition cursor-pointer ${
+                              activeHex.toLowerCase() === pal.hex.toLowerCase()
+                                ? 'ring-2 ring-blue-400 scale-110 border-white'
+                                : 'border-slate-700 hover:scale-105'
+                            }`}
+                            style={{ backgroundColor: pal.hex }}
+                            title={pal.name}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Batch Info Card */}
             <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 text-xs space-y-1.5">
