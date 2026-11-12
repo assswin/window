@@ -132,6 +132,7 @@ export const App: React.FC = () => {
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [isFormulaSettingsOpen, setIsFormulaSettingsOpen] = useState<boolean>(false);
   const [isLSInteriorsModalOpen, setIsLSInteriorsModalOpen] = useState<boolean>(false);
+  const [lsExportInitialSheet, setLsExportInitialSheet] = useState<'full' | 'glass'>('full');
   const [desktopView, setDesktopView] = useState<'cut' | 'cad' | 'split'>('cut');
 
   const handleSwitchDesktopView = (view: 'cut' | 'cad' | 'split') => {
@@ -241,10 +242,15 @@ export const App: React.FC = () => {
   };
 
   // Open L.S. Interiors Order Sheet Modal with guaranteed live, fresh calculations
-  const handleOpenLSInteriorsModal = () => {
+  const handleOpenLSInteriorsModal = (initialSheet?: 'full' | 'glass' | React.MouseEvent) => {
     const freshResults = calculateResultsSafely(windows);
     setResults(freshResults);
+    setLsExportInitialSheet(initialSheet === 'glass' ? 'glass' : 'full');
     setIsLSInteriorsModalOpen(true);
+  };
+
+  const handleOpenGlassOrderModal = () => {
+    handleOpenLSInteriorsModal('glass');
   };
 
   // Primary action: Save all windows & calculate all outputs
@@ -767,6 +773,7 @@ export const App: React.FC = () => {
               onViewImages={() => scrollToScreen(2)}
               onExportPDF={handleExportPDF}
               onExportLSInteriorsPDF={handleOpenLSInteriorsModal}
+              onExportGlassPDF={handleOpenGlassOrderModal}
             />
           </div>
         </section>
@@ -899,6 +906,7 @@ export const App: React.FC = () => {
                   onViewImages={() => setDesktopView('cad')}
                   onExportPDF={handleExportPDF}
                   onExportLSInteriorsPDF={handleOpenLSInteriorsModal}
+                  onExportGlassPDF={handleOpenGlassOrderModal}
                 />
               )}
 
@@ -959,6 +967,7 @@ export const App: React.FC = () => {
         isOpen={isLSInteriorsModalOpen}
         onClose={() => setIsLSInteriorsModalOpen(false)}
         results={results}
+        initialSheetType={lsExportInitialSheet}
       />
 
       {/* Customizable Formula Numbers Modal (Fixed operations, editable deduction values) */}

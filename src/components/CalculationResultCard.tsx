@@ -18,6 +18,7 @@ interface CalculationResultCardProps {
   onViewImages: () => void;
   onExportPDF?: () => void;
   onExportLSInteriorsPDF?: () => void;
+  onExportGlassPDF?: () => void;
 }
 
 export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
@@ -26,7 +27,8 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
   onSelectIndex,
   onViewImages,
   onExportPDF,
-  onExportLSInteriorsPDF
+  onExportLSInteriorsPDF,
+  onExportGlassPDF
 }) => {
   const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<'summary' | 'detail'>('summary');
@@ -559,9 +561,25 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
           {/* 3. GLASS CUT SIZE */}
           <div className="bg-slate-950 rounded-lg p-3 border border-slate-800 space-y-1.5">
             <div className="flex items-center justify-between border-b border-slate-800 pb-1">
-              <span className="text-xs font-heading font-bold text-white">
-                {t('கண்ணாடி வெட்டு அளவு (Glass Cut Size)', 'Glass Cut Dimensions')}
-              </span>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-heading font-bold text-white">
+                  {t('கண்ணாடி வெட்டு அளவு (Glass Cut Size)', 'Glass Cut Dimensions')}
+                </span>
+                {onExportGlassPDF && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onExportGlassPDF();
+                    }}
+                    className="px-2 py-0.5 rounded bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold flex items-center space-x-1 transition active:scale-95 cursor-pointer"
+                    title={t('தனி கிளாஸ் கட்டிங் ஆர்டர் தாள் PDF பதிவிறக்கு', 'Download Separate Glass Cutting Order PDF')}
+                  >
+                    <span>📄</span>
+                    <span>{t('கிளாஸ் PDF', 'Glass PDF')}</span>
+                  </button>
+                )}
+              </div>
               <span className="text-xs font-mono text-emerald-400 font-bold">
                 {input.windowType === 'ventilator'
                   ? t('கண்ணாடி இல்லை (-)', 'No Glass (-)')
@@ -630,23 +648,32 @@ export const CalculationResultCard: React.FC<CalculationResultCardProps> = ({
       )}
 
       {/* 4. BOTTOM ACTION BUTTONS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 flex-shrink-0">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 flex-shrink-0">
         <button
           type="button"
           onClick={onExportLSInteriorsPDF || onExportPDF}
-          className="min-h-[44px] py-3 px-3 rounded-xl bg-blue-700 hover:bg-blue-600 active:scale-[0.99] text-white font-heading font-bold text-xs sm:text-sm flex items-center justify-center space-x-1.5 border border-blue-500 shadow-md transition cursor-pointer touch-manipulation"
+          className="min-h-[44px] py-2.5 px-3 rounded-xl bg-blue-700 hover:bg-blue-600 active:scale-[0.99] text-white font-heading font-bold text-xs sm:text-sm flex items-center justify-center space-x-1.5 border border-blue-500 shadow-md transition cursor-pointer touch-manipulation"
         >
           <FileSpreadsheet className="w-4 h-4 text-blue-200 flex-shrink-0" />
-          <span>{t('L.S. Interiors ஆர்டர் தாள் PDF', 'L.S. Interiors Order Sheet PDF')}</span>
+          <span>{t('ஆர்டர் தாள் PDF', 'Order Sheet PDF')}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onExportGlassPDF || onExportLSInteriorsPDF}
+          className="min-h-[44px] py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 active:scale-[0.99] text-white font-heading font-bold text-xs sm:text-sm flex items-center justify-center space-x-1.5 border border-emerald-500 shadow-md transition cursor-pointer touch-manipulation"
+        >
+          <span className="text-sm">🪟</span>
+          <span>{t('கிளாஸ் தாள் PDF', 'Glass Sheet PDF')}</span>
         </button>
 
         <button
           type="button"
           onClick={onViewImages}
-          className="min-h-[44px] py-3 px-3 rounded-xl bg-slate-850 hover:bg-slate-800 active:scale-[0.99] text-blue-400 font-heading font-bold text-xs sm:text-sm flex items-center justify-center space-x-1.5 border border-slate-700 transition cursor-pointer touch-manipulation"
+          className="min-h-[44px] py-2.5 px-3 rounded-xl bg-slate-850 hover:bg-slate-800 active:scale-[0.99] text-blue-400 font-heading font-bold text-xs sm:text-sm flex items-center justify-center space-x-1.5 border border-slate-700 transition cursor-pointer touch-manipulation"
         >
           <Eye className="w-4 h-4 text-blue-400 flex-shrink-0" />
-          <span>{t(`${results.length} வரைபட படங்கள் ➔`, `View ${results.length} 2D Drawings ➔`)}</span>
+          <span>{t(`${results.length} வரைபடங்கள் ➔`, `Drawings (${results.length}) ➔`)}</span>
         </button>
       </div>
     </div>

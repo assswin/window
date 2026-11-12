@@ -7,6 +7,8 @@ import {
   getLSModelName,
   getLSModelShortForm,
   prepareLSRows,
+  prepareLSGlassRows,
+  LSGlassFlattenedRow,
   hasSlidingInResults,
   hasDoubleWindowInResults,
   getLSModelColor,
@@ -3144,6 +3146,140 @@ export class GoldenTestSuite {
       actual: {
         customWithBottomSash: `${resDoorWBCustom.panel.heightMM} x ${resDoorWBCustom.panel.widthMM} mm`,
         customWithoutBottomSash: `${resDoorWOBCustom.panel.heightMM} x ${resDoorWOBCustom.panel.widthMM} mm`
+      }
+    });
+
+    // 85. STANDALONE GLASS CUTTING ORDER SHEET: Dedicated 8-Column Format, Accurate Multipliers, Total Sq.Ft, Model Short Forms
+    const win1_2TSliding: WindowInput = {
+      windowLabel: 'W1',
+      unit: 'inch',
+      frameType: '2-track',
+      windowType: 'sliding',
+      profileSeries: '58mm',
+      heightInch: 60,
+      widthInch: 48,
+      customOffsetMM: 5,
+      quantity: 2,
+      glassType: '5mm_single'
+    };
+
+    const win2_OpenDoorWithBottom: WindowInput = {
+      windowLabel: 'W2',
+      unit: 'inch',
+      frameType: 'no-track',
+      windowType: 'open',
+      casementSubtype: 'door_with_bottom',
+      profileSeries: '108mm',
+      heightInch: 84,
+      widthInch: 48,
+      customOffsetMM: 5,
+      quantity: 1,
+      glassType: '6mm_toughened'
+    };
+
+    const win3_OpenDoorWithoutBottom: WindowInput = {
+      windowLabel: 'W3',
+      unit: 'inch',
+      frameType: 'no-track',
+      windowType: 'open',
+      casementSubtype: 'door_without_bottom',
+      profileSeries: '108mm',
+      heightInch: 84,
+      widthInch: 48,
+      customOffsetMM: 5,
+      quantity: 1,
+      glassType: '6mm_toughened'
+    };
+
+    const win4_Ventilator: WindowInput = {
+      windowLabel: 'W4',
+      unit: 'inch',
+      frameType: 'no-track',
+      windowType: 'ventilator',
+      ventilatorSubtype: 'normal',
+      heightInch: 24,
+      widthInch: 24,
+      customOffsetMM: 0,
+      quantity: 1
+    };
+
+    const resWin1 = WindowCalculationEngine.calculate(win1_2TSliding);
+    const resWin2 = WindowCalculationEngine.calculate(win2_OpenDoorWithBottom);
+    const resWin3 = WindowCalculationEngine.calculate(win3_OpenDoorWithoutBottom);
+    const resWin4 = WindowCalculationEngine.calculate(win4_Ventilator);
+
+    const glassRows: LSGlassFlattenedRow[] = prepareLSGlassRows([resWin1, resWin2, resWin3, resWin4]);
+
+    // Row 0: 2T Sliding with Qty 2 -> mirror count 2 * 2 = 4 pcs
+    const passRow0 =
+      glassRows[0].siNo === '1' &&
+      glassRows[0].windowLabel === 'W1' &&
+      glassRows[0].modelName === '[SL/SL]' &&
+      glassRows[0].hasGlass === true &&
+      glassRows[0].rawPcs === 4 &&
+      glassRows[0].glassPcs === '4' &&
+      glassRows[0].glassType === '5mm Clear Float' &&
+      glassRows[0].glassCutMM === `${resWin1.mirror.heightMM} H × ${resWin1.mirror.widthMM} W`;
+
+    // Row 1: Single Open Door With Bottom
+    const passRow1 =
+      glassRows[1].siNo === '2' &&
+      glassRows[1].windowLabel === 'W2' &&
+      glassRows[1].modelName === '[OP/DOOR (WITH BOTTOM)]' &&
+      glassRows[1].hasGlass === true &&
+      glassRows[1].rawPcs === 1 &&
+      glassRows[1].glassPcs === '1' &&
+      glassRows[1].glassType === '6mm Toughened';
+
+    // Row 2: Single Open Door Without Bottom
+    const passRow2 =
+      glassRows[2].siNo === '3' &&
+      glassRows[2].windowLabel === 'W3' &&
+      glassRows[2].modelName === '[OP/DOOR (WITHOUT BOTTOM)]' &&
+      glassRows[2].hasGlass === true &&
+      glassRows[2].rawPcs === 1 &&
+      glassRows[2].glassPcs === '1' &&
+      glassRows[2].glassType === '6mm Toughened';
+
+    // Row 3: Ventilator (No Glass)
+    const passRow3 =
+      glassRows[3].siNo === '4' &&
+      glassRows[3].windowLabel === 'W4' &&
+      glassRows[3].hasGlass === false &&
+      glassRows[3].rawPcs === 0 &&
+      glassRows[3].glassPcs === '-' &&
+      glassRows[3].glassCutMM === '-' &&
+      glassRows[3].sqFtPerWindow === '-';
+
+    // Total statistics check
+    const grandTotalPcs = glassRows.reduce((sum, r) => sum + r.rawPcs, 0);
+    const grandTotalSqFt = glassRows.reduce((sum, r) => sum + r.rawSqFt, 0);
+    const passTotals = grandTotalPcs === 6 && grandTotalSqFt > 0;
+
+    const passTest85 = passRow0 && passRow1 && passRow2 && passRow3 && passTotals;
+
+    results.push({
+      name: 'Separate Glass Order Sheet: Dedicated 8-Column Table, Accurate Multipliers (Qty × Count), Total Sq.Ft & Model Labels',
+      category: 'Rule Combination',
+      passed: passTest85,
+      input: {
+        batch: '4 Windows: 2T Sliding (Qty 2), Open Door With Bottom, Open Door Without Bottom, Ventilator'
+      },
+      expected: {
+        totalRows: 4,
+        totalGlassPcs: 6,
+        w1GlassPcs: '4',
+        w2Model: '[OP/DOOR (WITH BOTTOM)]',
+        w3Model: '[OP/DOOR (WITHOUT BOTTOM)]',
+        ventilatorGlassCut: '-'
+      },
+      actual: {
+        totalRows: glassRows.length,
+        totalGlassPcs: grandTotalPcs,
+        w1GlassPcs: glassRows[0]?.glassPcs,
+        w2Model: glassRows[1]?.modelName,
+        w3Model: glassRows[2]?.modelName,
+        ventilatorGlassCut: glassRows[3]?.glassCutMM
       }
     });
 

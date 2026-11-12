@@ -2680,3 +2680,682 @@ export const exportLSInteriorsToPDF = (
   const filename = `LS_Interiors_Order_Sheet_${custClean}${dateClean}.pdf`;
   doc.save(filename);
 };
+
+/**
+ * Glass-specific flattened row structure for the dedicated Glass Order Sheet
+ */
+export interface LSGlassFlattenedRow {
+  siNo: string;
+  windowLabel: string;
+  modelName: string;
+  siteHeight: string;
+  siteWidth: string;
+  glassCutMM: string; // e.g. "1430 H × 579 W"
+  glassPcs: string;    // e.g. "2"
+  sqFtPerWindow: string; // e.g. "8.90 sq.ft"
+  glassType: string;
+  hasGlass: boolean;
+  rawSqFt: number;
+  rawPcs: number;
+}
+
+/**
+ * Prepares dedicated glass cutting rows from CalculationResults
+ */
+export const prepareLSGlassRows = (
+  results: CalculationResult[],
+  _options: LSInteriorsExportOptions = {}
+): LSGlassFlattenedRow[] => {
+  const variantLabels = computeWindowVariantLabels(results);
+  const rows: LSGlassFlattenedRow[] = [];
+
+  results.forEach((r, idx) => {
+    const variant = variantLabels[idx] || {
+      letter: '',
+      siNo: String(idx + 1),
+      windowLabel: `W${idx + 1}`
+    };
+
+    const siteH = r.input.unit === 'cm'
+      ? `${r.input.heightCm ?? Number((r.input.heightInch * 2.54).toFixed(1))} cm`
+      : r.input.unit === 'mm'
+        ? `${r.input.heightMM ?? Math.round(r.input.heightInch * 25.4)} mm`
+        : formatInchWithFraction(r.input.heightInch);
+
+    const siteW = r.input.unit === 'cm'
+      ? `${r.input.widthCm ?? Number((r.input.widthInch * 2.54).toFixed(1))} cm`
+      : r.input.unit === 'mm'
+        ? `${r.input.widthMM ?? Math.round(r.input.widthInch * 25.4)} mm`
+        : formatInchWithFraction(r.input.widthInch);
+
+    const hasGlass = r.input.windowType !== 'ventilator' && Boolean(r.mirror && r.mirror.count > 0);
+    const qty = r.input.quantity && r.input.quantity > 0 ? r.input.quantity : 1;
+    const pcs = hasGlass ? r.mirror.count * qty : 0;
+    const sqFt = hasGlass ? (r.mirror.sqFeet * qty) : 0;
+
+    const glassCut = hasGlass ? `${r.mirror.heightMM} H × ${r.mirror.widthMM} W` : '-';
+    const glassPcsStr = hasGlass ? String(pcs) : '-';
+    const sqFtStr = hasGlass ? `${sqFt.toFixed(2)} sq.ft` : '-';
+    const modelShortForm = getLSModelShortForm(r);
+
+    rows.push({
+      siNo: variant.siNo,
+      windowLabel: variant.windowLabel,
+      modelName: modelShortForm,
+      siteHeight: siteH,
+      siteWidth: siteW,
+      glassCutMM: glassCut,
+      glassPcs: glassPcsStr,
+      sqFtPerWindow: sqFtStr,
+      glassType: r.mirror?.glassType || '',
+      hasGlass,
+      rawSqFt: sqFt,
+      rawPcs: pcs
+    });
+  });
+
+  return rows;
+};
+
+/**
+ * Draws a dedicated Vector Glass Cutting Order page in jsPDF (A4 portrait)
+ */
+export const renderGlassOrderVectorPage = (
+  doc: jsPDF,
+  pageRows: LSGlassFlattenedRow[],
+  options: LSInteriorsExportOptions = {},
+  pageIndex: number = 0,
+  totalPages: number = 1,
+  allRows: LSGlassFlattenedRow[] = []
+): void => {
+  const inkDark: [number, number, number] = [15, 41, 82]; // #0f2952 (deep navy)
+  const inkGrid: [number, number, number] = [30, 58, 138]; // #1e3a8a
+
+  const marginX = 7;
+  const marginTop = 8;
+  const boxW = 196; // Exact total table width in mm (A4 210mm - 14mm margins)
+  const headerH = 14;
+  const tableHeaderH = 9.8;
+  const rowH = 9.18;
+  const numRows = 28;
+  const totalBoxH = headerH + tableHeaderH + numRows * rowH; // 280.84 mm
+
+  // 1. Outer Border Box (Vector Rectangle) - Crisp 0.55mm Frame
+  doc.setDrawColor(...inkDark);
+  doc.setLineWidth(0.55);
+  doc.rect(marginX, marginTop, boxW, totalBoxH);
+
+  // 2. Header Bottom Divider Line
+  const headerBottomY = marginTop + headerH;
+  doc.setLineWidth(0.42);
+  doc.line(marginX, headerBottomY, marginX + boxW, headerBottomY);
+
+  // 3. Header Text
+  const customerName = options.customerName?.trim() || '';
+  const dateStr = options.date?.trim() || new Date().toLocaleDateString('en-GB');
+
+  // Total summary across all rows
+  const fullList = allRows.length > 0 ? allRows : pageRows;
+  const grandTotalPcs = fullList.reduce((sum, r) => sum + r.rawPcs, 0);
+  const grandTotalSqFt = fullList.reduce((sum, r) => sum + r.rawSqFt, 0);
+
+  // Customer Name (Left)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10.5);
+  doc.setTextColor(...inkDark);
+  doc.text('Customer Name :', marginX + 3, marginTop + 5.5, { baseline: 'middle' });
+
+  if (customerName) {
+    let custSize = 11.0;
+    doc.setFontSize(custSize);
+    doc.setTextColor(29, 78, 216); // blue-700
+    const custClean = cleanText(customerName);
+    while (doc.getTextWidth(custClean) > 28 && custSize > 6.5) {
+      custSize -= 0.4;
+      doc.setFontSize(custSize);
+    }
+    doc.text(custClean, marginX + 36, marginTop + 5.5, { baseline: 'middle' });
+  } else {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text('.....................................', marginX + 36, marginTop + 5.5, { baseline: 'middle' });
+  }
+
+  // L.S.INTERIORS Branding (Center Top)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  doc.setTextColor(...inkDark);
+  doc.text('L.S.INTERIORS', 105, marginTop + 5.0, { align: 'center', baseline: 'middle' });
+
+  // Dedicated Sheet Subtitle (Center Bottom)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  doc.setTextColor(2, 132, 199); // Sky blue #0284c7
+  doc.text('GLASS CUTTING ORDER SHEET', 105, marginTop + 10.8, { align: 'center', baseline: 'middle' });
+
+  // Date & Totals (Right)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10.0);
+  doc.setTextColor(...inkDark);
+  doc.text(`Date :  ${cleanText(dateStr)}`, marginX + boxW - 3, marginTop + 5.5, { align: 'right', baseline: 'middle' });
+
+  doc.setFontSize(8.5);
+  doc.setTextColor(29, 78, 216);
+  doc.text(`Total: ${grandTotalPcs} Pcs | ${grandTotalSqFt.toFixed(1)} Sq.Ft`, marginX + boxW - 3, marginTop + 10.8, { align: 'right', baseline: 'middle' });
+
+  // 4. Columns & Widths (Sum = 196 mm)
+  interface GlassColumnDef {
+    id: string;
+    header: string;
+    subHeader: string;
+    width: number;
+    colorPdf: [number, number, number];
+  }
+
+  const cols: GlassColumnDef[] = [
+    { id: 'sino', header: 'Si.No.', subHeader: 'No.', width: 14, colorPdf: LS_COLOR_MAP.sino.pdf },
+    { id: 'window', header: 'Win No.', subHeader: 'Label', width: 16, colorPdf: LS_COLOR_MAP.sino.pdf },
+    { id: 'model', header: 'Window Model', subHeader: 'Type', width: 36, colorPdf: LS_COLOR_MAP.model.pdf },
+    { id: 'siteSize', header: 'Site Size', subHeader: 'H × W', width: 28, colorPdf: LS_COLOR_MAP.height.pdf },
+    { id: 'glassCut', header: 'Glass Cut mm', subHeader: 'Height × Width', width: 42, colorPdf: LS_COLOR_MAP.mirrorCut.pdf },
+    { id: 'glassPcs', header: 'No. of Pcs', subHeader: 'Quantity', width: 16, colorPdf: LS_COLOR_MAP.glassPcs.pdf },
+    { id: 'sqFt', header: 'Total Sq.Ft', subHeader: 'Area', width: 20, colorPdf: LS_COLOR_MAP.mirrorCut.pdf },
+    { id: 'glassType', header: 'Glass Type / Spec', subHeader: 'Client Fill', width: 24, colorPdf: LS_COLOR_MAP.glassType.pdf }
+  ];
+
+  const colX: number[] = [];
+  let curX = marginX;
+  for (const c of cols) {
+    colX.push(curX);
+    curX += c.width;
+  }
+
+  // 5. Table Header Block
+  const tableHeaderTopY = headerBottomY;
+  const tableHeaderBottomY = tableHeaderTopY + tableHeaderH;
+  const subHeaderDividerY = tableHeaderTopY + 5.2;
+
+  // Background Fill for Header
+  doc.setFillColor(30, 58, 138); // Dark Navy Blue #1e3a8a
+  doc.rect(marginX, tableHeaderTopY, boxW, tableHeaderH, 'F');
+
+  // Subheader divider horizontal line
+  doc.setDrawColor(...inkGrid);
+  doc.setLineWidth(0.3);
+  doc.line(marginX, subHeaderDividerY, marginX + boxW, subHeaderDividerY);
+
+  // Table Header Bottom line
+  doc.setLineWidth(0.42);
+  doc.line(marginX, tableHeaderBottomY, marginX + boxW, tableHeaderBottomY);
+
+  // Header and Subheader text
+  cols.forEach((col, c) => {
+    const colCenterX = colX[c] + col.width / 2;
+
+    // Header Text (Top half)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.2);
+    doc.setTextColor(255, 255, 255);
+    doc.text(col.header, colCenterX, tableHeaderTopY + 3.2, { align: 'center', baseline: 'middle' });
+
+    // Subheader Text (Bottom half)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.0);
+    doc.setTextColor(191, 219, 254); // Light blue tint
+    doc.text(col.subHeader, colCenterX, subHeaderDividerY + 2.4, { align: 'center', baseline: 'middle' });
+  });
+
+  const cellTextColorPdf: [number, number, number] = [15, 23, 42];
+
+  const drawCellText = (
+    text: string,
+    centerX: number,
+    centerY: number,
+    baseFontSize: number,
+    maxWidth: number,
+    color: [number, number, number],
+    align: 'center' | 'left' = 'center',
+    leftX?: number,
+    isBold: boolean = false
+  ) => {
+    if (!text || text === '') return;
+    doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+    let currentSize = baseFontSize;
+    doc.setFontSize(currentSize);
+    let textW = doc.getTextWidth(text);
+    if (textW > maxWidth && maxWidth > 0) {
+      currentSize = Math.max(3.2, currentSize * (maxWidth / textW));
+      doc.setFontSize(currentSize);
+      textW = doc.getTextWidth(text);
+      while (textW > maxWidth && currentSize > 2.8) {
+        currentSize -= 0.15;
+        doc.setFontSize(currentSize);
+        textW = doc.getTextWidth(text);
+      }
+    }
+    doc.setTextColor(...color);
+    if (align === 'center') {
+      doc.text(text, centerX, centerY, { align: 'center', baseline: 'middle' });
+    } else {
+      doc.text(text, leftX ?? (centerX - maxWidth / 2), centerY, { align: 'left', baseline: 'middle' });
+    }
+  };
+
+  // 6. Data Rows (28 Rows)
+  for (let r = 0; r < numRows; r++) {
+    const rowTopY = tableHeaderBottomY + r * rowH;
+    const rowBottomY = rowTopY + rowH;
+    const centerY = rowTopY + rowH / 2;
+    const row = pageRows[r];
+
+    if (row) {
+      const bg = getLSModelBgColor(row.modelName);
+      doc.setFillColor(bg.pdf[0], bg.pdf[1], bg.pdf[2]);
+      doc.rect(marginX, rowTopY, boxW, rowH, 'F');
+    }
+
+    // Horizontal Row Divider
+    doc.setDrawColor(...inkGrid);
+    doc.setLineWidth(r === numRows - 1 ? 0.42 : 0.22);
+    doc.line(marginX, rowBottomY, marginX + boxW, rowBottomY);
+
+    if (row) {
+      cols.forEach((col, c) => {
+        const colStartX = colX[c];
+        const colW = col.width;
+        const centerX = colStartX + colW / 2;
+        const availableW = colW - 2;
+
+        switch (col.id) {
+          case 'sino':
+            drawCellText(cleanText(row.siNo), centerX, centerY, 8.0, availableW, cellTextColorPdf, 'center', undefined, true);
+            break;
+          case 'window':
+            drawCellText(cleanText(row.windowLabel), centerX, centerY, 8.0, availableW, [29, 78, 216], 'center', undefined, true);
+            break;
+          case 'model':
+            if (row.modelName) {
+              const isDoor = row.modelName.includes('DOOR');
+              const modelColor: [number, number, number] = isDoor ? [2, 132, 199] : cellTextColorPdf;
+              if (row.modelName.includes('OP/DOOR') && (row.modelName.includes('WITH BOTTOM') || row.modelName.includes('WITHOUT BOTTOM'))) {
+                const subText = row.modelName.includes('WITHOUT') ? 'WITHOUT BOTTOM' : 'WITH BOTTOM';
+                drawCellText('[OP/DOOR]', centerX, centerY - 1.8, 7.2, availableW, modelColor, 'center', undefined, true);
+                drawCellText(subText, centerX, centerY + 2.0, 5.6, availableW, [15, 23, 42], 'center', undefined, true);
+              } else {
+                drawCellText(cleanText(row.modelName), centerX, centerY, 7.2, availableW, modelColor, 'center', undefined, isDoor);
+              }
+            }
+            break;
+          case 'siteSize':
+            drawCellText(`${cleanText(row.siteHeight)} × ${cleanText(row.siteWidth)}`, centerX, centerY, 7.5, availableW, cellTextColorPdf, 'center');
+            break;
+          case 'glassCut':
+            if (row.hasGlass) {
+              drawCellText(formatCellCutText(row.glassCutMM), centerX, centerY, 8.5, availableW, cellTextColorPdf, 'center', undefined, true);
+            } else {
+              drawCellText('-', centerX, centerY, 8.0, availableW, [148, 163, 184], 'center');
+            }
+            break;
+          case 'glassPcs':
+            if (row.hasGlass) {
+              drawCellText(cleanText(row.glassPcs), centerX, centerY, 8.5, availableW, [29, 78, 216], 'center', undefined, true);
+            } else {
+              drawCellText('-', centerX, centerY, 8.0, availableW, [148, 163, 184], 'center');
+            }
+            break;
+          case 'sqFt':
+            if (row.hasGlass) {
+              drawCellText(cleanText(row.sqFtPerWindow), centerX, centerY, 7.5, availableW, cellTextColorPdf, 'center', undefined, true);
+            } else {
+              drawCellText('-', centerX, centerY, 7.5, availableW, [148, 163, 184], 'center');
+            }
+            break;
+          case 'glassType':
+            if (row.glassType) {
+              drawCellText(cleanText(row.glassType), centerX, centerY, 7.5, availableW, cellTextColorPdf, 'center');
+            }
+            break;
+        }
+      });
+    }
+  }
+
+  // 7. Vertical Column Divider Lines
+  doc.setDrawColor(...inkGrid);
+  doc.setLineWidth(0.3);
+  for (let c = 1; c < cols.length; c++) {
+    doc.line(colX[c], tableHeaderTopY, colX[c], totalBoxH + marginTop);
+  }
+
+  // 8. Bottom Page Footer Summary
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.0);
+  doc.setTextColor(...inkDark);
+  const footerY = totalBoxH + marginTop + 4.2;
+  doc.text(`Page ${pageIndex + 1} of ${totalPages}   •   TOTAL GLASS PIECES: ${grandTotalPcs} NOS   •   TOTAL AREA: ${grandTotalSqFt.toFixed(2)} SQ.FT`, marginX + 3, footerY);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Glass Factory / Supplier Signature: ____________________________________`, marginX + boxW - 3, footerY, { align: 'right' });
+};
+
+/**
+ * Exports complete Glass Cutting Order Sheet as TRUE VECTOR PDF
+ */
+export const exportGlassOrderToPDF = (
+  results: CalculationResult[],
+  options: LSInteriorsExportOptions = {}
+): void => {
+  if (!results || results.length === 0) return;
+
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+    compress: true
+  });
+
+  const pageSize = 28;
+  const glassRows = prepareLSGlassRows(results, options);
+  const totalPages = Math.max(1, Math.ceil(glassRows.length / pageSize));
+
+  for (let p = 0; p < totalPages; p++) {
+    if (p > 0) {
+      doc.addPage();
+    }
+    const pageRows = glassRows.slice(p * pageSize, (p + 1) * pageSize);
+    renderGlassOrderVectorPage(doc, pageRows, options, p, totalPages, glassRows);
+  }
+
+  const custClean = options.customerName ? `${cleanText(options.customerName).replace(/[^a-zA-Z0-9]/g, '_')}_` : '';
+  const dateClean = cleanText(options.date || new Date().toISOString().slice(0, 10)).replace(/[^a-zA-Z0-9]/g, '_');
+  const filename = `LS_Interiors_Glass_Order_${custClean}${dateClean}.pdf`;
+  doc.save(filename);
+};
+
+/**
+ * Generates an Ultra-High-Resolution Canvas for the Glass Cutting Order Sheet (300 DPI A4)
+ */
+export const generateGlassOrderSheetCanvas = (
+  results: CalculationResult[],
+  options: LSInteriorsExportOptions = {},
+  pageIndex: number = 0,
+  pageSize: number = 28
+): HTMLCanvasElement | null => {
+  if (typeof document === 'undefined') return null;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 2480;
+  canvas.height = 3508;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  // Render white background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const inkDark = '#0f2952';
+  const inkGrid = '#1e3a8a';
+  const cellTextColorCanvas = '#0f172a';
+
+  const marginX = 84;
+  const marginTop = 96;
+  const boxW = 2312;
+  const headerH = 170;
+  const tableHeaderH = 118;
+  const rowH = 110;
+  const numRows = 28;
+  const totalBoxH = headerH + tableHeaderH + numRows * rowH;
+
+  // Outer border box
+  ctx.strokeStyle = inkDark;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(marginX, marginTop, boxW, totalBoxH);
+
+  // Header bottom divider
+  const headerBottomY = marginTop + headerH;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(marginX, headerBottomY);
+  ctx.lineTo(marginX + boxW, headerBottomY);
+  ctx.stroke();
+
+  // Header text
+  const customerName = options.customerName?.trim() || '';
+  const dateStr = options.date?.trim() || new Date().toLocaleDateString('en-GB');
+
+  const glassRows = prepareLSGlassRows(results, options);
+  const grandTotalPcs = glassRows.reduce((sum, r) => sum + r.rawPcs, 0);
+  const grandTotalSqFt = glassRows.reduce((sum, r) => sum + r.rawSqFt, 0);
+
+  // Customer Name (Left)
+  ctx.font = 'bold 30px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = inkDark;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Customer Name :', marginX + 36, marginTop + 64);
+
+  if (customerName) {
+    ctx.font = 'bold 34px "Plus Jakarta Sans", Arial, sans-serif';
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fillText(cleanText(customerName), marginX + 340, marginTop + 64);
+  } else {
+    ctx.font = 'normal 30px "Plus Jakarta Sans", Arial, sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('......................................................', marginX + 340, marginTop + 64);
+  }
+
+  // L.S.INTERIORS Branding (Center)
+  ctx.font = 'bold 54px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = inkDark;
+  ctx.textAlign = 'center';
+  ctx.fillText('L.S.INTERIORS', 1240, marginTop + 60);
+
+  // Subtitle
+  ctx.font = 'bold 26px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = '#0284c7';
+  ctx.fillText('GLASS CUTTING ORDER SHEET', 1240, marginTop + 124);
+
+  // Date & Totals (Right)
+  ctx.font = 'bold 28px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = inkDark;
+  ctx.textAlign = 'right';
+  ctx.fillText(`Date :  ${cleanText(dateStr)}`, marginX + boxW - 36, marginTop + 64);
+
+  ctx.font = 'bold 24px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = '#1d4ed8';
+  ctx.fillText(`Total: ${grandTotalPcs} Pcs | ${grandTotalSqFt.toFixed(1)} Sq.Ft`, marginX + boxW - 36, marginTop + 124);
+
+  const scale = boxW / 196;
+  const cols = [
+    { id: 'sino', header: 'Si.No.', subHeader: 'No.', width: Math.round(14 * scale) },
+    { id: 'window', header: 'Win No.', subHeader: 'Label', width: Math.round(16 * scale) },
+    { id: 'model', header: 'Window Model', subHeader: 'Type', width: Math.round(36 * scale) },
+    { id: 'siteSize', header: 'Site Size', subHeader: 'H × W', width: Math.round(28 * scale) },
+    { id: 'glassCut', header: 'Glass Cut mm', subHeader: 'Height × Width', width: Math.round(42 * scale) },
+    { id: 'glassPcs', header: 'No. of Pcs', subHeader: 'Quantity', width: Math.round(16 * scale) },
+    { id: 'sqFt', header: 'Total Sq.Ft', subHeader: 'Area', width: Math.round(20 * scale) },
+    { id: 'glassType', header: 'Glass Type / Spec', subHeader: 'Client Fill', width: 0 }
+  ];
+  const usedW = cols.slice(0, 7).reduce((sum, c) => sum + c.width, 0);
+  cols[7].width = boxW - usedW;
+
+  const colX: number[] = [];
+  let curColX = marginX;
+  for (const c of cols) {
+    colX.push(curColX);
+    curColX += c.width;
+  }
+
+  // Table Header
+  const tableHeaderTopY = headerBottomY;
+  const tableHeaderBottomY = tableHeaderTopY + tableHeaderH;
+  const subHeaderDividerY = tableHeaderTopY + 62;
+
+  ctx.fillStyle = '#1e3a8a';
+  ctx.fillRect(marginX, tableHeaderTopY, boxW, tableHeaderH);
+
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(marginX, subHeaderDividerY);
+  ctx.lineTo(marginX + boxW, subHeaderDividerY);
+  ctx.stroke();
+
+  ctx.strokeStyle = inkDark;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(marginX, tableHeaderBottomY);
+  ctx.lineTo(marginX + boxW, tableHeaderBottomY);
+  ctx.stroke();
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  cols.forEach((col, c) => {
+    const colCenterX = colX[c] + col.width / 2;
+
+    ctx.font = 'bold 24px "Plus Jakarta Sans", Arial, sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(col.header, colCenterX, tableHeaderTopY + 32);
+
+    ctx.font = 'bold 20px "Plus Jakarta Sans", Arial, sans-serif';
+    ctx.fillStyle = '#bfdbfe';
+    ctx.fillText(col.subHeader, colCenterX, subHeaderDividerY + 28);
+  });
+
+  const startIdx = pageIndex * pageSize;
+  const pageRows = glassRows.slice(startIdx, startIdx + pageSize);
+
+  const drawCanvasCellText = (
+    text: string,
+    centerX: number,
+    centerY: number,
+    baseFontSize: number,
+    maxWidth: number,
+    color: string,
+    align: 'center' | 'left' = 'center',
+    leftX?: number,
+    isBold: boolean = false
+  ) => {
+    if (!text || text === '') return;
+    ctx.fillStyle = color;
+    ctx.textAlign = align;
+    let size = baseFontSize;
+    ctx.font = `${isBold ? 'bold ' : ''}${size}px "Plus Jakarta Sans", Arial, sans-serif`;
+    let textW = ctx.measureText(text).width;
+    while (textW > maxWidth && size > 11) {
+      size -= 1;
+      ctx.font = `${isBold ? 'bold ' : ''}${size}px "Plus Jakarta Sans", Arial, sans-serif`;
+      textW = ctx.measureText(text).width;
+    }
+    ctx.fillText(text, align === 'center' ? centerX : (leftX ?? centerX - maxWidth / 2), centerY);
+  };
+
+  for (let r = 0; r < numRows; r++) {
+    const rowTopY = tableHeaderBottomY + r * rowH;
+    const rowBottomY = rowTopY + rowH;
+    const centerY = rowTopY + rowH / 2;
+    const row = pageRows[r];
+
+    if (row) {
+      const bg = getLSModelBgColor(row.modelName);
+      ctx.fillStyle = bg.canvas;
+      ctx.fillRect(marginX, rowTopY, boxW, rowH);
+    }
+
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(marginX, rowBottomY);
+    ctx.lineTo(marginX + boxW, rowBottomY);
+    ctx.stroke();
+
+    if (row) {
+      cols.forEach((col, c) => {
+        const colStartX = colX[c];
+        const colW = col.width;
+        const centerX = colStartX + colW / 2;
+        const availableW = colW - 20;
+
+        switch (col.id) {
+          case 'sino':
+            drawCanvasCellText(cleanText(row.siNo), centerX, centerY, 24, availableW, cellTextColorCanvas, 'center', undefined, true);
+            break;
+          case 'window':
+            drawCanvasCellText(cleanText(row.windowLabel), centerX, centerY, 24, availableW, '#1d4ed8', 'center', undefined, true);
+            break;
+          case 'model':
+            if (row.modelName) {
+              const isDoor = row.modelName.includes('DOOR');
+              const modelColor = isDoor ? '#0284c7' : cellTextColorCanvas;
+              if (row.modelName.includes('OP/DOOR') && (row.modelName.includes('WITH BOTTOM') || row.modelName.includes('WITHOUT BOTTOM'))) {
+                const subText = row.modelName.includes('WITHOUT') ? 'WITHOUT BOTTOM' : 'WITH BOTTOM';
+                drawCanvasCellText('[OP/DOOR]', centerX, centerY - 20, 21, availableW, modelColor, 'center', undefined, true);
+                drawCanvasCellText(subText, centerX, centerY + 22, 16, availableW, '#0f172a', 'center', undefined, true);
+              } else {
+                drawCanvasCellText(cleanText(row.modelName), centerX, centerY, 22, availableW, modelColor, 'center', undefined, isDoor);
+              }
+            }
+            break;
+          case 'siteSize':
+            drawCanvasCellText(`${cleanText(row.siteHeight)} × ${cleanText(row.siteWidth)}`, centerX, centerY, 22, availableW, cellTextColorCanvas, 'center');
+            break;
+          case 'glassCut':
+            if (row.hasGlass) {
+              drawCanvasCellText(formatCellCutText(row.glassCutMM), centerX, centerY, 25, availableW, cellTextColorCanvas, 'center', undefined, true);
+            } else {
+              drawCanvasCellText('-', centerX, centerY, 24, availableW, '#94a3b8', 'center');
+            }
+            break;
+          case 'glassPcs':
+            if (row.hasGlass) {
+              drawCanvasCellText(cleanText(row.glassPcs), centerX, centerY, 25, availableW, '#1d4ed8', 'center', undefined, true);
+            } else {
+              drawCanvasCellText('-', centerX, centerY, 24, availableW, '#94a3b8', 'center');
+            }
+            break;
+          case 'sqFt':
+            if (row.hasGlass) {
+              drawCanvasCellText(cleanText(row.sqFtPerWindow), centerX, centerY, 22, availableW, cellTextColorCanvas, 'center', undefined, true);
+            } else {
+              drawCanvasCellText('-', centerX, centerY, 22, availableW, '#94a3b8', 'center');
+            }
+            break;
+          case 'glassType':
+            if (row.glassType) {
+              drawCanvasCellText(cleanText(row.glassType), centerX, centerY, 22, availableW, cellTextColorCanvas, 'center');
+            }
+            break;
+        }
+      });
+    }
+  }
+
+  // Column vertical divider lines
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 2.5;
+  for (let c = 1; c < cols.length; c++) {
+    ctx.beginPath();
+    ctx.moveTo(colX[c], tableHeaderTopY);
+    ctx.lineTo(colX[c], totalBoxH + marginTop);
+    ctx.stroke();
+  }
+
+  // Bottom footer text
+  ctx.font = 'bold 24px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = inkDark;
+  ctx.textAlign = 'left';
+  const footerY = totalBoxH + marginTop + 44;
+  const totalPages = Math.max(1, Math.ceil(glassRows.length / pageSize));
+  ctx.fillText(`Page ${pageIndex + 1} of ${totalPages}   •   TOTAL GLASS PIECES: ${grandTotalPcs} NOS   •   TOTAL AREA: ${grandTotalSqFt.toFixed(2)} SQ.FT`, marginX + 16, footerY);
+
+  ctx.font = 'normal 22px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'right';
+  ctx.fillText('Glass Factory / Supplier Signature: ____________________________________', marginX + boxW - 16, footerY);
+
+  return canvas;
+};
+
