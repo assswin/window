@@ -11,7 +11,9 @@ import {
   Layers,
   FileText,
   Palette,
-  RotateCcw
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { CalculationResult } from '../engine/types';
 import {
@@ -19,6 +21,7 @@ import {
   exportGlassOrderToPDF,
   generateLSInteriorsSheetCanvas,
   generateGlassOrderSheetCanvas,
+  prepareLSRows,
   prepareLSGlassRows,
   has2_5TrackInResults,
   hasSlidingInResults,
@@ -28,7 +31,8 @@ import {
   COLOR_THEME_PRESETS,
   PASTEL_COLOR_PALETTE,
   getCustomModelColors,
-  saveCustomModelColors
+  saveCustomModelColors,
+  LS_SHEET_PAGE_SIZE
 } from '../utils/lsInteriorsSheetCanvas';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -121,6 +125,29 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  const effectiveFullOptions = {
+    customerName,
+    customerPhone,
+    date,
+    includeMeshColumn,
+    includeInterlockColumn,
+    includeMullionColumn,
+    mullionDeductionMM,
+    customModelColors
+  };
+
+  const totalRowCount = sheetType === 'glass'
+    ? prepareLSGlassRows(results, { customerName, customerPhone, date, customModelColors }).length
+    : prepareLSRows(results, effectiveFullOptions).length;
+
+  const totalPages = Math.max(2, Math.ceil(totalRowCount / LS_SHEET_PAGE_SIZE));
+
+  useEffect(() => {
+    if (previewPage >= totalPages) {
+      setPreviewPage(0);
+    }
+  }, [totalPages, previewPage]);
+
   // Render canvas preview whenever inputs, colors, or sheetType change
   useEffect(() => {
     if (!isOpen || !previewContainerRef.current) return;
@@ -135,22 +162,13 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
             customModelColors
           },
           previewPage,
-          28
+          LS_SHEET_PAGE_SIZE
         )
       : generateLSInteriorsSheetCanvas(
           results,
-          {
-            customerName,
-            customerPhone,
-            date,
-            includeMeshColumn,
-            includeInterlockColumn,
-            includeMullionColumn,
-            mullionDeductionMM,
-            customModelColors
-          },
+          effectiveFullOptions,
           previewPage,
-          28
+          LS_SHEET_PAGE_SIZE
         );
 
     if (canvas) {
@@ -783,7 +801,7 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
               </div>
               <div className="flex justify-between text-slate-400">
                 <span>{t('தாள் வரிசைகள்:', 'Sheet Rows:')}</span>
-                <span className="font-bold text-blue-400">{t('28 வரிசைகள் / A4 பக்கம்', '28 Rows / A4 Page')}</span>
+                <span className="font-bold text-blue-400">{t(`14 பெரிய வரிசைகள் / பக்கம் (${totalPages} பக்கங்கள்)`, `14 Big Rows / Page (${totalPages} Pages)`)}</span>
               </div>
               <div className="flex justify-between text-slate-400">
                 <span>{t('வடிவம்:', 'Format:')}</span>
@@ -796,7 +814,7 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
 
           {/* RIGHT: LIVE CANVAS PREVIEW (7 cols on lg) */}
           <div className="lg:col-span-7 flex flex-col space-y-2">
-            <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
               <span className="flex items-center space-x-1.5 font-semibold text-slate-300">
                 <Eye className={`w-4 h-4 ${sheetType === 'glass' ? 'text-emerald-400' : 'text-blue-400'}`} />
                 <span>
@@ -805,10 +823,49 @@ export const LSInteriorsExportModal: React.FC<LSInteriorsExportModalProps> = ({
                     : t('நேரடி தாள் முன்னோட்டம் (Live Sheet Preview)', 'Live Sheet Preview')}
                 </span>
               </span>
+
+              {/* Page Switcher for 2-Page Layout */}
+              <div className="flex items-center space-x-1 bg-slate-900 border border-slate-700/80 rounded-lg px-1.5 py-0.5 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setPreviewPage((p) => Math.max(0, p - 1))}
+                  disabled={previewPage === 0}
+                  className="p-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 hover:text-white transition cursor-pointer"
+                  title={t('முந்தைய பக்கம்', 'Previous Page')}
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: totalPages }).map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setPreviewPage(idx)}
+                      className={`px-2 py-0.5 rounded text-[11px] font-bold transition cursor-pointer ${
+                        previewPage === idx
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                      }`}
+                    >
+                      {t(`பக்கம் ${idx + 1}`, `Page ${idx + 1}`)}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPreviewPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={previewPage >= totalPages - 1}
+                  className="p-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 hover:text-white transition cursor-pointer"
+                  title={t('அடுத்த பக்கம்', 'Next Page')}
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
               <span className="text-[11px] text-slate-500 font-mono">
                 {sheetType === 'glass'
-                  ? t('A4 • 28 வரிசைகள் • 8 பிரத்யேக கிளாஸ் நிரல்கள்', 'A4 • 28 Rows • 8 Glass Columns')
-                  : t(`A4 • 28 வரிசைகள் • ${8 + (includeMeshColumn ? 1 : 0) + (includeInterlockColumn ? 1 : 0) + (includeMullionColumn ? 1 : 0)} நிரல்கள்`, `A4 • 28 Rows • ${8 + (includeMeshColumn ? 1 : 0) + (includeInterlockColumn ? 1 : 0) + (includeMullionColumn ? 1 : 0)} Columns`)}
+                  ? t(`A4 • 14 பெரிய வரிசைகள் • பக்கம் ${previewPage + 1} / ${totalPages} • 8 பிரத்யேக கிளாஸ் நிரல்கள்`, `A4 • 14 Big Rows • Page ${previewPage + 1} of ${totalPages} • 8 Glass Columns`)
+                  : t(`A4 • 14 பெரிய வரிசைகள் • பக்கம் ${previewPage + 1} / ${totalPages} • ${8 + (includeMeshColumn ? 1 : 0) + (includeInterlockColumn ? 1 : 0) + (includeMullionColumn ? 1 : 0)} நிரல்கள்`, `A4 • 14 Big Rows • Page ${previewPage + 1} of ${totalPages} • ${8 + (includeMeshColumn ? 1 : 0) + (includeInterlockColumn ? 1 : 0) + (includeMullionColumn ? 1 : 0)} Columns`)}
               </span>
             </div>
 

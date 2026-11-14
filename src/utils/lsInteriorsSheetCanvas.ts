@@ -1218,24 +1218,32 @@ export const prepareLSRows = (
 };
 
 /**
+ * Standard L.S. Interiors Order Sheet Page Configuration
+ * 14 spacious rows per page, neatly separated across 2 pages for standard 28-row sheets
+ */
+export const LS_SHEET_PAGE_SIZE = 14;
+
+/**
  * Draws a True Vector L.S. Interiors Page directly in jsPDF (Infinite Resolution / Razor-sharp Print Quality)
  */
 export const renderLSInteriorsVectorPage = (
   doc: jsPDF,
   pageRows: LSFlattenedRow[],
-  options: LSInteriorsExportOptions = {}
+  options: LSInteriorsExportOptions = {},
+  pageIndex: number = 0,
+  totalPages: number = 2
 ): void => {
   const inkDark: [number, number, number] = [15, 41, 82]; // #0f2952 (deep navy)
   const inkGrid: [number, number, number] = [30, 58, 138]; // #1e3a8a
 
   const marginX = 7;
-  const marginTop = 8;
+  const marginTop = 7;
   const boxW = 196; // Exact total table width in mm (A4 width 210mm - 14mm margins)
   const headerH = 14;
   const tableHeaderH = 9.8;
-  const rowH = 9.18;
-  const numRows = 28;
-  const totalBoxH = headerH + tableHeaderH + numRows * rowH; // 280.84 mm
+  const rowH = 18.35;
+  const numRows = 14;
+  const totalBoxH = headerH + tableHeaderH + numRows * rowH; // 280.7 mm
 
   // 1. Outer Border Box (Vector Rectangle) - Crisp 0.55mm Frame
   doc.setDrawColor(...inkDark);
@@ -1319,7 +1327,7 @@ export const renderLSInteriorsVectorPage = (
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8.5);
   doc.setTextColor(29, 78, 216);
-  doc.text('WORKSHOP ORDER SHEET', marginX + boxW - 3, marginTop + 10.2, { align: 'right', baseline: 'middle' });
+  doc.text(`WORKSHOP ORDER SHEET (Pg ${pageIndex + 1}/${totalPages})`, marginX + boxW - 3, marginTop + 10.2, { align: 'right', baseline: 'middle' });
 
   // 4. Columns & Widths - ALL CONFIGURATIONS SUM TO EXACTLY 196 MM
   const includeMesh = options.includeMeshColumn ?? false;
@@ -1736,7 +1744,7 @@ export const renderLSInteriorsVectorPage = (
 
   const cellTextColorPdf: [number, number, number] = [15, 23, 42];
 
-  // 6. Data Rows (28 Rows) - Formed as Prominent Enclosed Boxes with Unique Model Background Colors
+  // 6. Data Rows (14 Rows) - Formed as Prominent Enclosed Boxes with Unique Model Background Colors
   for (let r = 0; r < numRows; r++) {
     const rowTopY = tableHeaderBottomY + r * rowH;
     const rowBottomY = rowTopY + rowH;
@@ -1755,9 +1763,9 @@ export const renderLSInteriorsVectorPage = (
     doc.setLineWidth(0.38);
     doc.line(marginX, rowBottomY, marginX + boxW, rowBottomY);
 
-    // Multiplier 'X' in Column 2
-    doc.setFont('helvetica', isFixed ? 'bold' : 'normal');
-    doc.setFontSize(10.5);
+    // Multiplier 'X' in Column 2 (Large & Bold)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14.0);
     if (row) {
       doc.setTextColor(...cellTextColorPdf);
     } else {
@@ -1771,24 +1779,23 @@ export const renderLSInteriorsVectorPage = (
         const centerX = colX[c] + col.width / 2;
         // Safe inner boundary: guaranteed 1.2mm minimum margin from column lines
         const availableW = Math.max(2.0, col.width - 2.4);
-        const baseSize = 8.0;
 
         switch (col.id) {
           case 'sino':
             if (row.siNo) {
-              drawCellText(row.siNo, centerX, centerY, 8.5, availableW, cellTextColorPdf, 'center', undefined, isFixed);
+              drawCellText(row.siNo, centerX, centerY, 12.5, availableW, cellTextColorPdf, 'center', undefined, true);
             }
             break;
           case 'height':
             if (row.siteHeight) {
-              drawCellText(cleanText(row.siteHeight), centerX, centerY, 8.0, availableW, cellTextColorPdf, 'center', undefined, isFixed);
+              drawCellText(cleanText(row.siteHeight), centerX, centerY, 12.0, availableW, cellTextColorPdf, 'center', undefined, isFixed);
             }
             break;
           case 'x':
             break;
           case 'width':
             if (row.siteWidth) {
-              drawCellText(cleanText(row.siteWidth), centerX, centerY, 8.0, availableW, cellTextColorPdf, 'center', undefined, isFixed);
+              drawCellText(cleanText(row.siteWidth), centerX, centerY, 12.0, availableW, cellTextColorPdf, 'center', undefined, isFixed);
             }
             break;
           case 'model':
@@ -1803,8 +1810,8 @@ export const renderLSInteriorsVectorPage = (
                 drawCellText(
                   '[OP/DOOR]',
                   centerX,
-                  centerY - 1.8,
-                  7.2,
+                  centerY - 3.2,
+                  10.5,
                   availableW,
                   modelColor,
                   'center',
@@ -1814,8 +1821,8 @@ export const renderLSInteriorsVectorPage = (
                 drawCellText(
                   subText,
                   centerX,
-                  centerY + 2.0,
-                  5.6,
+                  centerY + 3.4,
+                  8.0,
                   availableW,
                   [15, 23, 42],
                   'center',
@@ -1827,7 +1834,7 @@ export const renderLSInteriorsVectorPage = (
                   cleanText(row.modelName),
                   centerX,
                   centerY,
-                  7.2,
+                  10.5,
                   availableW,
                   modelColor,
                   'center',
@@ -1843,7 +1850,7 @@ export const renderLSInteriorsVectorPage = (
                 cleanText(row.materialMM),
                 centerX,
                 centerY,
-                7.8,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -1858,7 +1865,7 @@ export const renderLSInteriorsVectorPage = (
                 formatCellCutText(row.outerFrameMM),
                 centerX,
                 centerY,
-                7.8,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -1873,7 +1880,7 @@ export const renderLSInteriorsVectorPage = (
                 formatCellCutText(row.sashCutMM),
                 centerX,
                 centerY,
-                7.8,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -1888,7 +1895,7 @@ export const renderLSInteriorsVectorPage = (
                 row.sashHPcs,
                 centerX,
                 centerY,
-                7.5,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -1903,7 +1910,7 @@ export const renderLSInteriorsVectorPage = (
                 row.sashWPcs,
                 centerX,
                 centerY,
-                7.5,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -1918,7 +1925,7 @@ export const renderLSInteriorsVectorPage = (
                 formatCellCutText(row.mullionMM),
                 centerX,
                 centerY,
-                7.8,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -1933,7 +1940,7 @@ export const renderLSInteriorsVectorPage = (
                 row.mullionPcs,
                 centerX,
                 centerY,
-                7.8,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -1948,7 +1955,7 @@ export const renderLSInteriorsVectorPage = (
                 formatCellCutText(row.interlockMM),
                 centerX,
                 centerY,
-                7.8,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -1963,7 +1970,7 @@ export const renderLSInteriorsVectorPage = (
                 formatCellCutText(row.mirrorCutMM),
                 centerX,
                 centerY,
-                7.8,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -1978,7 +1985,7 @@ export const renderLSInteriorsVectorPage = (
                 row.glassPcs,
                 centerX,
                 centerY,
-                7.8,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -1993,7 +2000,7 @@ export const renderLSInteriorsVectorPage = (
                 row.glassType,
                 centerX,
                 centerY,
-                7.5,
+                11.0,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -2008,7 +2015,7 @@ export const renderLSInteriorsVectorPage = (
                 formatCellCutText(row.meshCutMM),
                 centerX,
                 centerY,
-                7.8,
+                11.5,
                 availableW,
                 cellTextColorPdf,
                 'center',
@@ -2035,12 +2042,24 @@ export const renderLSInteriorsVectorPage = (
     const startY = isSubColDivider ? subHeaderDividerY : tableHeaderTopY;
     doc.line(colX[c], startY, colX[c], marginTop + totalBoxH);
   }
+
+  // 8. Bottom Page Footer
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...inkDark);
+  const footerY = totalBoxH + marginTop + 4.2;
+  doc.text(`Page ${pageIndex + 1} of ${totalPages}   •   L.S. INTERIORS WORKSHOP ORDER SHEET`, marginX + 3, footerY);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.0);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Workshop Supervisor / QC Signature: ____________________________________`, marginX + boxW - 3, footerY, { align: 'right' });
 };
 export const generateLSInteriorsSheetCanvas = (
   results: CalculationResult[],
   options: LSInteriorsExportOptions = {},
   pageIndex: number = 0,
-  pageSize: number = 28
+  pageSize: number = 14
 ): HTMLCanvasElement | null => {
   if (typeof document === 'undefined') {
     return null;
@@ -2062,14 +2081,14 @@ export const generateLSInteriorsSheetCanvas = (
 
   // High-res pixel scale
   const marginX = 76;
-  const marginTop = 84;
+  const marginTop = 76;
   const boxW = width - marginX * 2; // 2328 px
-  const headerH = 160;
-  const tableHeaderH = 104;
-  const rowH = 107.5;
-  const numRows = pageSize; // 28 rows
-  const tableH = tableHeaderH + numRows * rowH; // 3114 px
-  const totalBoxH = headerH + tableH; // 3274 px
+  const headerH = 158;
+  const tableHeaderH = 110;
+  const rowH = 215;
+  const numRows = pageSize; // 14 rows
+  const tableH = tableHeaderH + numRows * rowH; // 110 + 14 * 215 = 3120 px
+  const totalBoxH = headerH + tableH; // 3278 px
 
   const inkDark = '#0f2952';
 
@@ -2159,17 +2178,26 @@ export const generateLSInteriorsSheetCanvas = (
     ctx.fillText('Date : ........................', marginX + boxW - 32, marginTop + 55);
   }
 
-  // Subtitle (Right - Bottom Line)
-  ctx.font = 'bold 24px "Plus Jakarta Sans", Arial, sans-serif';
-  ctx.fillStyle = '#1d4ed8';
-  ctx.fillText('WORKSHOP ORDER SHEET', marginX + boxW - 32, marginTop + 115);
-
   // Columns & Widths - ALL CONFIGURATIONS SUM TO EXACTLY 2328 PX MATCHING boxW
   const includeMesh = options.includeMeshColumn ?? false;
   const includeInterlock = options.includeInterlockColumn ?? hasSlidingInResults(results);
   const includeMullion = options.includeMullionColumn ?? hasDoubleWindowInResults(results);
   const mullionDed = options.mullionDeductionMM ?? 6;
   const mullionSubHeader = `H - ${mullionDed}`;
+
+  const effectiveOptions: LSInteriorsExportOptions = {
+    ...options,
+    includeInterlockColumn: includeInterlock,
+    includeMullionColumn: includeMullion,
+    mullionDeductionMM: mullionDed
+  };
+  const flattenedRows = prepareLSRows(results, effectiveOptions);
+  const totalPages = Math.max(2, Math.ceil(flattenedRows.length / pageSize));
+
+  // Subtitle (Right - Bottom Line)
+  ctx.font = 'bold 24px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = '#1d4ed8';
+  ctx.fillText(`WORKSHOP ORDER SHEET (Pg ${pageIndex + 1}/${totalPages})`, marginX + boxW - 32, marginTop + 115);
 
   interface CanvasColumnDef {
     id: LSColumnId;
@@ -2604,14 +2632,7 @@ export const generateLSInteriorsSheetCanvas = (
   // High-contrast, sharp dark charcoal ink for all cell data
   const cellTextColorCanvas = '#0f172a';
 
-  // Data Rows (28 Rows) - Formed as Prominent Enclosed Boxes with Unique Model Background Colors
-  const effectiveOptions: LSInteriorsExportOptions = {
-    ...options,
-    includeInterlockColumn: includeInterlock,
-    includeMullionColumn: includeMullion,
-    mullionDeductionMM: mullionDed
-  };
-  const flattenedRows = prepareLSRows(results, effectiveOptions);
+  // Data Rows (14 Rows) - Formed as Prominent Enclosed Boxes with Unique Model Background Colors
   const startIdx = pageIndex * pageSize;
   const endIdx = startIdx + pageSize;
   const pageRows = flattenedRows.slice(startIdx, endIdx);
@@ -2641,9 +2662,9 @@ export const generateLSInteriorsSheetCanvas = (
     ctx.lineTo(marginX + boxW, rowBottomY);
     ctx.stroke();
 
-    // Column 2 ('X') centered - 36px
+    // Column 2 ('X') centered - 48px Bold
     ctx.fillStyle = rowData ? cellTextColorCanvas : '#cbd5e1';
-    ctx.font = `${isFixed ? 'bold' : '600'} 36px "Plus Jakarta Sans", Arial, sans-serif`;
+    ctx.font = `${isFixed ? 'bold' : '600'} 48px "Plus Jakarta Sans", Arial, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('X', colX[2] + cols[2].width / 2, centerY);
@@ -2662,13 +2683,13 @@ export const generateLSInteriorsSheetCanvas = (
                 rowData.siNo,
                 centerX,
                 centerY,
-                28,
+                42,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
                 'center',
                 undefined,
-                isFixed
+                true
               );
             }
             break;
@@ -2678,7 +2699,7 @@ export const generateLSInteriorsSheetCanvas = (
                 rowData.siteHeight,
                 centerX,
                 centerY,
-                28,
+                40,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2697,7 +2718,7 @@ export const generateLSInteriorsSheetCanvas = (
                 rowData.siteWidth,
                 centerX,
                 centerY,
-                28,
+                40,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2717,8 +2738,8 @@ export const generateLSInteriorsSheetCanvas = (
                 drawCanvasCellText(
                   '[OP/DOOR]',
                   centerX,
-                  centerY - 10,
-                  20,
+                  centerY - 16,
+                  30,
                   '"Plus Jakarta Sans", Arial, sans-serif',
                   availableW,
                   modelColorCanvas,
@@ -2729,8 +2750,8 @@ export const generateLSInteriorsSheetCanvas = (
                 drawCanvasCellText(
                   subText,
                   centerX,
-                  centerY + 11,
-                  14,
+                  centerY + 18,
+                  22,
                   '"Plus Jakarta Sans", Arial, sans-serif',
                   availableW,
                   '#0f172a',
@@ -2743,7 +2764,7 @@ export const generateLSInteriorsSheetCanvas = (
                   rowData.modelName,
                   centerX,
                   centerY,
-                  22,
+                  34,
                   '"Plus Jakarta Sans", Arial, sans-serif',
                   availableW,
                   modelColorCanvas,
@@ -2760,7 +2781,7 @@ export const generateLSInteriorsSheetCanvas = (
                 rowData.materialMM,
                 centerX,
                 centerY,
-                24,
+                36,
                 '"Plus Jakarta Sans", Arial, sans-serif',
                 availableW,
                 cellTextColorCanvas,
@@ -2776,7 +2797,7 @@ export const generateLSInteriorsSheetCanvas = (
                 formatCanvasCellCutText(rowData.outerFrameMM),
                 centerX,
                 centerY,
-                26,
+                38,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2792,7 +2813,7 @@ export const generateLSInteriorsSheetCanvas = (
                 formatCanvasCellCutText(rowData.sashCutMM),
                 centerX,
                 centerY,
-                26,
+                38,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2808,7 +2829,7 @@ export const generateLSInteriorsSheetCanvas = (
                 rowData.sashHPcs,
                 centerX,
                 centerY,
-                25,
+                36,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2824,7 +2845,7 @@ export const generateLSInteriorsSheetCanvas = (
                 rowData.sashWPcs,
                 centerX,
                 centerY,
-                25,
+                36,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2840,7 +2861,7 @@ export const generateLSInteriorsSheetCanvas = (
                 rowData.sashPcs,
                 centerX,
                 centerY,
-                25,
+                36,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2856,7 +2877,7 @@ export const generateLSInteriorsSheetCanvas = (
                 formatCanvasCellCutText(rowData.mullionMM),
                 centerX,
                 centerY,
-                26,
+                38,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2872,7 +2893,7 @@ export const generateLSInteriorsSheetCanvas = (
                 rowData.mullionPcs,
                 centerX,
                 centerY,
-                26,
+                36,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2888,7 +2909,7 @@ export const generateLSInteriorsSheetCanvas = (
                 formatCanvasCellCutText(rowData.interlockMM),
                 centerX,
                 centerY,
-                26,
+                38,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2904,7 +2925,7 @@ export const generateLSInteriorsSheetCanvas = (
                 formatCanvasCellCutText(rowData.mirrorCutMM),
                 centerX,
                 centerY,
-                26,
+                38,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2920,7 +2941,7 @@ export const generateLSInteriorsSheetCanvas = (
                 rowData.glassPcs,
                 centerX,
                 centerY,
-                26,
+                36,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2936,7 +2957,7 @@ export const generateLSInteriorsSheetCanvas = (
                 rowData.glassType,
                 centerX,
                 centerY,
-                23,
+                34,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2952,7 +2973,7 @@ export const generateLSInteriorsSheetCanvas = (
                 formatCanvasCellCutText(rowData.meshCutMM),
                 centerX,
                 centerY,
-                26,
+                38,
                 '"JetBrains Mono", monospace',
                 availableW,
                 cellTextColorCanvas,
@@ -2984,13 +3005,25 @@ export const generateLSInteriorsSheetCanvas = (
     ctx.stroke();
   }
 
+  // Bottom Page Footer
+  const footerY = totalBoxH + marginTop + 44;
+  ctx.font = 'bold 26px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = inkDark;
+  ctx.textAlign = 'left';
+  ctx.fillText(`Page ${pageIndex + 1} of ${totalPages}   •   L.S. INTERIORS WORKSHOP ORDER SHEET`, marginX + 16, footerY);
+
+  ctx.textAlign = 'right';
+  ctx.font = '24px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillStyle = '#64748b';
+  ctx.fillText('Workshop Supervisor / QC Signature: ____________________________________', marginX + boxW - 16, footerY);
+
   return canvas;
 };
 export const generateLSInteriorsSheetImage = (
   results: CalculationResult[],
   options: LSInteriorsExportOptions = {},
   pageIndex: number = 0,
-  pageSize: number = 28
+  pageSize: number = 14
 ): string | null => {
   const canvas = generateLSInteriorsSheetCanvas(results, options, pageIndex, pageSize);
   if (!canvas) return null;
@@ -3021,16 +3054,16 @@ export const exportLSInteriorsToPDF = (
     mullionDeductionMM: options.mullionDeductionMM ?? 6
   };
 
-  const pageSize = 28;
+  const pageSize = 14;
   const flattened = prepareLSRows(results, effectiveOptions);
-  const totalPages = Math.max(1, Math.ceil(flattened.length / pageSize));
+  const totalPages = Math.max(2, Math.ceil(flattened.length / pageSize));
 
   for (let p = 0; p < totalPages; p++) {
     if (p > 0) {
       doc.addPage();
     }
     const pageRows = flattened.slice(p * pageSize, (p + 1) * pageSize);
-    renderLSInteriorsVectorPage(doc, pageRows, effectiveOptions);
+    renderLSInteriorsVectorPage(doc, pageRows, effectiveOptions, p, totalPages);
   }
 
   const identifier = options.customerName?.trim() || options.customerPhone?.trim() || '';
@@ -3124,20 +3157,20 @@ export const renderGlassOrderVectorPage = (
   pageRows: LSGlassFlattenedRow[],
   options: LSInteriorsExportOptions = {},
   pageIndex: number = 0,
-  totalPages: number = 1,
+  totalPages: number = 2,
   allRows: LSGlassFlattenedRow[] = []
 ): void => {
   const inkDark: [number, number, number] = [15, 41, 82]; // #0f2952 (deep navy)
   const inkGrid: [number, number, number] = [30, 58, 138]; // #1e3a8a
 
   const marginX = 7;
-  const marginTop = 8;
+  const marginTop = 7;
   const boxW = 196; // Exact total table width in mm (A4 210mm - 14mm margins)
   const headerH = 14;
   const tableHeaderH = 9.8;
-  const rowH = 9.18;
-  const numRows = 28;
-  const totalBoxH = headerH + tableHeaderH + numRows * rowH; // 280.84 mm
+  const rowH = 18.35;
+  const numRows = 14;
+  const totalBoxH = headerH + tableHeaderH + numRows * rowH; // 280.7 mm
 
   // 1. Outer Border Box (Vector Rectangle) - Crisp 0.55mm Frame
   doc.setDrawColor(...inkDark);
@@ -3325,7 +3358,7 @@ export const renderGlassOrderVectorPage = (
     }
   };
 
-  // 6. Data Rows (28 Rows)
+  // 6. Data Rows (14 Rows)
   for (let r = 0; r < numRows; r++) {
     const rowTopY = tableHeaderBottomY + r * rowH;
     const rowBottomY = rowTopY + rowH;
@@ -3352,10 +3385,10 @@ export const renderGlassOrderVectorPage = (
 
         switch (col.id) {
           case 'sino':
-            drawCellText(cleanText(row.siNo), centerX, centerY, 8.0, availableW, cellTextColorPdf, 'center', undefined, true);
+            drawCellText(cleanText(row.siNo), centerX, centerY, 12.5, availableW, cellTextColorPdf, 'center', undefined, true);
             break;
           case 'window':
-            drawCellText(cleanText(row.windowLabel), centerX, centerY, 8.0, availableW, [29, 78, 216], 'center', undefined, true);
+            drawCellText(cleanText(row.windowLabel), centerX, centerY, 12.5, availableW, [29, 78, 216], 'center', undefined, true);
             break;
           case 'model':
             if (row.modelName) {
@@ -3363,40 +3396,40 @@ export const renderGlassOrderVectorPage = (
               const modelColor: [number, number, number] = isDoor ? [2, 132, 199] : cellTextColorPdf;
               if (row.modelName.includes('OP/DOOR') && (row.modelName.includes('WITH BOTTOM') || row.modelName.includes('WITHOUT BOTTOM'))) {
                 const subText = row.modelName.includes('WITHOUT') ? 'WITHOUT BOTTOM' : 'WITH BOTTOM';
-                drawCellText('[OP/DOOR]', centerX, centerY - 1.8, 7.2, availableW, modelColor, 'center', undefined, true);
-                drawCellText(subText, centerX, centerY + 2.0, 5.6, availableW, [15, 23, 42], 'center', undefined, true);
+                drawCellText('[OP/DOOR]', centerX, centerY - 3.2, 10.5, availableW, modelColor, 'center', undefined, true);
+                drawCellText(subText, centerX, centerY + 3.4, 8.0, availableW, [15, 23, 42], 'center', undefined, true);
               } else {
-                drawCellText(cleanText(row.modelName), centerX, centerY, 7.2, availableW, modelColor, 'center', undefined, isDoor);
+                drawCellText(cleanText(row.modelName), centerX, centerY, 11.0, availableW, modelColor, 'center', undefined, isDoor);
               }
             }
             break;
           case 'siteSize':
-            drawCellText(`${cleanText(row.siteHeight)} × ${cleanText(row.siteWidth)}`, centerX, centerY, 7.5, availableW, cellTextColorPdf, 'center');
+            drawCellText(`${cleanText(row.siteHeight)} × ${cleanText(row.siteWidth)}`, centerX, centerY, 11.5, availableW, cellTextColorPdf, 'center');
             break;
           case 'glassCut':
             if (row.hasGlass) {
-              drawCellText(formatCellCutText(row.glassCutMM), centerX, centerY, 8.5, availableW, cellTextColorPdf, 'center', undefined, true);
+              drawCellText(formatCellCutText(row.glassCutMM), centerX, centerY, 12.5, availableW, cellTextColorPdf, 'center', undefined, true);
             } else {
-              drawCellText('-', centerX, centerY, 8.0, availableW, [148, 163, 184], 'center');
+              drawCellText('-', centerX, centerY, 11.5, availableW, [148, 163, 184], 'center');
             }
             break;
           case 'glassPcs':
             if (row.hasGlass) {
-              drawCellText(cleanText(row.glassPcs), centerX, centerY, 8.5, availableW, [29, 78, 216], 'center', undefined, true);
+              drawCellText(cleanText(row.glassPcs), centerX, centerY, 12.5, availableW, [29, 78, 216], 'center', undefined, true);
             } else {
-              drawCellText('-', centerX, centerY, 8.0, availableW, [148, 163, 184], 'center');
+              drawCellText('-', centerX, centerY, 11.5, availableW, [148, 163, 184], 'center');
             }
             break;
           case 'sqFt':
             if (row.hasGlass) {
-              drawCellText(cleanText(row.sqFtPerWindow), centerX, centerY, 7.5, availableW, cellTextColorPdf, 'center', undefined, true);
+              drawCellText(cleanText(row.sqFtPerWindow), centerX, centerY, 11.5, availableW, cellTextColorPdf, 'center', undefined, true);
             } else {
-              drawCellText('-', centerX, centerY, 7.5, availableW, [148, 163, 184], 'center');
+              drawCellText('-', centerX, centerY, 11.5, availableW, [148, 163, 184], 'center');
             }
             break;
           case 'glassType':
             if (row.glassType) {
-              drawCellText(cleanText(row.glassType), centerX, centerY, 7.5, availableW, cellTextColorPdf, 'center');
+              drawCellText(cleanText(row.glassType), centerX, centerY, 11.0, availableW, cellTextColorPdf, 'center');
             }
             break;
         }
@@ -3413,13 +3446,13 @@ export const renderGlassOrderVectorPage = (
 
   // 8. Bottom Page Footer Summary
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.0);
+  doc.setFontSize(8.5);
   doc.setTextColor(...inkDark);
   const footerY = totalBoxH + marginTop + 4.2;
   doc.text(`Page ${pageIndex + 1} of ${totalPages}   •   TOTAL GLASS PIECES: ${grandTotalPcs} NOS   •   TOTAL AREA: ${grandTotalSqFt.toFixed(2)} SQ.FT`, marginX + 3, footerY);
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
+  doc.setFontSize(8.0);
   doc.setTextColor(100, 116, 139);
   doc.text(`Glass Factory / Supplier Signature: ____________________________________`, marginX + boxW - 3, footerY, { align: 'right' });
 };
@@ -3440,9 +3473,9 @@ export const exportGlassOrderToPDF = (
     compress: true
   });
 
-  const pageSize = 28;
+  const pageSize = 14;
   const glassRows = prepareLSGlassRows(results, options);
-  const totalPages = Math.max(1, Math.ceil(glassRows.length / pageSize));
+  const totalPages = Math.max(2, Math.ceil(glassRows.length / pageSize));
 
   for (let p = 0; p < totalPages; p++) {
     if (p > 0) {
@@ -3466,7 +3499,7 @@ export const generateGlassOrderSheetCanvas = (
   results: CalculationResult[],
   options: LSInteriorsExportOptions = {},
   pageIndex: number = 0,
-  pageSize: number = 28
+  pageSize: number = 14
 ): HTMLCanvasElement | null => {
   if (typeof document === 'undefined') return null;
 
@@ -3485,12 +3518,12 @@ export const generateGlassOrderSheetCanvas = (
   const cellTextColorCanvas = '#0f172a';
 
   const marginX = 84;
-  const marginTop = 96;
+  const marginTop = 76;
   const boxW = 2312;
-  const headerH = 170;
-  const tableHeaderH = 118;
-  const rowH = 110;
-  const numRows = 28;
+  const headerH = 158;
+  const tableHeaderH = 110;
+  const rowH = 215;
+  const numRows = 14;
   const totalBoxH = headerH + tableHeaderH + numRows * rowH;
 
   // Outer border box
@@ -3514,6 +3547,7 @@ export const generateGlassOrderSheetCanvas = (
   const glassRows = prepareLSGlassRows(results, options);
   const grandTotalPcs = glassRows.reduce((sum, r) => sum + r.rawPcs, 0);
   const grandTotalSqFt = glassRows.reduce((sum, r) => sum + r.rawSqFt, 0);
+  const totalPages = Math.max(2, Math.ceil(glassRows.length / pageSize));
 
   // Customer Name (Left - Top Line)
   ctx.font = 'bold 28px "Plus Jakarta Sans", Arial, sans-serif';
@@ -3564,7 +3598,7 @@ export const generateGlassOrderSheetCanvas = (
   ctx.font = 'bold 28px "Plus Jakarta Sans", Arial, sans-serif';
   ctx.fillStyle = inkDark;
   ctx.textAlign = 'right';
-  ctx.fillText(`Date :  ${cleanText(dateStr)}`, marginX + boxW - 36, marginTop + 64);
+  ctx.fillText(`Date :  ${cleanText(dateStr)} (Pg ${pageIndex + 1}/${totalPages})`, marginX + boxW - 36, marginTop + 64);
 
   ctx.font = 'bold 24px "Plus Jakarta Sans", Arial, sans-serif';
   ctx.fillStyle = '#1d4ed8';
@@ -3683,10 +3717,10 @@ export const generateGlassOrderSheetCanvas = (
 
         switch (col.id) {
           case 'sino':
-            drawCanvasCellText(cleanText(row.siNo), centerX, centerY, 24, availableW, cellTextColorCanvas, 'center', undefined, true);
+            drawCanvasCellText(cleanText(row.siNo), centerX, centerY, 42, availableW, cellTextColorCanvas, 'center', undefined, true);
             break;
           case 'window':
-            drawCanvasCellText(cleanText(row.windowLabel), centerX, centerY, 24, availableW, '#1d4ed8', 'center', undefined, true);
+            drawCanvasCellText(cleanText(row.windowLabel), centerX, centerY, 42, availableW, '#1d4ed8', 'center', undefined, true);
             break;
           case 'model':
             if (row.modelName) {
@@ -3694,40 +3728,40 @@ export const generateGlassOrderSheetCanvas = (
               const modelColor = isDoor ? '#0284c7' : cellTextColorCanvas;
               if (row.modelName.includes('OP/DOOR') && (row.modelName.includes('WITH BOTTOM') || row.modelName.includes('WITHOUT BOTTOM'))) {
                 const subText = row.modelName.includes('WITHOUT') ? 'WITHOUT BOTTOM' : 'WITH BOTTOM';
-                drawCanvasCellText('[OP/DOOR]', centerX, centerY - 20, 21, availableW, modelColor, 'center', undefined, true);
-                drawCanvasCellText(subText, centerX, centerY + 22, 16, availableW, '#0f172a', 'center', undefined, true);
+                drawCanvasCellText('[OP/DOOR]', centerX, centerY - 16, 30, availableW, modelColor, 'center', undefined, true);
+                drawCanvasCellText(subText, centerX, centerY + 18, 22, availableW, '#0f172a', 'center', undefined, true);
               } else {
-                drawCanvasCellText(cleanText(row.modelName), centerX, centerY, 22, availableW, modelColor, 'center', undefined, isDoor);
+                drawCanvasCellText(cleanText(row.modelName), centerX, centerY, 34, availableW, modelColor, 'center', undefined, isDoor);
               }
             }
             break;
           case 'siteSize':
-            drawCanvasCellText(`${cleanText(row.siteHeight)} × ${cleanText(row.siteWidth)}`, centerX, centerY, 22, availableW, cellTextColorCanvas, 'center');
+            drawCanvasCellText(`${cleanText(row.siteHeight)} × ${cleanText(row.siteWidth)}`, centerX, centerY, 36, availableW, cellTextColorCanvas, 'center');
             break;
           case 'glassCut':
             if (row.hasGlass) {
-              drawCanvasCellText(formatCellCutText(row.glassCutMM), centerX, centerY, 25, availableW, cellTextColorCanvas, 'center', undefined, true);
+              drawCanvasCellText(formatCellCutText(row.glassCutMM), centerX, centerY, 40, availableW, cellTextColorCanvas, 'center', undefined, true);
             } else {
-              drawCanvasCellText('-', centerX, centerY, 24, availableW, '#94a3b8', 'center');
+              drawCanvasCellText('-', centerX, centerY, 36, availableW, '#94a3b8', 'center');
             }
             break;
           case 'glassPcs':
             if (row.hasGlass) {
-              drawCanvasCellText(cleanText(row.glassPcs), centerX, centerY, 25, availableW, '#1d4ed8', 'center', undefined, true);
+              drawCanvasCellText(cleanText(row.glassPcs), centerX, centerY, 40, availableW, '#1d4ed8', 'center', undefined, true);
             } else {
-              drawCanvasCellText('-', centerX, centerY, 24, availableW, '#94a3b8', 'center');
+              drawCanvasCellText('-', centerX, centerY, 36, availableW, '#94a3b8', 'center');
             }
             break;
           case 'sqFt':
             if (row.hasGlass) {
-              drawCanvasCellText(cleanText(row.sqFtPerWindow), centerX, centerY, 22, availableW, cellTextColorCanvas, 'center', undefined, true);
+              drawCanvasCellText(cleanText(row.sqFtPerWindow), centerX, centerY, 36, availableW, cellTextColorCanvas, 'center', undefined, true);
             } else {
-              drawCanvasCellText('-', centerX, centerY, 22, availableW, '#94a3b8', 'center');
+              drawCanvasCellText('-', centerX, centerY, 36, availableW, '#94a3b8', 'center');
             }
             break;
           case 'glassType':
             if (row.glassType) {
-              drawCanvasCellText(cleanText(row.glassType), centerX, centerY, 22, availableW, cellTextColorCanvas, 'center');
+              drawCanvasCellText(cleanText(row.glassType), centerX, centerY, 34, availableW, cellTextColorCanvas, 'center');
             }
             break;
         }
@@ -3746,14 +3780,13 @@ export const generateGlassOrderSheetCanvas = (
   }
 
   // Bottom footer text
-  ctx.font = 'bold 24px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.font = 'bold 26px "Plus Jakarta Sans", Arial, sans-serif';
   ctx.fillStyle = inkDark;
   ctx.textAlign = 'left';
   const footerY = totalBoxH + marginTop + 44;
-  const totalPages = Math.max(1, Math.ceil(glassRows.length / pageSize));
   ctx.fillText(`Page ${pageIndex + 1} of ${totalPages}   •   TOTAL GLASS PIECES: ${grandTotalPcs} NOS   •   TOTAL AREA: ${grandTotalSqFt.toFixed(2)} SQ.FT`, marginX + 16, footerY);
 
-  ctx.font = 'normal 22px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.font = 'normal 24px "Plus Jakarta Sans", Arial, sans-serif';
   ctx.fillStyle = '#64748b';
   ctx.textAlign = 'right';
   ctx.fillText('Glass Factory / Supplier Signature: ____________________________________', marginX + boxW - 16, footerY);

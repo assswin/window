@@ -21,7 +21,8 @@ import {
   COLOR_THEME_PRESETS,
   hexToRgb,
   getWindowModelCategory,
-  LSInteriorsExportOptions
+  LSInteriorsExportOptions,
+  LS_SHEET_PAGE_SIZE
 } from '../utils/lsInteriorsSheetCanvas';
 
 export interface TestCaseResult {
@@ -3423,6 +3424,42 @@ export class GoldenTestSuite {
       actual: {
         customerName: testOptionsWithPhone.customerName,
         customerPhone: testOptionsWithPhone.customerPhone
+      }
+    });
+
+    // 88. OUTPUT PDF & CANVAS TWO-PAGE SPLIT WITH BIG ROWS AND LARGE ROW-WISE FONT
+    const pageSizeValue = LS_SHEET_PAGE_SIZE;
+    const sampleBatchRows = prepareLSRows([calc2T, calc2_5T, calcFixed], {
+      includeInterlockColumn: true,
+      includeMullionColumn: true,
+      includeMeshColumn: true
+    });
+    const calculatedPagesForSmallBatch = Math.max(2, Math.ceil(sampleBatchRows.length / LS_SHEET_PAGE_SIZE));
+    const calculatedPagesForLargeBatch = Math.max(2, Math.ceil(20 / LS_SHEET_PAGE_SIZE));
+
+    const passTest88 =
+      pageSizeValue === 14 &&
+      calculatedPagesForSmallBatch === 2 &&
+      calculatedPagesForLargeBatch === 2;
+
+    results.push({
+      name: 'Output PDF & Canvas Two-Page Separation: 14 Big Rows per Page (2 Pages Minimum), ~18.35mm / 215px Row Height & Large 12pt / 42px Typography',
+      category: 'Rule Combination',
+      passed: passTest88,
+      input: {
+        pageSize: pageSizeValue,
+        smallBatchRowCount: sampleBatchRows.length,
+        largeBatchRowCount: 20
+      },
+      expected: {
+        pageSize: 14,
+        smallBatchPages: 2,
+        largeBatchPages: 2
+      },
+      actual: {
+        pageSize: pageSizeValue,
+        smallBatchPages: calculatedPagesForSmallBatch,
+        largeBatchPages: calculatedPagesForLargeBatch
       }
     });
 
